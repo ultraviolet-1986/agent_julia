@@ -34,6 +34,22 @@ command-line, use the following command:
 julia agent_julia.jl
 ```
 
+It is also possible to change the program's permission to executable
+(correct under Linux) by using this command:
+
+```bash
+chmod +x agent_julia.jl
+```
+
+The program may then be executed using the following command:
+
+```bash
+./agent_julia.jl
+```
+
+Note that this permission is unset in all commits to this repository by
+default.
+
 ## Development Environment
 
 The following software and tools form the development environment (at
