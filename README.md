@@ -1,10 +1,14 @@
 # Agent Julia
 
-Project code for Newcastle University MSc Bioinformatics project submission.
+Project code for Newcastle University MSc Bioinformatics project submission for
+academic year 2020/2021.
 
 ## Table of Contents
 
 - [Description](#description)
+- [Execution Instructions](#execution-instructions)
+- [Development Environment](#development-environment)
+- [References](#references)
 
 ## Description
 
@@ -17,3 +21,28 @@ The timeline of this project is: `26/04/2021` to `20/08/2021` and package
 versions will be contemporary to this time and no changes will be applied once
 the code is ready for submission. Updates past this time represent a
 continuation of the project outside of an academic context.
+
+## Execution Instructions
+
+This program was written to be executed from the command line. On the command-
+line, use the following command:
+
+```bash
+julia agent_julia.jl
+```
+
+## Development Environment
+
+The following software and tools form the development environment (at time of
+writing):
+
+- [Fedora Silverblue Linux 34](https://silverblue.fedoraproject.org/)
+- [Toolbox](https://github.com/containers/toolbox)
+- [Microsoft Visual Studio Code](https://code.visualstudio.com/)
+- [Julia Programming Language](https://julialang.org/)
+- [Agents.jl](https://juliadynamics.github.io/Agents.jl/stable/)
+
+## References
+
+This section will contain a list of academic papers which were used to create
+this software.
