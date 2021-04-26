@@ -4,8 +4,9 @@
 # License #
 ###########
 
-# Agent Julia: Project code for Newcastle University MSc Bioinformatics
-# project submission.
+# Agent Julia
+# Project code for Newcastle University MSc Bioinformatics project
+# submission.
 # Copyright (C) 2021 William Willis Whinn
 
 # This program is free software: you can redistribute it and/or modify
