@@ -3,7 +3,7 @@
 # This is an example file showing basic functionality from the
 # Agents.jl tutorial page.
 
-# This script will generate a "game_of_life.mp4" file containing the
+# This script will generate a "game of life.mp4" file containing the
 # results of the model.
 
 ###########
