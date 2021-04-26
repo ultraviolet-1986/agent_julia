@@ -14,9 +14,9 @@ submission for academic year 2020/2021.
 ## Description
 
 This repository contains the code for the `Agent Julia` program. This is
-a model for measuring the dynamics mtDNA within a 3-dimensional space
+a model for measuring the dynamics of mtDNA within a 3-dimensional space
 over the course of a human life-span of approximately 90 years. It is
-written in the Julia programming language and makes use of the
+written in the Julia programming language (v1.6.0) and makes use of the
 `Agents.jl` package.
 
 The timeline of this project is: `26/04/2021` to `20/08/2021` and
