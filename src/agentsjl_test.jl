@@ -42,8 +42,7 @@ mutable struct Cell <: AbstractAgent
     status::Bool
 end
 
-# function build_model(; rules::Tuple, dims = (100, 100), metric = :chebyshev, seed = 120)
-function build_model(; rules::Tuple, dims = (100, 100), metric = :chebyshev, seed = 41269)
+function build_model(; rules::Tuple, dims = (100, 100), metric = :chebyshev, seed = 120)
     space = GridSpace(dims; metric)
     properties = Dict(:rules => rules)
     model = ABM(Cell, space; properties, rng = MersenneTwister(seed))
