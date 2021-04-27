@@ -25,3 +25,4 @@ Manifest.toml
 
 # User-specified patterns
 src/*.mp4
+src/*.png
