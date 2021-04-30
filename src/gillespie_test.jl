@@ -74,7 +74,12 @@ parameters = (k1=1.0, k2=0.5)
 
 sol = ssa(model, u0, tend, parameters, choose_stoich)
 
-fig = plot(sol.t, sol.u, xlabel="time", ylabel="# of molecules", title = "SSA", label=["A" "B"])
+fig = plot(sol.t, sol.u,
+    xlabel="time",
+    ylabel="# of molecules",
+    title = "SSA",
+    label=["A" "B"],
+    dpi=300)
 
 savefig(fig, "plot.png")
 
