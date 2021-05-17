@@ -1,6 +1,10 @@
 #!/usr/bin/env julia
 
-# Reference: https://nextjournal.com/bebi5009/gillespie-julia
+##############
+# References #
+##############
+
+# <https://nextjournal.com/bebi5009/gillespie-julia>
 
 #################
 # Prerequisites #
@@ -19,7 +23,8 @@ using Plots
 
 #=
 Stochastic chemical reaction: Gillespie Algorithm
-Adapted from: Chemical and Biomedical Enginnering Calculations Using Python Ch.4-3
+Adapted from: Chemical and Biomedical Enginnering Calculations Using
+Python Ch.4-3
 =#
 function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
     t = tstart    # Current time
@@ -44,11 +49,6 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
     return (t = ts, u = us)
 end
 
-#=
-Reaction of A <-> B with rate constants k1 & k2
-=#
-"Propensity model for this reaction"
-model(u, p, t) = [p.k1 * u[1],  p.k2 * u[2]]
 
 "Choose and return which Stoichiometry to update the state"
 function choose_stoich(dx, dxsum = sum(dx))
@@ -67,6 +67,12 @@ end
 #############
 # Kickstart #
 #############
+
+#=
+Reaction of A <-> B with rate constants k1 & k2
+=#
+"Propensity model for this reaction"
+model(u, p, t) = [p.k1 * u[1],  p.k2 * u[2]]
 
 u0 = [200, 0]
 tend = 10.0
