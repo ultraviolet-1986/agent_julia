@@ -39,6 +39,7 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
         u .+= stoich
         t += dt
 
+        # If time > next sample, do this. Update sample to be +1 week.
         # Add to record
         us = [us u]
         push!(ts, t)  # Record t
@@ -88,5 +89,8 @@ fig = plot(sol.t, sol.u,
     dpi=300)
 
 savefig(fig, "plot.png")
+
+# pkg. plotly
+# image pkg R
 
 # End of File.
