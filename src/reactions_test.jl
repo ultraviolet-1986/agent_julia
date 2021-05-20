@@ -31,6 +31,8 @@
 # - Because Julia changes the value of an object in-place, two separate
 #   sets had to be declared for reaction 1 and 2, then for 3, 4, and 5
 #   respectively.
+# - Each function mutates its respective input, therefore function
+#   names are suffixed with an exclamation point.
 
 #############
 # Variables #
@@ -59,11 +61,11 @@ RESET = "\e[0m"
 #############
 
 """
-replicate_wildtype_mtdna(M)
+replicate_wildtype_mtdna!(M)
 
 Take M₁ as input, perform replication, and return two instances of M₁.
 """
-function replicate_wildtype_mtdna(M::Array)
+function replicate_wildtype_mtdna!(M::Array)
     println("$(BOLD)Replication of wild-type mtDNA$(RESET)")
     println("$(BOLD)Input:$(RESET)    $(M)")
     println("$(BOLD)Process:$(RESET)  rM₁")
@@ -78,11 +80,11 @@ end
 
 
 """
-degrade_wildtype_mtdna(M)
+degrade_wildtype_mtdna!(M)
 
 Take M₁ and M₁ as input, perform degradation, and return ∅.
 """
-function degrade_wildtype_mtdna(M::Array)
+function degrade_wildtype_mtdna!(M::Array)
     println("$(BOLD)Degradation of wild-type mtDNA$(RESET)")
     println("$(BOLD)Input:$(RESET)    $(M)")
     println("$(BOLD)Process:$(RESET)  dM₁")
@@ -96,17 +98,17 @@ end
 
 
 """
-mutate_wildtype_mtdna(M)
+mutate_wildtype_mtdna!(M)
 
-Take M₁ as input, perform mutation, and return M₁ and M₂.
+Take M₁ as input, perform mutation, and return M₂.
 """
-function mutate_wildtype_mtdna(M::Array)
+function mutate_wildtype_mtdna!(M::Array)
     println("$(BOLD)Mutation of wild-type mtDNA$(RESET)")
     println("$(BOLD)Input:$(RESET)    $(M)")
     println("$(BOLD)Process:$(RESET)  mM₁")
 
-    # replace.(M, r"^M₁"=>"M₂")  # Replace 'M₁' with 'M₂' elements.
-    push!(M, "M₂")
+    # Replace 'M₁' with 'M₂' elements.
+    M = replace(M, "M₁" => "M₂")
 
     println("$(BOLD)Output:$(RESET)   $(GREEN)$(M)$(RESET)\n")
     return M
@@ -114,18 +116,16 @@ end
 
 
 """
-replicate_mutant_mtdna(M)
+replicate_mutant_mtdna!(M)
 
-Take M₁ and M₂ as input, perform replication, and return two instances
-of M₂.
+Take M₂ as input, perform replication, and return two instances of M₂.
 """
-function replicate_mutant_mtdna(M::Array)
+function replicate_mutant_mtdna!(M::Array)
     println("$(BOLD)Replication of mutant mtDNA$(RESET)")
     println("$(BOLD)Input:$(RESET)    $(M)")
     println("$(BOLD)Process:$(RESET)  rM₂")
 
-    push!(M, M[2])  # Replicate M₂.
-    splice!(M, 1)   # Remove initial M₁.
+    push!(M, M[1])  # Replicate M₂.
 
     println("$(BOLD)Output:$(RESET)   $(GREEN)$(M)$(RESET)\n")
     return M
@@ -133,11 +133,11 @@ end
 
 
 """
-degrade_mutant_mtdna(M)
+degrade_mutant_mtdna!(M)
 
 Take M₂ and M₂ as input, perform degradation, and return ∅.
 """
-function degrade_mutant_mtdna(M::Array)
+function degrade_mutant_mtdna!(M::Array)
     println("$(BOLD)Degration of mutant mtDNA$(RESET)")
     println("$(BOLD)Input:$(RESET)    $(M)")
     println("$(BOLD)Process:$(RESET)  dM₂")
@@ -154,12 +154,12 @@ end
 #############
 
 # Perform reactions on 'set1'.
-replicate_wildtype_mtdna(set1)
-degrade_wildtype_mtdna(set1)
+M = replicate_wildtype_mtdna!(set1)
+M = degrade_wildtype_mtdna!(M)
 
 # Perform reactions on 'set2'.
-mutate_wildtype_mtdna(set2)
-replicate_mutant_mtdna(set2)
-degrade_mutant_mtdna(set2)
+N = mutate_wildtype_mtdna!(set2)
+N = replicate_mutant_mtdna!(N)
+N = degrade_mutant_mtdna!(N)
 
 # End of File.
