@@ -18,24 +18,38 @@ using Random
 using Plots
 
 #############
+# Variables #
+#############
+
+# Initial concentrations of species 'A' and 'B'.
+u0 = [200, 0]
+
+# Time at which the simulation will stop.
+tend = 10.0
+
+# Kinetic rates of reactions.
+parameters = (k1=1.0, k2=0.5)
+
+#############
 # Functions #
 #############
 
-#=
-Stochastic chemical reaction: Gillespie Algorithm
+"""
+ssa(model, u0, tend, p, choose_stoich, tstart)
+
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
-=#
+"""
 function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
-    t = tstart    # Current time
-    ts = [t]      # Time points
-    u = copy(u0)  # Current state
-    us = copy(u)  # Record of states
+    t = tstart    # Current time.
+    ts = [t]      # List of reaction times.
+    u = copy(u0)  # Current state.
+    us = copy(u)  # Record of states.
 
     while t < tend
-        dx = model(u, p, t)              # propensities of reactions
-        dt = Random.randexp() / sum(dx)  # Time step
-        stoich = choose_stoich(dx)       # Get stoichiometry
+        dx = model(u, p, t)              # propensities of reactions.
+        dt = Random.randexp() / sum(dx)  # Time step.
+        stoich = choose_stoich(dx)       # Get stoichiometry.
         u .+= stoich
         t += dt
 
@@ -51,7 +65,22 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
 end
 
 
-"Choose and return which Stoichiometry to update the state"
+"""
+model(u, p, t)
+
+Propensity model for this reaction.
+Reaction of A <-> B with rate constants k1 & k2.
+"""
+function model(u, p, t)
+    [p.k1 * u[1],  p.k2 * u[2]]
+end
+
+
+"""
+choose_stoich(dx, dxsum)
+
+Choose and return which Stoichiometry to update the state.
+"""
 function choose_stoich(dx, dxsum = sum(dx))
     sections = cumsum(dx ./ dxsum)
     roll = rand()
@@ -69,28 +98,20 @@ end
 # Kickstart #
 #############
 
-#=
-Reaction of A <-> B with rate constants k1 & k2
-=#
-"Propensity model for this reaction"
-model(u, p, t) = [p.k1 * u[1],  p.k2 * u[2]]
-
-u0 = [200, 0]
-tend = 10.0
-parameters = (k1=1.0, k2=0.5)
-
+# Perform the simulation and assign results to 'sol'.
 sol = ssa(model, u0, tend, parameters, choose_stoich)
 
-fig = plot(sol.t, sol.u,
+# Define the plot.
+fig = plot(
+    sol.t,
+    sol.u,
     xlabel="time",
     ylabel="# of molecules",
     title = "SSA",
     label=["A" "B"],
     dpi=300)
 
+# Output plot to 'plot.png'.
 savefig(fig, "plot.png")
-
-# pkg. plotly
-# image pkg R
 
 # End of File.
