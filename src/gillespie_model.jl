@@ -1,16 +1,32 @@
 #!/usr/bin/env julia
 
-# This model is to be modified for later use.
+###########
+# License #
+###########
 
-# Reference: https://nextjournal.com/bebi5009/gillespie-julia
+# Agent Julia
+# Project code for Newcastle University MSc Bioinformatics project
+# submission.
+# Copyright (C) 2021 William Willis Whinn
 
-#########
-# Notes #
-#########
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 
-# TODO Create three distinct kinetic rates.
-# FIXME Flesh out the reactions according to the forumlae.
-# TODO How much of each element forms the initial reaction?
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+##############
+# References #
+##############
+
+# <https://nextjournal.com/bebi5009/gillespie-julia>
 
 #################
 # Prerequisites #
@@ -23,27 +39,45 @@ Pkg.add("Plots")
 using Random
 using Plots
 
+Random.seed!(41269)
+
+#############
+# Variables #
+#############
+
+# Initial concentrations of species 'A' and 'B'.
+u0 = [200, 0]
+
+# Time at which the simulation will stop.
+tend = 10.0
+
+# Kinetic rates of reactions.
+parameters = (k1=1.0, k2=0.5)
+
 #############
 # Functions #
 #############
 
-#=
-Stochastic chemical reaction: Gillespie Algorithm
-Adapted from: Chemical and Biomedical Enginnering Calculations Using Python Ch.4-3
-=#
+"""
+ssa(model, u0, tend, p, choose_stoich, tstart)
+
+Adapted from: Chemical and Biomedical Enginnering Calculations Using
+Python Ch.4-3
+"""
 function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
-    t = tstart    # Current time
-    ts = [t]      # Time points
-    u = copy(u0)  # Current state
-    us = copy(u)  # Record of states
+    t = tstart    # Current time.
+    ts = [t]      # List of reaction times.
+    u = copy(u0)  # Current state.
+    us = copy(u)  # Record of states.
 
     while t < tend
-        dx = model(u, p, t)              # propensities of reactions
-        dt = Random.randexp() / sum(dx)  # Time step
-        stoich = choose_stoich(dx)       # Get stoichiometry
+        dx = model(u, p, t)              # propensities of reactions.
+        dt = Random.randexp() / sum(dx)  # Time step.
+        stoich = choose_stoich(dx)       # Get stoichiometry.
         u .+= stoich
         t += dt
 
+        # If time > next sample, do this. Update sample to be +1 week.
         # Add to record
         us = [us u]
         push!(ts, t)  # Record t
@@ -54,7 +88,23 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
     return (t = ts, u = us)
 end
 
-"Choose and return which Stoichiometry to update the state"
+
+"""
+model(u, p, t)
+
+Propensity model for this reaction.
+Reaction of A <-> B with rate constants k1 & k2.
+"""
+function model(u, p, t)
+    [p.k1 * u[1],  p.k2 * u[2]]
+end
+
+
+"""
+choose_stoich(dx, dxsum)
+
+Choose and return which Stoichiometry to update the state.
+"""
 function choose_stoich(dx, dxsum = sum(dx))
     sections = cumsum(dx ./ dxsum)
     roll = rand()
@@ -68,84 +118,24 @@ function choose_stoich(dx, dxsum = sum(dx))
     return stoich
 end
 
-# FUNCTIONS > REACTIONS
-
-"""
-replicate_wildtype_mtdna(input)
-
-This function will perform the following from mathematical formula:
-    M_1 binom{rM_1}{drarrow} 2M_1
-"""
-function replicate_wildtype_mtdna(input)
-    output = "Formula here"
-    return (output)
-end
-
-"""
-degrade_wildtype_mtdna(input)
-
-This function will perform the following from mathematical formula:
-    M_1 binom{dM_1}{drarrow} emptyset
-"""
-function degrade_wildtype_mtdna(input)
-    output = "Formula here"
-    return (output)
-end
-
-"""
-mutate_wildtype_mtdna(input)
-
-This function will perform the following from mathematical formula:
-    M_1 binom{mM_1}{drarrow} M_1 + M_2
-"""
-function mutate_wildtype_mtdna(input)
-    output = "Formula here"
-    return (output)
-end
-
-"""
-replicate_mutant_mtdna(input)
-
-This function will perform the following from mathematical formula:
-    M_2 binom{rM_2}{drarrow} 2M_2
-"""
-function replicate_mutant_mtdna(input)
-    output = "Formula here"
-    return (output)
-end
-
-"""
-This function will perform the following from mathematical formula:
-    M_2 binom{dM_2}{drarrow} emptyset
-"""
-function degrade_mutant_mtdna(input)
-    output = "Formula here"
-    return (output)
-end
-
 #############
 # Kickstart #
 #############
 
-#=
-Reaction of A <-> B with rate constants k1 & k2
-=#
-"Propensity model for this reaction"
-model(u, p, t) = [p.k1 * u[1],  p.k2 * u[2]]
-
-u0 = [200, 0]
-tend = 10.0
-parameters = (k1=1.0, k2=0.5)
-
+# Perform the simulation and assign results to 'sol'.
 sol = ssa(model, u0, tend, parameters, choose_stoich)
 
-fig = plot(sol.t, sol.u,
+# Define the plot.
+fig = plot(
+    sol.t,
+    sol.u,
     xlabel="time",
     ylabel="# of molecules",
     title = "SSA",
     label=["A" "B"],
     dpi=300)
 
+# Output plot to 'plot.png'.
 savefig(fig, "plot.png")
 
 # End of File.
