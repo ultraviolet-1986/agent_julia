@@ -17,6 +17,8 @@ Pkg.add("Plots")
 using Random
 using Plots
 
+Random.seed!(41269)
+
 #############
 # Variables #
 #############
