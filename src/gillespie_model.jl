@@ -34,10 +34,12 @@
 
 import Pkg
 
-Pkg.add("Plots")
+Pkg.add(["DataFrames",
+         "Plots"])
 
-using Random
-using Plots
+using DataFrames,
+      Random,
+      Plots
 
 Random.seed!(41269)
 
@@ -45,7 +47,7 @@ Random.seed!(41269)
 # Variables #
 #############
 
-# Initial concentrations of species 'A' and 'B'.
+# Initial concentrations of species 'A' and 'B' respectively.
 u0 = [200, 0]
 
 # Time at which the simulation will stop.
@@ -79,11 +81,11 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
 
         # If time > next sample, do this. Update sample to be +1 week.
         # Add to record
-        us = [us u]
-        push!(ts, t)  # Record t
+        us = [us u]              ## COMMENTED FOR DATAFRAME METHOD
+        push!(ts, t)  # Record t ## COMMENTED FOR DATAFRAME METHOD
     end
 
-    us = collect(us')
+    us = collect(us') ## COMMENTED FOR DATAFRAME METHOD
 
     return (t = ts, u = us)
 end
@@ -123,9 +125,12 @@ end
 #############
 
 # Perform the simulation and assign results to 'sol'.
+print("\nNow running sumulation... ")
 sol = ssa(model, u0, tend, parameters, choose_stoich)
+println("Done!")
 
 # Define the plot.
+print("Now creating the plot... ")
 fig = plot(
     sol.t,
     sol.u,
@@ -137,5 +142,6 @@ fig = plot(
 
 # Output plot to 'plot.png'.
 savefig(fig, "plot.png")
+println("Done!")
 
 # End of File.
