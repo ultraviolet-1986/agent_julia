@@ -34,10 +34,12 @@
 
 import Pkg
 
-Pkg.add(["DataFrames",
+Pkg.add(["CSV",
+         "DataFrames",
          "Plots"])
 
-using DataFrames,
+using CSV,
+      DataFrames,
       Random,
       Plots
 
@@ -72,6 +74,10 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
     u = copy(u0)  # Current state.
     us = copy(u)  # Record of states.
 
+    # Cast 'ts' and 'us' as DataFrames.
+    # us = DataFrame(us)
+    # ts = DataFrame(ts)
+
     while t < tend
         dx = model(u, p, t)              # propensities of reactions.
         dt = Random.randexp() / sum(dx)  # Time step.
@@ -81,13 +87,13 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend))
 
         # If time > next sample, do this. Update sample to be +1 week.
         # Add to record
-        us = [us u]              ## COMMENTED FOR DATAFRAME METHOD
-        push!(ts, t)  # Record t ## COMMENTED FOR DATAFRAME METHOD
+        us = [us u]              ## TO COMMENT FOR DATAFRAME METHOD
+        push!(ts, t)  # Record t ## TO COMMENT FOR DATAFRAME METHOD
     end
 
-    us = collect(us') ## COMMENTED FOR DATAFRAME METHOD
+    us = collect(us') ## TO COMMENT FOR DATAFRAME METHOD
 
-    return (t = ts, u = us)
+    return (t = ts, u = us)  ## TO CHANGE FOR DATAFRAME METHOD
 end
 
 
@@ -143,5 +149,20 @@ fig = plot(
 # Output plot to 'plot.png'.
 savefig(fig, "plot.png")
 println("Done!")
+
+# BUILD DATAFRAME FROM COMPLETED DATA
+# - This will help me to create a cohesive table of the completed data.
+# - From here, it should be possible to ensure that changes to function
+#   code will work correctly when the time comes.
+# - The desired output of this model is a time-index and values such as
+#   [0, 1, -1] for reaction rows for each species per-column.
+
+# Print each Array on separate lines.
+println("\n$(sol.t)")
+println("\n$(sol.u)")
+
+# CURRENTLY BROKEN, REQUIRES INDEX AND COLUMN NAMES
+# data_frame = DataFrame(sol.t, sol.u)
+# println(data_frame)
 
 # End of File.
