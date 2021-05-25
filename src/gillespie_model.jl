@@ -128,9 +128,12 @@ end
 #############
 
 # Perform the simulation and assign results to 'sol'.
+print("\nNow performing simulation... ")
 sol = ssa(model, u0, tend, parameters, choose_stoich)
+println("Done!")
 
 # Define the plot.
+print("Now creating the plot... ")
 fig = plot(
     sol.t,
     sol.u,
@@ -142,5 +145,6 @@ fig = plot(
 
 # Output plot to 'plot.png'.
 savefig(fig, "plot.png")
+println("Done!")
 
 # End of File.
