@@ -28,17 +28,22 @@
 
 # <https://nextjournal.com/bebi5009/gillespie-julia>
 
-#################
-# Prerequisites #
-#################
+###########
+# Imports #
+###########
 
 import Pkg
 
 Pkg.add("Plots")
 
-using Random
-using Plots
+using Plots,
+      Random
 
+#################
+# Prerequisites #
+#################
+
+# Ensure results are reproducible.
 Random.seed!(41269)
 
 #############
