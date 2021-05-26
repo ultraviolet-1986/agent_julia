@@ -164,8 +164,7 @@ end
 """
 loop_simulation(n::Int64)
 
-Perform the loop 'n' number of times and store the result. Note 'n'
-must be provided as an integer only.
+Perform the simulation 'n' number of times and store the results.
 """
 function loop_simulation(n::Int64)
     # Create new arrays for holding all results.
@@ -181,6 +180,7 @@ function loop_simulation(n::Int64)
 
         # - Take the results and store them in 'time_states' and
         #   'concentration_states' respectively.
+        # TODO Move these operations to separate threads.
         push!(time_states, sol.t)
         push!(concentration_states, sol.u)
     end
@@ -221,6 +221,7 @@ end
 results = loop_simulation(1000)
 
 # Print head of new arrays.
+# NOTE Assumes at least five entries exist.
 println(results.t[1:5])
 println(results.c[1:5])
 
