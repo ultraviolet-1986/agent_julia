@@ -162,46 +162,71 @@ end
 
 
 """
-loop_simulation(n)
+loop_simulation(n::Int64)
 
-Perform the loop 'n' number of times and store the result.
+Perform the loop 'n' number of times and store the result. Note 'n'
+must be provided as an integer only.
 """
-function loop_simulation(n)
+function loop_simulation(n::Int64)
     # Create new arrays for holding all results.
     time_states = []
-    conentration_states = []
+    concentration_states = []
 
     println("Simulation will be performed $(n) time(s).")
 
-    # TODO Write loop code here.
+    # Start at loop number 1 in intervals of 1 until 'n'.
+    for i in [1: 1: n;]
+        # Define and run the simulation.
+        sol = ssa(model, u0, tend, parameters, choose_stoich)
 
-    # Show first elements of new list.
-    println(time_states[1])
-    println(conentration_states[1])
+        # - Take the results and store them in 'time_states' and
+        #   'concentration_states' respectively.
+        push!(time_states, sol.t)
+        push!(concentration_states, sol.u)
+    end
+
+    # return(time_states, concentration_states)
+    return(t = time_states, c = concentration_states)
 end
 
 #############
 # Kickstart #
 #############
 
-# Perform the simulation and assign results to 'sol'.
-print("\nNow performing simulation... ")
-sol = ssa(model, u0, tend, parameters, choose_stoich)
-println("Done!")
+## OLD CODE ##
 
-# Define the plot.
-print("Now creating the plot... ")
-fig = plot(
-    sol.t,
-    sol.u,
-    xlabel="time",
-    ylabel="# of molecules",
-    title = "SSA",
-    label=["Wild-type" "Mutant"],
-    dpi=300)
+# # Perform the simulation and assign results to 'sol'.
+# print("\nNow performing simulation... ")
+# sol = ssa(model, u0, tend, parameters, choose_stoich)
+# println("Done!")
 
-# Output plot to 'plot.png'.
-savefig(fig, "plot.png")
-println("Done!")
+# # Define the plot.
+# print("Now creating the plot... ")
+# fig = plot(
+#     sol.t,
+#     sol.u,
+#     xlabel="time",
+#     ylabel="# of molecules",
+#     title = "SSA",
+#     label=["Wild-type" "Mutant"],
+#     dpi=300)
+
+# # Output plot to 'plot.png'.
+# savefig(fig, "plot.png")
+# println("Done!")
+
+## NEW CODE ##
+
+# Run simulation 'n' time(s).
+results = loop_simulation(1000)
+
+# Print head of new arrays.
+println(results.t[1:5])
+println(results.c[1:5])
+
+# Print full results.
+# WARNING Outputs a lot of text at n > 1.
+# println(results.t)
+# println(results.c)
 
 # End of File.
