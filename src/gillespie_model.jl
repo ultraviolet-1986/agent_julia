@@ -189,6 +189,19 @@ function loop_simulation(n::Int64)
     return(t = time_states, c = concentration_states)
 end
 
+"""
+create_composite(a::Array)
+
+Take a multi-dimensional array and return a single array made up of
+composite values.
+"""
+function create_composite(a::Array)
+    # TODO For each list in 't', calculate average and return single instance.
+    # TODO For each list in 'c', calculate average and return single instance.
+    # TODO Choose metric to return: median, mean, etc.
+    return(t = a.t, c = a.c)
+end
+
 #############
 # Kickstart #
 #############
