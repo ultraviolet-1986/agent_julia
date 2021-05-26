@@ -192,10 +192,10 @@ end
 """
 create_composite(a::Array)
 
-Take a multi-dimensional array and return a single array made up of
+Mutate a multi-dimensional array and return a single array made up of
 composite values.
 """
-function create_composite(a::Array)
+function create_composite!(a::Array)
     # TODO For each list in 't', calculate average and return single instance.
     # TODO For each list in 'c', calculate average and return single instance.
     # TODO Choose metric to return: median, mean, etc.
