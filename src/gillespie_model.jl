@@ -75,8 +75,11 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
     u = copy(u0)  # Current state.
     us = copy(u)  # Record of states.
 
+    # tstart / Start of simulation.
+    # delta  / Size of step to take.
+    # tend   / Time at which simulation will be terminated.
     times = [tstart: delta: tend;] # Sequence from 0.0 - 10.0
-    tindex = 2
+    tindex = 2  # Initial step is already defined.
 
     while t < tend
         dx = model(u, p, t)              # propensities of reactions.
@@ -108,7 +111,11 @@ Propensity model for this reaction.
 Reaction of A <-> B with rate constants k1 & k2.
 """
 function model(u, p, t)
-    return [p.r * u[1], p.d * u[1], p.m * u[1], p.r * u[2], p.d * u[2]]
+    return [p.r * u[1],  # Reaction 1: Replicate wild-type mtDNA.
+            p.d * u[1],  # Reaction 2: Degrade wild-type mtDNA.
+            p.m * u[1],  # Reaction 3: Mutate wild-type mtDNA.
+            p.r * u[2],  # Reaction 4: Replicate mutant mtDNA.
+            p.d * u[2]]  # Reaction 5: Degrade mutant mtDNA.
 end
 
 
@@ -118,32 +125,59 @@ choose_stoich(dx, dxsum)
 Choose and return which Stoichiometry to update the state.
 """
 function choose_stoich(dx, dxsum = sum(dx))
-    sections = cumsum(dx / dxsum)  # Create probability.
+    # Calculate probability.
+    sections = cumsum(dx / dxsum)
+
+    # Select pseudo-random number.
+    # NOTE This can be influenced by seed.
     roll = rand()
 
-    #=
-    Reaction 1 [1, 0], rM_1
-    Reaction 2 [-1, 0], dM_1
-    Reaction 3 [0, 1], mM_1
-    Reaction 4 [0, 1], rM_2
-    Reaction 5 [0, -1], dM_2
-    =#
-
+    # Reaction 1: Replicate wild-type mtDNA.
     if roll <= sections[1]
         stoich = [1, 0]
+
+    # Reaction 2: Degrade wild-type mtDNA.
     elseif roll <= sections[2]
         stoich = [-1, 0]
+
+    # Reaction 3: Mutate wild-type mtDNA.
     elseif roll <= sections[3]
         stoich = [0, 1]
+
+    # Reaction 4: Replicate mutant mtDNA.
     elseif roll <= sections[4]
         stoich = [0, 1]
+
+    # Reaction 5: Degrade mutant mtDNA.
     elseif roll < 1.0
         stoich = [0, -1]
+
+    # Error: catch all.
     else
-        println("Whoops!")
+        error("Stoichiometry is out of bounds.")
     end
 
     return stoich
+end
+
+
+"""
+loop_simulation(n)
+
+Perform the loop 'n' number of times and store the result.
+"""
+function loop_simulation(n)
+    # Create new arrays for holding all results.
+    time_states = []
+    conentration_states = []
+
+    println("Simulation will be performed $(n) time(s).")
+
+    # TODO Write loop code here.
+
+    # Show first elements of new list.
+    println(time_states[1])
+    println(conentration_states[1])
 end
 
 #############
