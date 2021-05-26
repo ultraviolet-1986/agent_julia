@@ -190,7 +190,7 @@ function loop_simulation(n::Int64)
 end
 
 """
-create_composite(a::Array)
+create_composite!(a::Array)
 
 Mutate a multi-dimensional array and return a single array made up of
 composite values.
