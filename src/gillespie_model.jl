@@ -37,7 +37,8 @@ import Pkg
 Pkg.add("Plots")
 
 using Plots,
-      Random
+      Random,
+      Statistics
 
 #################
 # Prerequisites #
@@ -185,7 +186,9 @@ function loop_simulation(n::Int64)
         push!(concentration_states, sol.u)
     end
 
-    # return(time_states, concentration_states)
+    # TODO Cast concentrations as Int.
+    # TODO Change instances of Int64 to Int.
+
     return(t = time_states, c = concentration_states)
 end
 
@@ -199,7 +202,10 @@ function create_composite!(a::Array)
     # TODO For each list in 't', calculate average and return single instance.
     # TODO For each list in 'c', calculate average and return single instance.
     # TODO Choose metric to return: median, mean, etc.
-    return(t = a.t, c = a.c)
+
+    a = mean(a)
+
+    return(a)
 end
 
 #############
@@ -238,9 +244,27 @@ results = loop_simulation(1000)
 println(results.t[1:5])
 println(results.c[1:5])
 
+x = create_composite!(results.t)
+y = create_composite!(results.c)
+
+# println(x)
+# println(y)
+
 # Print full results.
 # WARNING Outputs a lot of text at n > 1.
 # println(results.t)
 # println(results.c)
+
+fig = plot(
+    x,
+    y,
+    xlabel="time",
+    ylabel="# of molecules",
+    title = "SSA",
+    label=["Wild-type" "Mutant"],
+    dpi=300)
+
+# Output plot to 'plot.png'.
+savefig(fig, "plot_2.png")
 
 # End of File.
