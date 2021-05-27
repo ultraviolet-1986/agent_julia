@@ -244,8 +244,8 @@ results = loop_simulation(1000)
 println(results.t[1:5])
 println(results.c[1:5])
 
-x = create_composite!(results.t)
-y = create_composite!(results.c)
+x = create_composite!(results.t)  # Temporal states
+y = create_composite!(results.c)  # Concentration states
 
 # println(x)
 # println(y)
