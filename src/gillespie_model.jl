@@ -203,7 +203,7 @@ function create_composite!(a::Array)
     # TODO For each list in 'c', calculate average and return single instance.
     # TODO Choose metric to return: median, mean, etc.
 
-    a = mean(a)
+    # a = mean(a)  # Temporarily disabled.
 
     return(a)
 end
@@ -212,7 +212,7 @@ end
 # Kickstart #
 #############
 
-## OLD CODE ##
+## OLD CODE ################################################################################
 
 # # Perform the simulation and assign results to 'sol'.
 # print("\nNow performing simulation... ")
@@ -234,7 +234,7 @@ end
 # savefig(fig, "plot.png")
 # println("Done!")
 
-## NEW CODE ##
+## NEW CODE ################################################################################
 
 # Run simulation 'n' time(s).
 results = loop_simulation(1000)
@@ -244,10 +244,21 @@ results = loop_simulation(1000)
 println(results.t[1:5])
 println(results.c[1:5])
 
+println("********** RESULTS (TIMES, UNEDITED) **********")
+println(results.t[1])
+
+println("********** RESULTS (CONCENTRATIONS, UNEDITED) **********")
+println(results.c[1])
+
 x = create_composite!(results.t)  # Temporal states
 y = create_composite!(results.c)  # Concentration states
 
+# Changes to 'y' here.
+
+# println("********** RESULTS (TIMES) **********")
 # println(x)
+
+# println("********** RESULTS (CONCENTRATIONS) **********")
 # println(y)
 
 # Print full results.
@@ -256,10 +267,13 @@ y = create_composite!(results.c)  # Concentration states
 # println(results.c)
 
 fig = plot(
-    x,
-    y,
-    xlabel="time",
-    ylabel="# of molecules",
+    x[999],
+    y[999],
+    xlabel="Time",
+    ylabel="Number of Molecules",
+    xlims=(0, 10),
+    # ylims=(40, 210),
+    ylims=(10, 300),
     title = "SSA",
     label=["Wild-type" "Mutant"],
     dpi=300)
