@@ -253,18 +253,11 @@ println(results.c[1])
 x = create_composite!(results.t)  # Temporal states
 y = create_composite!(results.c)  # Concentration states
 
-# Changes to 'y' here.
-
 # println("********** RESULTS (TIMES) **********")
 # println(x)
 
 # println("********** RESULTS (CONCENTRATIONS) **********")
 # println(y)
-
-# Print full results.
-# WARNING Outputs a lot of text at n > 1.
-# println(results.t)
-# println(results.c)
 
 fig = plot(
     x[999],
@@ -272,7 +265,6 @@ fig = plot(
     xlabel="Time",
     ylabel="Number of Molecules",
     xlims=(0, 10),
-    # ylims=(40, 210),
     ylims=(10, 300),
     title = "SSA",
     label=["Wild-type" "Mutant"],
