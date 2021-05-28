@@ -207,25 +207,29 @@ function create_composite!(a)
 
     println("******************** INPUT SUMMARY ********************\n")
     println(summary(a))
+    println(typeof(a))
+    println(size(a))
 
     # User passed the concentration matrix.
     if isa(a, Matrix)
-        println("MATRIX")
+        println("Detected a matrix.")
+
         for i in eachindex(a)
             # TODO Force conversion of floating points into integers.
-            a[i] = round(a[i])  # Round to whole number.
-            # a[i] = trunc(Int64, a[i])  # Force conversion to Int.
+            # a[i] = round(a[i])  # Round to whole number.
+            # a[i] = convert(Int64, a[i])  # Force conversion to Int.
+            print("I=$(a[i]) ")
+
+            for j in eachindex(a[i])
+                print("J=$(a[i][j]) ")
+            end
         end
 
     # User passed the time-state vector.
     elseif isa(a, Vector)
-        println("VECTOR")
+        println("Detected a vector.")
     end
 
-    # Should appear 'TRUE' for both vectors and matrices.
-    if isa(a, Array)
-        println("ARRAY")
-    end
     println()
 
     return(a)
