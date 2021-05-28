@@ -260,13 +260,14 @@ y = create_composite!(results.c)  # Concentration states
 # println(y)
 
 fig = plot(
-    x[999],
-    y[999],
+    x[1],
+    y[1],
+    # palette=:lighttest,
     xlabel="Time",
     ylabel="Number of Molecules",
     xlims=(0, 10),
     ylims=(10, 300),
-    title = "SSA",
+    title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],
     dpi=300)
 
