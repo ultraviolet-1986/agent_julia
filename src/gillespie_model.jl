@@ -198,12 +198,35 @@ create_composite!(a::Array)
 Mutate a multi-dimensional array and return a single array made up of
 composite values.
 """
-function create_composite!(a::Array)
+function create_composite!(a)
     # TODO For each list in 't', calculate average and return single instance.
     # TODO For each list in 'c', calculate average and return single instance.
     # TODO Choose metric to return: median, mean, etc.
 
-    # a = mean(a)  # Temporarily disabled.
+    a = mean(a)  # FIXME Process converts Int to Float.
+
+    println("******************** INPUT SUMMARY ********************\n")
+    println(summary(a))
+
+    # User passed the concentration matrix.
+    if isa(a, Matrix)
+        println("MATRIX")
+        for i in eachindex(a)
+            # TODO Force conversion of floating points into integers.
+            a[i] = round(a[i])  # Round to whole number.
+            # a[i] = trunc(Int64, a[i])  # Force conversion to Int.
+        end
+
+    # User passed the time-state vector.
+    elseif isa(a, Vector)
+        println("VECTOR")
+    end
+
+    # Should appear 'TRUE' for both vectors and matrices.
+    if isa(a, Array)
+        println("ARRAY")
+    end
+    println()
 
     return(a)
 end
@@ -239,30 +262,32 @@ end
 # Run simulation 'n' time(s).
 results = loop_simulation(1000)
 
-# Print head of new arrays.
-# NOTE Assumes at least five entries exist.
-println(results.t[1:5])
-println(results.c[1:5])
+# # Print head of new arrays.
+# # NOTE Assumes at least five entries exist.
+# println(results.t[1:5])
+# println(results.c[1:5])
 
-println("********** RESULTS (TIMES, UNEDITED) **********")
-println(results.t[1])
+# println("********** RESULTS (TIMES, UNEDITED) **********")
+# println(results.t[1])
 
-println("********** RESULTS (CONCENTRATIONS, UNEDITED) **********")
-println(results.c[1])
+# println("********** RESULTS (CONCENTRATIONS, UNEDITED) **********")
+# println(results.c[1])
 
 x = create_composite!(results.t)  # Temporal states
 y = create_composite!(results.c)  # Concentration states
 
-# println("********** RESULTS (TIMES) **********")
-# println(x)
+println("******************** RESULTS (TIMES) ********************\n")
+println(x)
+println()
 
-# println("********** RESULTS (CONCENTRATIONS) **********")
-# println(y)
+println("******************** RESULTS (CONCENTRATIONS) ********************\n")
+println(y)
+println()
 
+print("Now creating the plot... ")
 fig = plot(
-    x[1],
-    y[1],
-    # palette=:lighttest,
+    x,
+    y,
     xlabel="Time",
     ylabel="Number of Molecules",
     xlims=(0, 10),
@@ -270,8 +295,10 @@ fig = plot(
     title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],
     dpi=300)
+println("Done")
 
-# Output plot to 'plot.png'.
+print("Now writing plot to 'plot_2.png'... ")
 savefig(fig, "plot_2.png")
+println("Done")
 
 # End of File.
