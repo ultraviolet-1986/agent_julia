@@ -1,3 +1,6 @@
+using Base.Iterators: sizeof
+using Base.Iterators: transpose
+using Statistics: Iterators
 #!/usr/bin/env julia
 
 ###########
@@ -34,11 +37,15 @@
 
 import Pkg
 
-Pkg.add("Plots")
+Pkg.add(["IterTools",
+         "Plots",
+         "StatsBase"])
 
-using Plots,
+using IterTools,
+      Plots,
       Random,
-      Statistics
+      Statistics,
+      StatsBase
 
 #################
 # Prerequisites #
@@ -234,12 +241,14 @@ create_composite!(a::Array)
 Mutate a multi-dimensional array and return a single array made up of
 composite values.
 """
-function create_composite!(a)
+function create_composite!(a::Array)
     # TODO For each list in 't', calculate average and return single instance.
     # TODO For each list in 'c', calculate average and return single instance.
     # TODO Choose metric to return: median, mean, etc.
 
-    a = mean(a)  # FIXME Process converts Int to Float.
+    a = mean(a) # FIXME Process converts Int to Float.
+    # a = collect(Iterators.flatten(a))
+    # a = sum(a, 1) ./ sum(a, 2)
 
     println("******************** INPUT SUMMARY ********************\n")
     println(summary(a))
@@ -254,16 +263,16 @@ function create_composite!(a)
             # TODO Force conversion of floating points into integers.
             # a[i] = round(a[i])  # Round to whole number.
             # a[i] = convert(Int64, a[i])  # Force conversion to Int.
-            print("I=$(a[i]) ")
-
-            for j in eachindex(a[i])
-                print("J=$(a[i][j]) ")
-            end
+            print("I=$(a[i, 1]) ")
+            print("J=$(a[i, 2]) ")
         end
 
     # User passed the time-state vector.
     elseif isa(a, Vector)
         println("Detected a vector.")
+
+        # Normalize the list of time states.
+        a = sum(a[1:length(a)]) ./ length(a)
     end
 
     println()
