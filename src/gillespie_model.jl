@@ -1,6 +1,3 @@
-using Base.Iterators: sizeof
-using Base.Iterators: transpose
-using Statistics: Iterators
 #!/usr/bin/env julia
 
 ###########
