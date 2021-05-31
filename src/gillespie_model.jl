@@ -105,11 +105,38 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
 end
 
 
-"""
-model(u, p, t)
+@doc raw"""
+`model(u, p, t)`
 
 Propensity model for this reaction.
-Reaction of A <-> B with rate constants k1 & k2.
+Reaction of `A <-> B` with rate constants `k1` & `k2`.
+
+# Reactions
+
+1. Replicate wild-type mtDNA.
+```math
+M_1 \begin{array}{c}rM_1\\ \Rightarrow\end{array} 2M_1
+```
+
+2. Degrade wild-type mtDNA.
+```math
+M_1 \begin{array}{c}dM_1\\ \Rightarrow\end{array} \emptyset
+```
+
+3. Mutate wild-type mtDNA.
+```math
+M_1 \begin{array}{c}mM_1\\ \Rightarrow\end{array} M_1 + M_2
+```
+
+4. Replicate mutant mtDNA.
+```math
+M_2 \begin{array}{c}rM_2\\ \Rightarrow\end{array} 2M_2
+```
+
+5. Degrade mutant mtDNA.
+```math
+M_2 \begin{array}{c}dM_2\\ \Rightarrow\end{array} \emptyset
+```
 """
 function model(u, p, t)
     return [p.r * u[1],  # Reaction 1: Replicate wild-type mtDNA.
@@ -163,9 +190,18 @@ end
 
 
 """
-loop_simulation(n::Int64)
+`loop_simulation(n::Int64)`
 
-Perform the simulation 'n' number of times and store the results.
+Perform the simulation `n` number of times and return the result. Note
+that this function is hard-coded to run a single model defined eslwhere
+in the `gillespie_model.jl` file.
+
+# Examples
+
+```julia-repl
+julia> loop_simulation(10)
+```
+
 """
 function loop_simulation(n::Int64)
     # Create new arrays for holding all results.
