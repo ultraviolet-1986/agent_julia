@@ -22,6 +22,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#########
+# Notes #
+#########
+
+# - Code written to detect the time and concentration arrays will not
+#   function correctly for Julia versions older than 1.6.x.
+
 ##############
 # References #
 ##############
