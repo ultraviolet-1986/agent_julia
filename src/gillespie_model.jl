@@ -290,7 +290,7 @@ end
 
 ## OLD CODE ################################################################################
 
-# # Perform the simulation and assign results to 'sol'.
+# Perform the simulation and assign results to 'sol'.
 # print("\nNow performing simulation... ")
 # sol = ssa(model, u0, tend, parameters, choose_stoich)
 # println("Done!")
@@ -312,32 +312,68 @@ end
 
 ## NEW CODE ################################################################################
 
-# Run simulation 'n' time(s).
+# # Run simulation 'n' time(s).
 results = loop_simulation(1000)
 
-# # Print head of new arrays.
-# # NOTE Assumes at least five entries exist.
-# println(results.t[1:5])
-# println(results.c[1:5])
+# Get number of suimulations.
+NSims = size(results.c)[1]
+NTimes = size(results.c[1])[1]
+NSpecies = size(results.c[1])[2]
 
-# println("********** RESULTS (TIMES, UNEDITED) **********")
-# println(results.t[1])
 
-# println("********** RESULTS (CONCENTRATIONS, UNEDITED) **********")
-# println(results.c[1])
+times = results.t[1]
 
-x = create_composite!(results.t)  # Temporal states
-y = create_composite!(results.c)  # Concentration states
+# Preallocate array for states.
+molecules = Array{Float64}(undef, NSims, NTimes, NSpecies)
 
-println("******************** RESULTS (TIMES) ********************\n")
-println(x)
-println()
+for i in 1:NSims
+    for j in 1:NTimes
+        for k in 1:NSpecies
+            molecules[i, j, k] = results.c[i][j,k]
+        end
+    end
+end
 
-println("******************** RESULTS (CONCENTRATIONS) ********************\n")
-println(y)
-println()
+# Total number of mutant / number of molecules.
+total = sum(molecules, dims=3)
 
-print("Now creating the plot... ")
+mutation_load = molecules[:,:,2] ./ total
+
+mean_mutant = mean(mutation_load, dims=1)
+median_mutant = median(mutation_load, dims=1)
+
+upper_quantile = Array{Float64}(undef, NTimes)
+lower_quantile = Array{Float64}(undef, NTimes)
+
+for j in 1:NTimes
+    mutation_loads = mutation_load[:,j]
+    upper_quantile[j] = quantile(mutation_loads, 0.975)
+    lower_quantile[j] = quantile(mutation_loads, 0.025)
+end
+
+# # # Print head of new arrays.
+# # # NOTE Assumes at least five entries exist.
+# # println(results.t[1:5])
+# # println(results.c[1:5])
+
+# # println("********** RESULTS (TIMES, UNEDITED) **********")
+# # println(results.t[1])
+
+# # println("********** RESULTS (CONCENTRATIONS, UNEDITED) **********")
+# # println(results.c[1])
+
+# x = create_composite!(results.t)  # Temporal states
+# y = create_composite!(results.c)  # Concentration states
+
+# println("******************** RESULTS (TIMES) ********************\n")
+# println(x)
+# println()
+
+# println("******************** RESULTS (CONCENTRATIONS) ********************\n")
+# println(y)
+# println()
+
+# print("Now creating the plot... ")
 fig = plot(
     x,
     y,
@@ -348,10 +384,10 @@ fig = plot(
     title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],
     dpi=300)
-println("Done")
+# println("Done")
 
-print("Now writing plot to 'plot_2.png'... ")
-savefig(fig, "plot_2.png")
-println("Done")
+# print("Now writing plot to 'plot_2.png'... ")
+# savefig(fig, "plot_2.png")
+# println("Done")
 
 # End of File.
