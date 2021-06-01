@@ -281,18 +281,19 @@ for j in 1:num_times
     lower_quantile[j] = quantile(mutation_loads, 0.025)
 end
 
-# # Create plot of median values.
-# fig = plot(
-#     times,  # Temporal States
-#     molecules,  # Molecule Concentration
-#     xlabel="Time",
-#     ylabel="Number of Molecules",
-#     xlims=(0, 10),
-#     ylims=(10, 300),  # Potentially changes drastically.
-#     title="mtDNA Population Dynamics (SSA Model)",
-#     label=["Wild-type" "Mutant"],
-#     dpi=300)
 
-# savefig(fig, "plot_2.png")
+# Create plot of median values.
+fig = plot(
+    # x,  # Temporal States
+    mean_mutant,  # Molecule Concentration
+    xlabel="Time",
+    zlabel="Number of Molecules",
+    # xlims=(0, 10),
+    # ylims=(10, 300),  # Potentially changes drastically.
+    title="mtDNA Population Dynamics (SSA Model)",
+    label=["Wild-type" "Mutant"],
+    dpi=300)
+
+savefig(fig, "plot_2.png")
 
 # End of File.
