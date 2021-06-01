@@ -75,8 +75,9 @@ parameters = (r=1.0, m=0.0, d=1.0)
 # Functions #
 #############
 
+
 """
-ssa(model, u0, tend, p, choose_stoich, tstart)
+`ssa(model, u0, tend, p, choose_stoich, tstart)`
 
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
@@ -94,15 +95,14 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
     tindex = 2  # Initial step is already defined.
 
     while t < tend
-        dx = model(u, p, t)              # propensities of reactions.
+        dx = model(u, p, t)  # Propensity of reactions.
         total_hazard = sum(dx)
         dt = Random.randexp() / total_hazard  # Time step.
-        stoich = choose_stoich(dx, total_hazard)       # Get stoichiometry.
+        stoich = choose_stoich(dx, total_hazard)  # Get stoichiometry.
         u .+= stoich
         t += dt
 
         # If time > next sample, do this. Update sample to be +1 week.
-        # Add to record
         if t >= times[tindex]
             us = [us u]
             push!(ts, t)  # Record t
@@ -116,11 +116,26 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
 end
 
 
-@doc raw"""
+"""
 `model(u, p, t)`
 
 Propensity model for this reaction.
 Reaction of `A <-> B` with rate constants `k1` & `k2`.
+"""
+function model(u, p, t)
+    return [p.r * u[1],  # Reaction 1: Replicate wild-type mtDNA.
+            p.d * u[1],  # Reaction 2: Degrade wild-type mtDNA.
+            p.m * u[1],  # Reaction 3: Mutate wild-type mtDNA.
+            p.r * u[2],  # Reaction 4: Replicate mutant mtDNA.
+            p.d * u[2]]  # Reaction 5: Degrade mutant mtDNA.
+end
+
+
+@doc raw"""
+`choose_stoich(dx, dxsum)`
+
+This function will choose and return the Stoichiometry which dictates
+what reaction has occurred.
 
 # Reactions
 
@@ -148,20 +163,6 @@ M_2 \begin{array}{c}rM_2\\ \Rightarrow\end{array} 2M_2
 ```math
 M_2 \begin{array}{c}dM_2\\ \Rightarrow\end{array} \emptyset
 ```
-"""
-function model(u, p, t)
-    return [p.r * u[1],  # Reaction 1: Replicate wild-type mtDNA.
-            p.d * u[1],  # Reaction 2: Degrade wild-type mtDNA.
-            p.m * u[1],  # Reaction 3: Mutate wild-type mtDNA.
-            p.r * u[2],  # Reaction 4: Replicate mutant mtDNA.
-            p.d * u[2]]  # Reaction 5: Degrade mutant mtDNA.
-end
-
-
-"""
-choose_stoich(dx, dxsum)
-
-Choose and return which Stoichiometry to update the state.
 """
 function choose_stoich(dx, dxsum = sum(dx))
     # Calculate probability.
@@ -222,172 +223,76 @@ function loop_simulation(n::Int64)
     println("Simulation will be performed $(n) time(s).")
 
     # Start at loop number 1 in intervals of 1 until 'n'.
-    for i in [1: 1: n;]
+    for i in 1:1:n
         # Define and run the simulation.
         sol = ssa(model, u0, tend, parameters, choose_stoich)
 
         # - Take the results and store them in 'time_states' and
         #   'concentration_states' respectively.
-        # TODO Move these operations to separate threads.
         push!(time_states, sol.t)
         push!(concentration_states, sol.u)
     end
 
-    # TODO Cast concentrations as Int.
-    # TODO Change instances of Int64 to Int.
-
     return(t = time_states, c = concentration_states)
 end
 
-"""
-create_composite!(a::Array)
-
-Mutate a multi-dimensional array and return a single array made up of
-composite values.
-"""
-function create_composite!(a::Array)
-    # TODO For each list in 't', calculate average and return single instance.
-    # TODO For each list in 'c', calculate average and return single instance.
-    # TODO Choose metric to return: median, mean, etc.
-
-    a = mean(a) # FIXME Process converts Int to Float.
-    # a = collect(Iterators.flatten(a))
-    # a = sum(a, 1) ./ sum(a, 2)
-
-    println("******************** INPUT SUMMARY ********************\n")
-    println(summary(a))
-    println(typeof(a))
-    println(size(a))
-
-    # User passed the concentration matrix.
-    if isa(a, Matrix)
-        println("Detected a matrix.")
-
-        for i in eachindex(a)
-            # TODO Force conversion of floating points into integers.
-            # a[i] = round(a[i])  # Round to whole number.
-            # a[i] = convert(Int64, a[i])  # Force conversion to Int.
-            print("I=$(a[i, 1]) ")
-            print("J=$(a[i, 2]) ")
-        end
-
-    # User passed the time-state vector.
-    elseif isa(a, Vector)
-        println("Detected a vector.")
-
-        # Normalize the list of time states.
-        a = sum(a[1:length(a)]) ./ length(a)
-    end
-
-    println()
-
-    return(a)
-end
 
 #############
 # Kickstart #
 #############
 
-## OLD CODE ################################################################################
-
-# Perform the simulation and assign results to 'sol'.
-# print("\nNow performing simulation... ")
-# sol = ssa(model, u0, tend, parameters, choose_stoich)
-# println("Done!")
-
-# # Define the plot.
-# print("Now creating the plot... ")
-# fig = plot(
-#     sol.t,
-#     sol.u,
-#     xlabel="time",
-#     ylabel="# of molecules",
-#     title = "SSA",
-#     label=["Wild-type" "Mutant"],
-#     dpi=300)
-
-# # Output plot to 'plot.png'.
-# savefig(fig, "plot.png")
-# println("Done!")
-
-## NEW CODE ################################################################################
-
-# # Run simulation 'n' time(s).
+# Run simulation 'n' time(s) and assign returns to 'results'.
 results = loop_simulation(1000)
 
-# Get number of suimulations.
-NSims = size(results.c)[1]
-NTimes = size(results.c[1])[1]
-NSpecies = size(results.c[1])[2]
+# Calculate total number of elements.
+num_simulations = size(results.c)[1]
+num_times = size(results.c[1])[1]
+num_species = size(results.c[1])[2]
 
-
+# Create a list of times.
 times = results.t[1]
 
 # Preallocate array for states.
-molecules = Array{Float64}(undef, NSims, NTimes, NSpecies)
+molecules = Array{Float64}(undef, num_simulations, num_times, num_species)
 
-for i in 1:NSims
-    for j in 1:NTimes
-        for k in 1:NSpecies
-            molecules[i, j, k] = results.c[i][j,k]
+for i in 1:num_simulations
+    for j in 1:num_times
+        for k in 1:num_species
+            molecules[i, j, k] = results.c[i][j, k]
         end
     end
 end
 
-# Total number of mutant / number of molecules.
+# Calculate total number of molecules.
 total = sum(molecules, dims=3)
 
-mutation_load = molecules[:,:,2] ./ total
+# Calculate percentage of mutant mtDNA.
+mutation_load = molecules[:, :, 2] ./ total
 
 mean_mutant = mean(mutation_load, dims=1)
 median_mutant = median(mutation_load, dims=1)
 
-upper_quantile = Array{Float64}(undef, NTimes)
-lower_quantile = Array{Float64}(undef, NTimes)
+upper_quantile = Array{Float64}(undef, num_times)
+lower_quantile = Array{Float64}(undef, num_times)
 
-for j in 1:NTimes
-    mutation_loads = mutation_load[:,j]
+for j in 1:num_times
+    mutation_loads = mutation_load[:, j]
     upper_quantile[j] = quantile(mutation_loads, 0.975)
     lower_quantile[j] = quantile(mutation_loads, 0.025)
 end
 
-# # # Print head of new arrays.
-# # # NOTE Assumes at least five entries exist.
-# # println(results.t[1:5])
-# # println(results.c[1:5])
+# # Create plot of median values.
+# fig = plot(
+#     times,  # Temporal States
+#     molecules,  # Molecule Concentration
+#     xlabel="Time",
+#     ylabel="Number of Molecules",
+#     xlims=(0, 10),
+#     ylims=(10, 300),  # Potentially changes drastically.
+#     title="mtDNA Population Dynamics (SSA Model)",
+#     label=["Wild-type" "Mutant"],
+#     dpi=300)
 
-# # println("********** RESULTS (TIMES, UNEDITED) **********")
-# # println(results.t[1])
-
-# # println("********** RESULTS (CONCENTRATIONS, UNEDITED) **********")
-# # println(results.c[1])
-
-# x = create_composite!(results.t)  # Temporal states
-# y = create_composite!(results.c)  # Concentration states
-
-# println("******************** RESULTS (TIMES) ********************\n")
-# println(x)
-# println()
-
-# println("******************** RESULTS (CONCENTRATIONS) ********************\n")
-# println(y)
-# println()
-
-# print("Now creating the plot... ")
-fig = plot(
-    x,
-    y,
-    xlabel="Time",
-    ylabel="Number of Molecules",
-    xlims=(0, 10),
-    ylims=(10, 300),
-    title="mtDNA Population Dynamics (SSA Model)",
-    label=["Wild-type" "Mutant"],
-    dpi=300)
-# println("Done")
-
-# print("Now writing plot to 'plot_2.png'... ")
 # savefig(fig, "plot_2.png")
-# println("Done")
 
 # End of File.

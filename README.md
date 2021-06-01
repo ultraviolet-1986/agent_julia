@@ -28,27 +28,26 @@ context.
 ## Execution Instructions
 
 This program was written to be executed from the command line. On the
-command-line, use the following command:
+command-line, use the following command(s):
 
 ```bash
+# Execute Agent-based simulation.
 julia agent_julia.jl
+
+# Execute stochastic Gillespie simulation.
+julia gillespie_model.jl
 ```
 
-It is also possible to change the program's permission to executable
-(correct under Linux) by using this command:
+Note that either of these scripts may be executed from the Julia REPL by using
+the following command(s):
 
-```bash
-chmod +x agent_julia.jl
+```julia
+# Execute Agent-based simulation.
+include("agent_julia.jl")
+
+# Execute stochastic Gillespie simulation.
+include("gillespie_model.jl")
 ```
-
-The program may then be executed using the following command:
-
-```bash
-./agent_julia.jl
-```
-
-Note that this permission is unset in all commits to this repository by
-default.
 
 ## Development Environment
 
