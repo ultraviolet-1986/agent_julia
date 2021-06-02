@@ -255,10 +255,10 @@ times = results.t[1]
 # Preallocate array for states.
 molecules = Array{Float64}(undef, num_simulations, num_times, num_species)
 
-for i in 1:num_simulations
+for i in 1:num_simulations  # Error if tend > 27.
     for j in 1:num_times
         for k in 1:num_species
-            molecules[i, j, k] = results.c[i][j, k]
+            molecules[i, j, k] = results.c[i][j, k]  # Error if tend > 27.
         end
     end
 end
