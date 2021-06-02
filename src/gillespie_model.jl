@@ -66,7 +66,7 @@ Random.seed!(41269)
 u0 = [200, 50]
 
 # Time at which the simulation will stop.
-tend = 10.0
+tend = 10.0  # tend > 27 will crash.
 
 # Kinetic rates of reactions.
 parameters = (r=1.0, m=0.0, d=1.0)
@@ -272,6 +272,20 @@ mutation_load = molecules[:, :, 2] ./ total
 mean_mutant = mean(mutation_load, dims=1)
 median_mutant = median(mutation_load, dims=1)
 
+# EXPERIMENTAL Flatten objects to simple arrays.
+mean_mutant = collect(Iterators.flatten(mean_mutant))
+median_mutant = collect(Iterators.flatten(median_mutant))
+
+# Calculate percentage of wild-type mtDNA.
+wild_load = molecules[:, :, 1] ./total
+
+mean_wild = mean(wild_load, dims=1)
+median_wild = median(wild_load, dims=1)
+
+# EXPERIMENTAL Flatten objects to simple arrays.
+mean_wild = collect(Iterators.flatten(mean_wild))
+median_wild = collect(Iterators.flatten(median_wild))
+
 upper_quantile = Array{Float64}(undef, num_times)
 lower_quantile = Array{Float64}(undef, num_times)
 
@@ -281,15 +295,19 @@ for j in 1:num_times
     lower_quantile[j] = quantile(mutation_loads, 0.025)
 end
 
+# Create plot axis elements.
+x = times
+# y = [mean_wild, mean_mutant]
+y = [median_wild, median_mutant]
 
 # Create plot of median values.
 fig = plot(
-    # x,  # Temporal States
-    mean_mutant,  # Molecule Concentration
+    x,  # Temporal States
+    y,  # Molecule Concentration
     xlabel="Time",
-    zlabel="Number of Molecules",
-    # xlims=(0, 10),
-    # ylims=(10, 300),  # Potentially changes drastically.
+    ylabel="Number of Molecules (%)",
+    # xlims=(0, 10), # Between 0 and 10 for time states.
+    ylims=(0, 1),  # Between 0 and 1 for percentage.
     title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],
     dpi=300)
