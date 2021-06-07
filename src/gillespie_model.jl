@@ -63,13 +63,13 @@ Random.seed!(41269)
 #############
 
 # Initial concentrations of species 'A' and 'B'.
-u0 = [200, 50]
+u0 = [175, 25]
 
 # Time at which the simulation will stop.
-tend = 10.0  # tend > 27 will crash.
+tend = 60.0  # tend > 27 will crash.
 
 # Kinetic rates of reactions.
-parameters = (r=1.0, m=0.0, d=1.0)
+parameters = (r=1.0, m=0.1, d=1.0)
 
 #############
 # Functions #
