@@ -88,26 +88,23 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
     u = copy(u0)  # Current state.
     us = copy(u)  # Record of states.
 
-    # tstart / Start of simulation.
-    # delta  / Size of step to take.
-    # tend   / Time at which simulation will be terminated.
     times = [tstart: delta: tend;] # Sequence from 0.0 - 10.0
     tindex = 2  # Initial step is already defined.
 
     while t < tend
-        dx = model(u, p, t)  # Propensity of reactions.
-        total_hazard = sum(dx)
-        dt = Random.randexp() / total_hazard  # Time step.
-        stoich = choose_stoich(dx, total_hazard)  # Get stoichiometry.
-        u .+= stoich
-        t += dt
-
         # If time > next sample, do this. Update sample to be +1 week.
         if t >= times[tindex]
             us = [us u]
             push!(ts, t)  # Record t
             tindex = tindex + 1
         end
+
+        dx = model(u, p, t)  # Propensity of reactions.
+        total_hazard = sum(dx)
+        dt = Random.randexp() / total_hazard  # Time step.
+        stoich = choose_stoich(dx, total_hazard)  # Get stoichiometry.
+        u .+= stoich
+        t += dt
     end
 
     us = collect(us')
