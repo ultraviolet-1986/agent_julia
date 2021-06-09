@@ -66,7 +66,7 @@ Random.seed!(41269)
 u0 = [175, 25]
 
 # Time at which the simulation will stop.
-tend = 60.0  # tend > 27 will crash.
+tend = 10.0  # tend > 27 will crash.
 
 # Kinetic rates of reactions.
 parameters = (r=1.0, m=0.1, d=1.0)
@@ -91,7 +91,7 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
     times = [tstart: delta: tend;] # Sequence from 0.0 - 10.0
     tindex = 2  # Initial step is already defined.
 
-    while t < tend
+    while t < tend && u[1] != 0 && u[2] != 0
         # If time > next sample, do this. Update sample to be +1 week.
         if t >= times[tindex]
             us = [us u]
