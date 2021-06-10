@@ -40,9 +40,11 @@
 
 import Pkg
 
-Pkg.add(["IterTools",
-         "Plots",
-         "StatsBase"])
+Pkg.add([
+    "IterTools",
+    "Plots",
+    "StatsBase"
+])
 
 using IterTools,
       Plots,
@@ -248,6 +250,7 @@ function loop_simulation(n::Int64)
     return(t = time_states, u = concentration_states)
 end
 
+
 # Functions > NaN Handling
 
 nanmean(x) = mean(filter(!isnan, x))
@@ -322,7 +325,7 @@ end
 
 # DEFINE PLOT
 
-# Define plot axis elements.
+# Define axis elements.
 x = times
 y = [mean_wild, mean_mutant]
 # y = [median_wild, median_mutant]
