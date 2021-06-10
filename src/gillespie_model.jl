@@ -1,3 +1,4 @@
+using Plots: length
 #!/usr/bin/env julia
 
 ###########
@@ -63,13 +64,13 @@ Random.seed!(41269)
 #############
 
 # Initial concentrations of species 'A' and 'B'.
-u0 = [175, 25]
+u0 = [150, 50]
 
 # Time at which the simulation will stop.
 tend = 10.0  # tend > 27 will crash.
 
 # Kinetic rates of reactions.
-parameters = (r=1.0, m=0.1, d=1.0)
+parameters = (r=1.0, m=0.0, d=1.0)
 
 #############
 # Functions #
@@ -91,11 +92,11 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
     times = [tstart: delta: tend;] # Sequence from 0.0 - 10.0
     tindex = 2  # Initial step is already defined.
 
-    while t < tend && u[1] != 0 && u[2] != 0
+    while t < tend && u[1] + u[2] > 0
         # If time > next sample, do this. Update sample to be +1 week.
         if t >= times[tindex]
             us = [us u]
-            push!(ts, t)  # Record t
+            # push!(ts, times(tindex))
             tindex = tindex + 1
         end
 
@@ -120,10 +121,21 @@ Propensity model for this reaction.
 Reaction of `A <-> B` with rate constants `k1` & `k2`.
 """
 function model(u, p, t)
-    return [p.r * u[1],  # Reaction 1: Replicate wild-type mtDNA.
+
+    cn = u[1] + u[2]
+
+    if cn < 50
+        r1 = p.r * u[1]
+        r4 = p.r * u[2]
+    else
+        r1 = 0
+        r4 = 0
+    end
+
+    return [r1,  # Reaction 1: Replicate wild-type mtDNA.
             p.d * u[1],  # Reaction 2: Degrade wild-type mtDNA.
             p.m * u[1],  # Reaction 3: Mutate wild-type mtDNA.
-            p.r * u[2],  # Reaction 4: Replicate mutant mtDNA.
+            r4,  # Reaction 4: Replicate mutant mtDNA.
             p.d * u[2]]  # Reaction 5: Degrade mutant mtDNA.
 end
 
@@ -250,12 +262,15 @@ num_species = size(results.c[1])[2]
 times = results.t[1]
 
 # Preallocate array for states.
-molecules = Array{Float64}(undef, num_simulations, num_times, num_species)
+# molecules = Array{Float64}(undef, num_simulations, num_times, num_species)
+molecules = fill(NaN, num_simulations, num_times, num_species)
 
 for i in 1:num_simulations  # Error if tend > 27.
     for j in 1:num_times
         for k in 1:num_species
-            molecules[i, j, k] = results.c[i][j, k]  # Error if tend > 27.
+            if size(results.c[i])[1] >= j
+                molecules[i, j, k] = results.c[i][j, k]  # Error if tend > 27.
+            end
         end
     end
 end
@@ -266,7 +281,11 @@ total = sum(molecules, dims=3)
 # Calculate percentage of mutant mtDNA.
 mutation_load = molecules[:, :, 2] ./ total
 
-mean_mutant = mean(mutation_load, dims=1)
+nanmean(x) = mean(filter(!isnan,x))
+nanmean(x,y) = mapslices(nanmean,x,dims=y)
+
+# mean_mutant = mean(mutation_load, dims=1)
+mean_mutant = nanmean(mutation_load, 1)
 median_mutant = median(mutation_load, dims=1)
 
 # EXPERIMENTAL Flatten objects to simple arrays.
@@ -276,7 +295,7 @@ median_mutant = collect(Iterators.flatten(median_mutant))
 # Calculate percentage of wild-type mtDNA.
 wild_load = molecules[:, :, 1] ./total
 
-mean_wild = mean(wild_load, dims=1)
+mean_wild = nanmean(wild_load, 1)
 median_wild = median(wild_load, dims=1)
 
 # EXPERIMENTAL Flatten objects to simple arrays.
@@ -288,14 +307,14 @@ lower_quantile = Array{Float64}(undef, num_times)
 
 for j in 1:num_times
     mutation_loads = mutation_load[:, j]
-    upper_quantile[j] = quantile(mutation_loads, 0.975)
-    lower_quantile[j] = quantile(mutation_loads, 0.025)
+    upper_quantile[j] = quantile(mutation_loads, 0.975)  # FIXME
+    lower_quantile[j] = quantile(mutation_loads, 0.025)  # FIXME
 end
 
 # Create plot axis elements.
 x = times
-# y = [mean_wild, mean_mutant]
-y = [median_wild, median_mutant]
+y = [mean_wild, mean_mutant]
+# y = [median_wild, median_mutant]
 
 # Create plot of median values.
 fig = plot(
