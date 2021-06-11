@@ -64,13 +64,13 @@ Random.seed!(41269)
 #############
 
 # Initial concentrations of wild-type and mutant mtDNA.
-u0 = [200, 50]
+u0 = [175, 25]
 
-# Time at which the simulation will stop.
-tend = 500.0
+# 80 Years = 960 Months.
+tend = 960.0
 
 # Kinetic rates of reactions.
-parameters = (r=0.01, m=0.0, d=0.01)
+parameters = (r=0.01, m=0.001, d=0.01)
 
 # Number of simulation repeats.
 loops = 1000
@@ -81,19 +81,19 @@ loops = 1000
 
 
 """
-`ssa(model, u0, tend, p, choose_stoich, tstart)`
+`ssa(model, u0, tend, p, choose_stoich, tstart; delta=1.0)`
 
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
 """
-function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=0.1)
+function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0)
     t = tstart    # Current time.
     ts = [t]      # List of reaction times.
     u = copy(u0)  # Current state.
     us = copy(u)  # Record of states.
 
-    times = [tstart: delta: tend;] # Sequence from 0.0 - 10.0
-    tindex = 2  # Initial step is already defined.
+    times = [tstart: delta: tend;]
+    tindex = 2
 
     while t < tend && u[1] + u[2] > 0
         if t >= times[tindex]
@@ -202,8 +202,12 @@ function choose_stoich(dx, dxsum = sum(dx))
         stoich = [0, 1]
 
     # Reaction 5: Degrade mutant mtDNA.
-    elseif roll < 1.0
+    elseif roll <= sections[5]
         stoich = [0, -1]
+
+    # Reaction 6: No change.
+    elseif roll < 1.0
+        stoich = [0, 0]
 
     # Error: catch all.
     else
@@ -327,20 +331,20 @@ end
 
 # Define axis elements.
 x = times
-y = [mean_wild, mean_mutant]
-# y = [median_wild, median_mutant]
+# y = [mean_wild, mean_mutant]
+y = [median_wild, median_mutant]
 
 print("Writing plot to '$(pwd())/ssa_plot.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
-    xlabel="Time",
+    xlabel="Time (Months)",
     ylabel="Number of Molecules (%)",
-    xlims=(1, length(mean_mutant)),
-    lims=(0, 1),
+    xlims=(1, length(median_mutant)),
+    ylims=(0, 1),
     title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],
-    dpi=300
+    dpi=1200
 )
 
 # Save plot in current working directory.
