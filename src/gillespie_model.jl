@@ -121,7 +121,7 @@ end
 `model(u, p, t)`
 
 Propensity model for this reaction.
-Reaction of `Wild-type <-> Mutant` with rate constants `k1` & `k2`.
+Reaction of `Wild-type <-> Mutant` with rate constants `u[1]` & `u[2]`.
 """
 function model(u, p, t)
     # Define copy number.
