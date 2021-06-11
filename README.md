@@ -6,7 +6,10 @@ submission for academic year 2020/2021.
 ## Table of Contents
 
 - [Description](#description)
+- [Requirements](#requirements)
 - [Execution Instructions](#execution-instructions)
+  - [Agent Julia Model](#agent-julia-model)
+  - [Gillespie SSA Model](#gillespie-ssa-model)
 - [Development Environment](#development-environment)
 - [Resources](#resources)
 - [References](#references)
@@ -19,35 +22,58 @@ over the course of a human life-span of approximately 90 years. It is
 written in the Julia programming language (v1.6.0) and makes use of the
 `Agents.jl` package.
 
-The timeline of this project is: `26/04/2021` to `20/08/2021` and
+The timeline of this project is: `26/04/2021` to `27/08/2021` and
 package versions will be contemporary to this time and no changes will
 be applied once the code is ready for submission. Updates past this
 time represent a continuation of the project outside of an academic
 context.
 
+## Requirements
+
+At the time of writing, this software requires `Julia` versions greater than or
+equal to `v1.6`. Have confirmed the software will not operate under a
+`Julia v1.4.x` environment.
+
 ## Execution Instructions
 
-This program was written to be executed from the command line. On the
-command-line, use the following command(s):
+This program was written to be executed from the command line but may also be
+executed from within the Julia REPL.
+
+### Agent Julia Model
+
+**To be written.**
+
+### Gillespie SSA Model
+
+The code for the Gillespie stochastic simulation algorithm is stored within the
+`gillespie_model.jl` file within the `Gillespie SSA Model` directory. It
+contains the functions required to perform a stochastic simulation given
+user-defined parameters which may be written to another `Julia` script. These
+scripts can contain parameters for simulating different situations and lengths
+of time.
+
+It is possible to execute a use-case script from the Terminal (BASH or
+compatible) by using the following command from the appropriate working
+directory:
 
 ```bash
-# Execute Agent-based simulation.
-julia agent_julia.jl
+julia name_of_use_case.jl
 
-# Execute stochastic Gillespie simulation.
-julia gillespie_model.jl
+# OR
+
+./name_of_use_case.jl
 ```
 
-Note that either of these scripts may be executed from the Julia REPL by using
-the following command(s):
+It is also possible to execute these scripts directly from within the Julia REPL
+by using the following command:
 
 ```julia
-# Execute Agent-based simulation.
-include("agent_julia.jl")
-
-# Execute stochastic Gillespie simulation.
-include("gillespie_model.jl")
+include("name_of_use_case.jl")
 ```
+
+In both events, the use-case script will define the simulation parameters and
+call the model script to perform the simulation, finally providing a report and
+a plot showing the results of the simulation.
 
 ## Development Environment
 
@@ -57,13 +83,15 @@ time of writing):
 - [Fedora Silverblue Linux 34](https://silverblue.fedoraproject.org/)
 - [Toolbox](https://github.com/containers/toolbox)
 - [Microsoft Visual Studio Code](https://code.visualstudio.com/)
-- [Julia Programming Language](https://julialang.org/)
+- [Julia Programming Language v1.6.x](https://julialang.org/)
 - [Agents.jl](https://juliadynamics.github.io/Agents.jl/stable/)
 
 ## Resources
 
 This section will contain a list of resources including code and
 sources of data which were used to create this software.
+
+- [Gillespie Model in Julia](https://nextjournal.com/bebi5009/gillespie-julia)
 
 ## References
 
