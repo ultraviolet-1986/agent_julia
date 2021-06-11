@@ -34,12 +34,6 @@ At the time of writing, this software requires `Julia` versions greater than or
 equal to `v1.6`. Have confirmed the software will not operate under a
 `Julia v1.4.x` environment.
 
-## Reactions
-
-### Reaction 1: Replication of wild-type mtDNA
-
-$$M_1 \begin{array}{c}dM_1\\ \Rightarrow\end{array} \emptyset$$
-
 ## Execution Instructions
 
 This program was written to be executed from the command line but may also be
