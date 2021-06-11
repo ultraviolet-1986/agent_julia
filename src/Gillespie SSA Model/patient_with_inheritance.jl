@@ -50,17 +50,18 @@ loops = 1000
 
 # EXECUTE MODEL
 
+# Run Gillespie SSA model with above parameters.
 include("$(pwd())/gillespie_model.jl")
 
 
 # DEFINE PLOT
 
-# Define axis elements.
+# Define plot axis elements.
 x = times
 y = [mean_wild, mean_mutant]
 # y = [median_wild, median_mutant]
 
-print("\nWriting plot to '$(pwd())/ssa_plot.png'... ")
+print("\nWriting plot to '$(pwd())/patient_with_inheritance.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
@@ -74,7 +75,7 @@ fig = plot(
 )
 
 # Save plot in current working directory.
-savefig(fig, "$(pwd())/ssa_plot.png")
+savefig(fig, "$(pwd())/patient_with_inheritance.png")
 println("Done")
 
 # End of File.
