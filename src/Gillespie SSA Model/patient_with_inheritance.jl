@@ -1,0 +1,80 @@
+#!/usr/bin/env julia
+
+###########
+# License #
+###########
+
+# Agent Julia
+# Project code for Newcastle University MSc Bioinformatics project
+# submission.
+# Copyright (C) 2021 William Willis Whinn
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+#########
+# Notes #
+#########
+
+# - Requires Julia >= v1.6.
+
+#############
+# Variables #
+#############
+
+# Initial concentrations of wild-type and mutant mtDNA.
+u0 = [175, 25]
+
+# 80 Years = 960 Months.
+tend = 960.0
+
+# Kinetic rates of reactions.
+parameters = (r=0.01, m=0.001, d=0.01)
+
+# Number of simulation repeats.
+loops = 1000
+
+#############
+# Kickstart #
+#############
+
+# EXECUTE MODEL
+
+include("$(pwd())/gillespie_model.jl")
+
+
+# DEFINE PLOT
+
+# Define axis elements.
+x = times
+y = [mean_wild, mean_mutant]
+# y = [median_wild, median_mutant]
+
+print("\nWriting plot to '$(pwd())/ssa_plot.png'... ")
+fig = plot(
+    x,  # Temporal States
+    y,  # Molecule Concentration [Wild-type, Mutant]
+    xlabel="Time (Months)",
+    ylabel="Number of Molecules (%)",
+    xlims=(1, length(mean_mutant)),
+    ylims=(0, 1),
+    title="mtDNA Population Dynamics (SSA Model)",
+    label=["Wild-type" "Mutant"],
+    dpi=1200
+)
+
+# Save plot in current working directory.
+savefig(fig, "$(pwd())/ssa_plot.png")
+println("Done")
+
+# End of File.
