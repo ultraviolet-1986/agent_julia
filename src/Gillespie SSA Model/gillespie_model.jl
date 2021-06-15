@@ -227,8 +227,6 @@ function loop_simulation(n::Int64)
     time_states = []
     concentration_states = []
 
-    print("\nSimulation is repeating $(n) time(s)... ")
-
     # Start at loop number 1 in intervals of 1 until 'n'.
     for i in 1:1:n
         # Define and run the simulation.
@@ -239,8 +237,6 @@ function loop_simulation(n::Int64)
         push!(time_states, sol.t)
         push!(concentration_states, sol.u)
     end
-
-    println("Done")
 
     return(t = time_states, u = concentration_states)
 end
