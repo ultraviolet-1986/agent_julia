@@ -28,6 +28,12 @@
 
 # - Requires Julia >= v1.6.
 
+###########
+# Imports #
+###########
+
+using Random
+
 #############
 # Variables #
 #############
@@ -60,21 +66,22 @@ loops = 1000
 # Run Gillespie SSA model with above parameters.
 include("$(pwd())/gillespie_model.jl")
 
+# Ensure results are random.
+Random.seed!()
+
 
 # DEFINE PLOT
 
 # Define plot axis elements.
-x = times
+x = times / 12.0  # Convert months to years.
 y = [mean_wild, mean_mutant]
-# y = [median_wild, median_mutant]
 
 print("\nWriting plot to '$(pwd())/random_simulation.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
-    xlabel="Time (Months)",
+    xlabel="Time (Years)",
     ylabel="Number of Molecules (%)",
-    xlims=(1, length(mean_mutant)),
     ylims=(0, 1),
     title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],

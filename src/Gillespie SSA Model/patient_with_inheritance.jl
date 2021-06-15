@@ -57,17 +57,15 @@ include("$(pwd())/gillespie_model.jl")
 # DEFINE PLOT
 
 # Define plot axis elements.
-x = times
+x = times / 12.0  # Convert months to years.
 y = [mean_wild, mean_mutant]
-# y = [median_wild, median_mutant]
 
-print("\nWriting plot to '$(pwd())/patient_with_inheritance.png'... ")
+print("\nWriting plot to '$(pwd())/patient_with_inheritance'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
-    xlabel="Time (Months)",
+    xlabel="Time (Years)",
     ylabel="Number of Molecules (%)",
-    xlims=(1, length(mean_mutant)),
     ylims=(0, 1),
     title="mtDNA Population Dynamics (SSA Model)",
     label=["Wild-type" "Mutant"],
