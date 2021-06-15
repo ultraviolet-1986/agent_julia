@@ -193,16 +193,8 @@ function choose_stoich(dx, dxsum = sum(dx))
         stoich = [0, 1]
 
     # Reaction 5: Degrade mutant mtDNA.
-    elseif roll <= sections[5]
-        stoich = [0, -1]
-
-    # Reaction 6: No change.
-    elseif roll < 1.0
-        stoich = [0, 0]
-
-    # Error: catch all.
     else
-        error("Stoichiometry is out of bounds.")
+        stoich = [0, -1]
     end
 
     return stoich
