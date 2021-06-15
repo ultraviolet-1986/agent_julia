@@ -32,8 +32,15 @@
 # Variables #
 #############
 
+# Define elements for random simulaiton.
+
+max_elements = 200
+
+random_wild = rand(1:max_elements)
+random_mutant = max_elements - random_wild
+
 # Initial concentrations of wild-type and mutant mtDNA.
-u0 = [200, 0]
+u0 = [random_wild, random_mutant]
 
 # 80 Years = 960 Months.
 tend = 960.0
@@ -61,7 +68,7 @@ x = times
 y = [mean_wild, mean_mutant]
 # y = [median_wild, median_mutant]
 
-print("\nWriting plot to '$(pwd())/patient_without_inheritance.png'... ")
+print("\nWriting plot to '$(pwd())/random_simulation.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
@@ -75,7 +82,7 @@ fig = plot(
 )
 
 # Save plot in current working directory.
-savefig(fig, "$(pwd())/patient_without_inheritance.png")
+savefig(fig, "$(pwd())/random_simulation.png")
 println("Done")
 
 # End of File.
