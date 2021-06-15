@@ -63,17 +63,8 @@ Random.seed!(41269)
 # Variables #
 #############
 
-# # Initial concentrations of wild-type and mutant mtDNA.
-# u0 = [175, 25]
-
-# # 80 Years = 960 Months.
-# tend = 960.0
-
-# # Kinetic rates of reactions.
-# parameters = (r=0.01, m=0.001, d=0.01)
-
-# # Number of simulation repeats.
-# loops = 1000
+# - Variables are to be defined within a simulation file.
+#   - e.g. `patient_with_inheritance.jl`.
 
 #############
 # Functions #
@@ -327,29 +318,10 @@ for j in 1:num_times
 end
 
 
-# # DEFINE PLOT
+# DEFINE PLOT
 
-# # Define axis elements.
-# x = times
-# # y = [mean_wild, mean_mutant]
-# y = [median_wild, median_mutant]
-
-# print("Writing plot to '$(pwd())/ssa_plot.png'... ")
-# fig = plot(
-#     x,  # Temporal States
-#     y,  # Molecule Concentration [Wild-type, Mutant]
-#     xlabel="Time (Months)",
-#     ylabel="Number of Molecules (%)",
-#     xlims=(1, length(median_mutant)),
-#     ylims=(0, 1),
-#     title="mtDNA Population Dynamics (SSA Model)",
-#     label=["Wild-type" "Mutant"],
-#     dpi=1200
-# )
-
-# # Save plot in current working directory.
-# savefig(fig, "$(pwd())/ssa_plot.png")
-# println("Done")
+# - Plot and elements are to be defined within a simulation file.
+#   - e.g. `patient_with_inheritance.jl`.
 
 
 # TEXT REPORT
