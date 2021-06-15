@@ -58,22 +58,44 @@ include("$(pwd())/gillespie_model.jl")
 
 # Define plot axis elements.
 x = times / 12.0  # Convert months to years.
-y = [mean_wild, mean_mutant]
+y = [mean_wild, mean_mutant, mean_trend] * 100
 
 print("\nWriting plot to '$(pwd())/patient_without_inheritance'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
     xlabel="Time (Years)",
-    ylabel="Number of Molecules (%)",
-    ylims=(0, 1),
-    title="mtDNA Population Dynamics (SSA Model)",
-    label=["Wild-type" "Mutant"],
+    ylabel="Molecule Concentration (%)",
+    ylims=(0, 100),
+    title="Negative Mutant mtDNA Inheritance (SSA Model)",
+    label=["Wild-type" "Mutant" "Trend"],
     dpi=1200
 )
 
 # Save plot in current working directory.
 savefig(fig, "$(pwd())/patient_without_inheritance.png")
+println("Done")
+
+
+# DEFINE QUANTILE PLOT
+
+# Define axis elements.
+y2 = [lower_quantile, upper_quantile, quantile_trend] * 100
+
+print("Writing plot to '$(pwd())/patient_without_inheritance_quantile.png'... ")
+fig2 = plot(
+    x,   # Temporal States
+    y2,  # Certainty [Lower Quantile, Upper Quantile]
+    xlabel="Time (Years)",
+    ylabel="Certainty (%)",
+    ylims=(0, 100),
+    title="Negative Mutant mtDNA Inheritance (Quantiles)",
+    label=["Lower Quantile" "Upper Quantile" "Trend"],
+    dpi=1200
+)
+
+# Save plot in current working directory.
+savefig(fig2, "$(pwd())/patient_without_inheritance_quantile.png")
 println("Done")
 
 # End of File.

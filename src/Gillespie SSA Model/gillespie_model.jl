@@ -305,6 +305,21 @@ mean_mutant = collect(Iterators.flatten(mean_mutant))
 median_wild = collect(Iterators.flatten(median_wild))
 median_mutant = collect(Iterators.flatten(median_mutant))
 
+# Trends for mean and median concentrations.
+# - Ensure that the smallest is subtracted from the largest.
+
+if mean_wild > mean_mutant
+    mean_trend = mean_wild - mean_mutant
+else
+    mean_trend = mean_mutant - mean_wild
+end
+
+if median_wild > median_mutant
+    median_trend = median_wild - median_mutant
+else
+    median_trend = median_mutant - median_wild
+end
+
 
 # DEFINE QUANTILES
 
@@ -317,6 +332,14 @@ for j in 1:num_times
     lower_quantile[j] = nanquantile(mutation_loads, 0.025)
 end
 
+# Trend of quantiles.
+
+if upper_quantile > lower_quantile
+    quantile_trend = upper_quantile - lower_quantile
+else
+    quantile_trend = lower_quantile - upper_quantile
+end
+
 
 # DEFINE PLOT
 
@@ -326,9 +349,20 @@ end
 
 # TEXT REPORT
 
+# Generate specific time-frame elements.
+runtime_in_years = length(mean_mutant) / 12.0
+
+int_years = Int(floor(runtime_in_years))
+
+int_months = runtime_in_years - floor(runtime_in_years)
+int_months = Int(floor(int_months * 12))
+
+# Print final report.
 println("\nRESULTS\n=======\n")
 println("Simulation was looped $(loops) time(s).")
-println("Populations extinct at: $(length(mean_mutant))/$(trunc(Int, tend)) Cycle(s).")
+println("Initial concentration of wild-type mtDNA: $(u0[1]) molecule(s).")
+println("Initial concentration of mutant mtDNA: $(u0[2]) molecule(s).")
+println("Population went extinct at $(int_years) year(s) and $(int_months) month(s).")
 println("Upper quantile (Head): $(upper_quantile[1:5])")
 println("Lower quantile (Head): $(lower_quantile[1:5])")
 

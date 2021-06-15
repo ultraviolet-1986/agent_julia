@@ -74,22 +74,44 @@ Random.seed!()
 
 # Define plot axis elements.
 x = times / 12.0  # Convert months to years.
-y = [mean_wild, mean_mutant]
+y = [mean_wild, mean_mutant, mean_trend] * 100
 
 print("\nWriting plot to '$(pwd())/random_simulation.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Molecule Concentration [Wild-type, Mutant]
     xlabel="Time (Years)",
-    ylabel="Number of Molecules (%)",
-    ylims=(0, 1),
-    title="mtDNA Population Dynamics (SSA Model)",
-    label=["Wild-type" "Mutant"],
+    ylabel="Molecule Concentration (%)",
+    ylims=(0, 100),
+    title="Random Mutant mtDNA Inheritance (SSA Model)",
+    label=["Wild-type" "Mutant" "Trend"],
     dpi=1200
 )
 
 # Save plot in current working directory.
 savefig(fig, "$(pwd())/random_simulation.png")
+println("Done")
+
+
+# DEFINE QUANTILE PLOT
+
+# Define axis elements.
+y2 = [lower_quantile, upper_quantile, quantile_trend] * 100
+
+print("Writing plot to '$(pwd())/random_simulation_quantile.png'... ")
+fig2 = plot(
+    x,   # Temporal States
+    y2,  # Certainty [Lower Quantile, Upper Quantile]
+    xlabel="Time (Years)",
+    ylabel="Certainty (%)",
+    ylims=(0, 100),
+    title="Random Mutant mtDNA Inheritance (Quantiles)",
+    label=["Lower Quantile" "Upper Quantile" "Trend"],
+    dpi=1200
+)
+
+# Save plot in current working directory.
+savefig(fig2, "$(pwd())/random_simulation_quantile.png")
 println("Done")
 
 # End of File.
