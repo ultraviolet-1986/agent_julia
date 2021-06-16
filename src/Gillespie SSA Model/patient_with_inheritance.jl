@@ -39,7 +39,8 @@ u0 = [175, 25]
 tend = 960.0
 
 # Kinetic rates of reactions.
-parameters = (r=0.01, m=0.001, d=0.01)
+# parameters = (r=0.01, m=0.001, d=0.01)
+parameters = (r=0.01, m=0.01, d=0.001)
 
 # Number of simulation repeats.
 loops = 1000
