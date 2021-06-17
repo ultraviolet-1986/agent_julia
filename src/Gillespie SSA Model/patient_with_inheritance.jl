@@ -35,7 +35,8 @@
 # Imports #
 ###########
 
-using Plots,
+using Distributions,
+      Plots,
       StatsPlots
 
 #############
@@ -72,13 +73,13 @@ parameters = (r=0.001488095, m=0.001488095, d=0.001488095)
 include("$(pwd())/gillespie_model.jl")
 
 
-# DEFINE MUTATION TIME-LINE PLOT
+# DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
 # Define plot axis elements.
 x = times / 12.0       # Convert months to years.
 y = mean_mutant * 100  # Convert mutation level to percentage.
 
-print("\nCreating mutation time-line plot 'patient_with_inheritance.png'... ")
+print("\nCreating mutation time-line plot 'patient_with_inheritance_01_timeline.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Mutation Level
@@ -91,45 +92,65 @@ fig = plot(
 )
 
 # Save plot in current working directory.
-savefig(fig, "$(pwd())/patient_with_inheritance.png")
+savefig(fig, "$(pwd())/patient_with_inheritance_01_timeline.png")
 println("Done")
 
 
-# DEFINE QUANTILE PLOT
+# DEFINE QUANTILE PLOT (PLOT 2)
 
 # Define axis elements.
 y2 = [upper_quantile, lower_quantile] * 100
 
-print("Creating quantile plot 'patient_with_inheritance_quantile.png'... ")
+print("Creating quantile plot 'patient_with_inheritance_02_quantile.png'... ")
 fig2 = plot(
     x,   # Temporal States
     y2,  # Certainty [Lower Quantile, Upper Quantile]
-    xlabel="Time (Years)",
+    xlabel="Time (years)",
     ylabel="Certainty (%)",
     ylims=(0, 100),
-    title="Positive Mutant mtDNA Inheritance (Quantiles)",
+    title="Patient with mutant mtDNA inheritance",
     label=["97.5 Percentile" "2.5 Percentile"],
     dpi=1200
 )
 
 # Save plot in current working directory.
-savefig(fig2, "$(pwd())/patient_with_inheritance_quantile.png")
+savefig(fig2, "$(pwd())/patient_with_inheritance_02_quantile.png")
 println("Done")
+
 
 # DEFINE DENSITY PLOT (PLOT 3)
 
 # Define axis elements.
 x3 = mean_mutant
 
-print("Creating density plot 'patient_with_inheritance_density.png'... ")
+print("Creating density plot 'patient_with_inheritance_03_density.png'... ")
 fig3 = density(
     vec(x3),  # Mean of mutant levels
-    title="Density of mutation mean",
+    title="Patient with mutant mtDNA inheritance",
+    xlabel="Density",
     legend=false,
     dpi=1200
 )
 
-savefig(fig3, "$(pwd())/patient_with_inheritance_density.png")
+savefig(fig3, "$(pwd())/patient_with_inheritance_03_density.png")
+println("Done")
+
+
+# DEFINE NORMAL DISTRIBUTION PLOT (PLOT 4)
+
+# Define axis elements.
+x4 = Normal(mean(mean_mutant))
+
+print("Creating distribution plot 'patient_with_inheritance_04_distribution.png'... ")
+fig4 = plot(
+    x4,
+    title="Patient with mutant mtDNA inheritance",
+    xlabel="Distribution (mutation mean)",
+    legend=false,
+    dpi=1200
+)
+
+savefig(fig4, "$(pwd())/patient_with_inheritance_04_distribution.png")
 println("Done")
 
 # End of File.
