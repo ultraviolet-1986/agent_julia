@@ -121,11 +121,11 @@ println("Done")
 # DEFINE DENSITY PLOT (PLOT 3)
 
 # Define axis elements.
-x3 = mean_mutant
+x3 = vec(mean_mutant)
 
 print("Creating density plot 'patient_with_inheritance_03_density.png'... ")
 fig3 = density(
-    vec(x3),  # Mean of mutant levels
+    x3,  # Mean of mutant levels
     title="Patient with mutant mtDNA inheritance",
     xlabel="Density (mutation mean)",
     legend=false,
