@@ -31,6 +31,13 @@
 #   - Scales are adjusted to years when defining the plot only.
 #   - With 'delta' being '1', we are recording results monthly.
 
+###########
+# Imports #
+###########
+
+using Plots,
+      StatsPlots
+
 #############
 # Variables #
 #############
@@ -65,13 +72,13 @@ parameters = (r=0.001488095, m=0.001488095, d=0.001488095)
 include("$(pwd())/gillespie_model.jl")
 
 
-# DEFINE PLOT
+# DEFINE MUTATION TIME-LINE PLOT
 
 # Define plot axis elements.
 x = times / 12.0       # Convert months to years.
 y = mean_mutant * 100  # Convert mutation level to percentage.
 
-print("\nWriting plot to '$(pwd())/patient_with_inheritance.png'... ")
+print("\nCreating mutation time-line plot 'patient_with_inheritance.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Mutation Level
@@ -91,9 +98,9 @@ println("Done")
 # DEFINE QUANTILE PLOT
 
 # Define axis elements.
-y2 = [lower_quantile, upper_quantile, quantile_trend] * 100
+y2 = [upper_quantile, lower_quantile] * 100
 
-print("Writing plot to '$(pwd())/patient_with_inheritance_quantile.png'... ")
+print("Creating quantile plot 'patient_with_inheritance_quantile.png'... ")
 fig2 = plot(
     x,   # Temporal States
     y2,  # Certainty [Lower Quantile, Upper Quantile]
@@ -101,12 +108,28 @@ fig2 = plot(
     ylabel="Certainty (%)",
     ylims=(0, 100),
     title="Positive Mutant mtDNA Inheritance (Quantiles)",
-    label=["Lower Quantile" "Upper Quantile" "Trend"],
+    label=["97.5 Percentile" "2.5 Percentile"],
     dpi=1200
 )
 
 # Save plot in current working directory.
 savefig(fig2, "$(pwd())/patient_with_inheritance_quantile.png")
+println("Done")
+
+# DEFINE DENSITY PLOT (PLOT 3)
+
+# Define axis elements.
+x3 = mean_mutant
+
+print("Creating density plot 'patient_with_inheritance_density.png'... ")
+fig3 = density(
+    vec(x3),  # Mean of mutant levels
+    title="Density of mutation mean",
+    legend=false,
+    dpi=1200
+)
+
+savefig(fig3, "$(pwd())/patient_with_inheritance_density.png")
 println("Done")
 
 # End of File.
