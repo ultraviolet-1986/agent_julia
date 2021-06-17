@@ -27,7 +27,7 @@
 #########
 
 # - This script will remove any and all PNG files within the current
-#   folder only.
+#   directory structure only.
 # - This script does not outright delete files, it places them within
 #   the Wastbasket.
 
