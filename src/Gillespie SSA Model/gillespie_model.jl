@@ -315,7 +315,7 @@ mean_mutant = collect(Iterators.flatten(mean_mutant))
 median_wild = collect(Iterators.flatten(median_wild))
 median_mutant = collect(Iterators.flatten(median_mutant))
 
-# Trends for mean and median concentrations.
+# Trends for mean and median concentrations.  TODO Remove this.
 # - Ensure that the smallest is subtracted from the largest.
 
 if mean_wild > mean_mutant
@@ -334,15 +334,17 @@ end
 # DEFINE QUANTILES
 
 upper_quantile = fill(NaN, num_times)
+middle_quantile = fill(NaN, num_times)
 lower_quantile = fill(NaN, num_times)
 
 for j in 1:num_times
     mutation_loads = mutation_load[:, j]
     upper_quantile[j] = nanquantile(mutation_loads, 0.975)
+    middle_quantile[j] = nanquantile(mutation_loads, 0.5)
     lower_quantile[j] = nanquantile(mutation_loads, 0.025)
 end
 
-# Trend of quantiles.
+# Trend of quantiles. TODO Remove this.
 
 if upper_quantile > lower_quantile
     quantile_trend = upper_quantile - lower_quantile
@@ -372,8 +374,10 @@ println("\nRESULTS\n=======\n")
 println("Simulation was looped $(loops) time(s).")
 println("Initial concentration of wild-type mtDNA: $(u0[1]) molecule(s).")
 println("Initial concentration of mutant mtDNA: $(u0[2]) molecule(s).")
-println("Population went extinct at $(int_years) year(s) and $(int_months) month(s).")
-println("Upper quantile (Head): $(upper_quantile[1:5])")
-println("Lower quantile (Head): $(lower_quantile[1:5])")
+println("Population went extinct at $(num_times)/$(Int(floor(tend))) cycle(s) ",
+    "or $(int_years) year(s) and $(int_months) month(s).")
+println("97.5th percentile (Head): $(upper_quantile[1:5])")
+println("50th percentile (Head):   $(middle_quantile[1:5])")
+println("2.5th percentile (Head):  $(lower_quantile[1:5])")
 
 # End of File.

@@ -99,17 +99,17 @@ println("Done")
 # DEFINE QUANTILE PLOT (PLOT 2)
 
 # Define axis elements.
-y2 = [upper_quantile, lower_quantile] * 100
+y2 = [upper_quantile, middle_quantile, lower_quantile] * 100
 
 print("Creating quantile plot 'patient_with_inheritance_02_quantile.png'... ")
 fig2 = plot(
     x,   # Temporal States
-    y2,  # Certainty [Lower Quantile, Upper Quantile]
+    y2,  # Certainty [2.5th percentile, 50th percentile, 97.5th percentile]
     xlabel="Time (years)",
     ylabel="Certainty (%)",
     ylims=(0, 100),
     title="Patient with mutant mtDNA inheritance",
-    label=["97.5 Percentile" "2.5 Percentile"],
+    label=["97.5th percentile" "50th percentile" "2.5th percentile"],
     dpi=1200
 )
 
@@ -127,7 +127,7 @@ print("Creating density plot 'patient_with_inheritance_03_density.png'... ")
 fig3 = density(
     vec(x3),  # Mean of mutant levels
     title="Patient with mutant mtDNA inheritance",
-    xlabel="Density",
+    xlabel="Density (mutation mean)",
     legend=false,
     dpi=1200
 )
