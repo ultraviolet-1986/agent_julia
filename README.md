@@ -79,7 +79,7 @@ a plot showing the results of the simulation.
 ### Batch Remove Plot Files
 
 The `sweep_plots.sh` script is designed to move all generated plots to the
-Wastebasket during testing code. It will parse the folders from its current
+Wastebasket during code testing. It will parse the folders from its current
 location and will not outright delete files. They can be restored from the file
 manager if required and is intended to prevent the accidental removal of model
 and simulation files. This script is intended for use under a GNU/Linux system
