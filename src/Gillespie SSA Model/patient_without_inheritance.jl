@@ -39,7 +39,10 @@ u0 = [200, 0]
 tend = 960.0
 
 # Kinetic rates of reactions.
-parameters = (r=0.01, m=0.001, d=0.01)
+# parameters = (r=0.01, m=0.001, d=0.01)
+
+# 1 Month / 28 Days / 24 Hours = Hourly Rate (0.001488095)
+parameters = (r=0.001488095, m=0.001488095, d=0.001488095)
 
 # Number of simulation repeats.
 loops = 1000

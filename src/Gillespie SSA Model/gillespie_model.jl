@@ -43,14 +43,16 @@ import Pkg
 Pkg.add([
     "IterTools",
     "Plots",
-    "StatsBase"
+    "StatsBase",
+    "StatsPlots"
 ])
 
 using IterTools,
       Plots,
       Random,
       Statistics,
-      StatsBase
+      StatsBase,
+      StatsPlots
 
 #################
 # Prerequisites #

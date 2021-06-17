@@ -27,6 +27,9 @@
 #########
 
 # - Requires Julia >= v1.6.
+# - Time-scale for this model is that integer '1' equals 1 month.
+#   - Scales are adjusted to years when defining the plot only.
+#   - With 'delta' being '1', we are recording results monthly.
 
 #############
 # Variables #
@@ -38,13 +41,19 @@ u0 = [175, 25]
 # 80 Years = 960 Months.
 tend = 960.0
 
-# Kinetic rates of reactions.
-# parameters = (r=0.01, m=0.001, d=0.01)
-# parameters = (r=0.01, m=0.01, d=0.001)
-parameters = (r=0.035714286, m=0.035714286, d=0.035714286) # 1 month / 28 days
-
 # Number of simulation repeats.
 loops = 1000
+
+# VARIABLES > KINETIC RATES
+
+# Original rates: tuned to favour longer simulation runtime.
+# parameters = (r=0.01, m=0.001, d=0.01)
+
+# 1 Month / 28 Days = Daily Rate (0.035714286)
+# parameters = (r=0.035714286, m=0.035714286, d=0.035714286)
+
+# 1 Month / 28 Days / 24 Hours = Hourly Rate (0.001488095)
+parameters = (r=0.001488095, m=0.001488095, d=0.001488095)
 
 #############
 # Kickstart #
@@ -59,18 +68,18 @@ include("$(pwd())/gillespie_model.jl")
 # DEFINE PLOT
 
 # Define plot axis elements.
-x = times / 12.0  # Convert months to years.
-y = [mean_wild, mean_mutant, mean_trend] * 100
+x = times / 12.0       # Convert months to years.
+y = mean_mutant * 100  # Convert mutation level to percentage.
 
 print("\nWriting plot to '$(pwd())/patient_with_inheritance.png'... ")
 fig = plot(
     x,  # Temporal States
-    y,  # Molecule Concentration [Wild-type, Mutant]
-    xlabel="Time (Years)",
-    ylabel="Molecule Concentration (%)",
+    y,  # Mutation Level
+    xlabel="Time (years)",
+    ylabel="Mutation level (%)",
     ylims=(0, 100),
-    title="Positive Mutant mtDNA Inheritance (SSA Model)",
-    label=["Wild-type" "Mutant" "Trend"],
+    title="Patient with mutant mtDNA inheritance",
+    legend=false,
     dpi=1200
 )
 
