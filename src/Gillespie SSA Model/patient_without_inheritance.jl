@@ -27,6 +27,17 @@
 #########
 
 # - Requires Julia >= v1.6.
+# - Time-scale for this model is that integer '1' equals 1 month.
+#   - Scales are adjusted to years when defining the plot only.
+#   - With 'delta' being '1', we are recording results monthly.
+
+###########
+# Imports #
+###########
+
+using Distributions,
+      Plots,
+      StatsPlots
 
 #############
 # Variables #
@@ -38,14 +49,19 @@ u0 = [200, 0]
 # 80 Years = 960 Months.
 tend = 960.0
 
-# Kinetic rates of reactions.
+# Number of simulation repeats.
+loops = 1000
+
+# VARIABLES > KINETIC RATES
+
+# Original rates: tuned to favour longer simulation runtime.
 # parameters = (r=0.01, m=0.001, d=0.01)
+
+# 1 Month / 28 Days = Daily Rate (0.035714286)
+# parameters = (r=0.035714286, m=0.035714286, d=0.035714286)
 
 # 1 Month / 28 Days / 24 Hours = Hourly Rate (0.001488095)
 parameters = (r=0.001488095, m=0.001488095, d=0.001488095)
-
-# Number of simulation repeats.
-loops = 1000
 
 #############
 # Kickstart #
@@ -57,48 +73,84 @@ loops = 1000
 include("$(pwd())/gillespie_model.jl")
 
 
-# DEFINE PLOT
+# DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
 # Define plot axis elements.
-x = times / 12.0  # Convert months to years.
-y = [mean_wild, mean_mutant, mean_trend] * 100
+x = times / 12.0       # Convert months to years.
+y = mean_mutant * 100  # Convert mutation level to percentage.
 
-print("\nWriting plot to '$(pwd())/patient_without_inheritance'... ")
+print("\nCreating mutation/time plot 'patient_without_inheritance_01_timeline.png'... ")
 fig = plot(
     x,  # Temporal States
-    y,  # Molecule Concentration [Wild-type, Mutant]
-    xlabel="Time (Years)",
-    ylabel="Molecule Concentration (%)",
+    y,  # Mutation Level
+    xlabel="Time (years)",
+    ylabel="Mutation level (%)",
     ylims=(0, 100),
-    title="Negative Mutant mtDNA Inheritance (SSA Model)",
-    label=["Wild-type" "Mutant" "Trend"],
+    title="Patient without mutant mtDNA inheritance",
+    legend=false,
     dpi=1200
 )
 
 # Save plot in current working directory.
-savefig(fig, "$(pwd())/patient_without_inheritance.png")
+savefig(fig, "$(pwd())/patient_without_inheritance_01_timeline.png")
 println("Done")
 
 
-# DEFINE QUANTILE PLOT
+# DEFINE PERCENTILE PLOT (PLOT 2)
 
 # Define axis elements.
-y2 = [lower_quantile, upper_quantile, quantile_trend] * 100
+y2 = [upper_quantile, middle_quantile, lower_quantile] * 100
 
-print("Writing plot to '$(pwd())/patient_without_inheritance_quantile.png'... ")
+print("Creating quantile plot 'patient_without_inheritance_02_quantile.png'... ")
 fig2 = plot(
     x,   # Temporal States
-    y2,  # Certainty [Lower Quantile, Upper Quantile]
-    xlabel="Time (Years)",
+    y2,  # Certainty [2.5th percentile, 50th percentile, 97.5th percentile]
+    xlabel="Time (years)",
     ylabel="Certainty (%)",
     ylims=(0, 100),
-    title="Negative Mutant mtDNA Inheritance (Quantiles)",
-    label=["Lower Quantile" "Upper Quantile" "Trend"],
+    title="Patient without mutant mtDNA inheritance",
+    label=["97.5th percentile" "50th percentile" "2.5th percentile"],
     dpi=1200
 )
 
 # Save plot in current working directory.
-savefig(fig2, "$(pwd())/patient_without_inheritance_quantile.png")
+savefig(fig2, "$(pwd())/patient_without_inheritance_02_quantile.png")
+println("Done")
+
+
+# DEFINE DENSITY PLOT (PLOT 3)
+
+# Define axis elements.
+x3 = vec(mean_mutant)
+
+print("Creating density plot 'patient_without_inheritance_03_density.png'... ")
+fig3 = density(
+    x3,  # Mean of mutant levels
+    title="Patient without mutant mtDNA inheritance",
+    xlabel="Density (mutation mean)",
+    legend=false,
+    dpi=1200
+)
+
+savefig(fig3, "$(pwd())/patient_without_inheritance_03_density.png")
+println("Done")
+
+
+# DEFINE NORMAL DISTRIBUTION PLOT (PLOT 4)
+
+# Define axis elements.
+x4 = Normal(mean(mean_mutant))
+
+print("Creating distribution plot 'patient_without_inheritance_04_distribution.png'... ")
+fig4 = plot(
+    x4,
+    title="Patient without mutant mtDNA inheritance",
+    xlabel="Distribution (mutation mean)",
+    legend=false,
+    dpi=1200
+)
+
+savefig(fig4, "$(pwd())/patient_without_inheritance_04_distribution.png")
 println("Done")
 
 # End of File.

@@ -79,7 +79,7 @@ include("$(pwd())/gillespie_model.jl")
 x = times / 12.0       # Convert months to years.
 y = mean_mutant * 100  # Convert mutation level to percentage.
 
-print("\nCreating mutation time-line plot 'patient_with_inheritance_01_timeline.png'... ")
+print("\nCreating mutation/time plot 'patient_with_inheritance_01_timeline.png'... ")
 fig = plot(
     x,  # Temporal States
     y,  # Mutation Level
@@ -96,7 +96,7 @@ savefig(fig, "$(pwd())/patient_with_inheritance_01_timeline.png")
 println("Done")
 
 
-# DEFINE QUANTILE PLOT (PLOT 2)
+# DEFINE PERCENTILE PLOT (PLOT 2)
 
 # Define axis elements.
 y2 = [upper_quantile, middle_quantile, lower_quantile] * 100
