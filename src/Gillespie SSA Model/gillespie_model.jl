@@ -317,21 +317,6 @@ mean_mutant = collect(Iterators.flatten(mean_mutant))
 median_wild = collect(Iterators.flatten(median_wild))
 median_mutant = collect(Iterators.flatten(median_mutant))
 
-# Trends for mean and median concentrations.  TODO Remove this.
-# - Ensure that the smallest is subtracted from the largest.
-
-if mean_wild > mean_mutant
-    mean_trend = mean_wild - mean_mutant
-else
-    mean_trend = mean_mutant - mean_wild
-end
-
-if median_wild > median_mutant
-    median_trend = median_wild - median_mutant
-else
-    median_trend = median_mutant - median_wild
-end
-
 
 # DEFINE QUANTILES
 
@@ -344,14 +329,6 @@ for j in 1:num_times
     upper_quantile[j] = nanquantile(mutation_loads, 0.975)
     middle_quantile[j] = nanquantile(mutation_loads, 0.5)
     lower_quantile[j] = nanquantile(mutation_loads, 0.025)
-end
-
-# Trend of quantiles. TODO Remove this.
-
-if upper_quantile > lower_quantile
-    quantile_trend = upper_quantile - lower_quantile
-else
-    quantile_trend = lower_quantile - upper_quantile
 end
 
 

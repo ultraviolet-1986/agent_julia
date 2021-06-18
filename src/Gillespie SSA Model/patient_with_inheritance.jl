@@ -22,6 +22,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+##############
+# References #
+##############
+
+# Joseph Morgan, GitHub, RatesWithUncertaincy.m
+# - <https://git.io/Jn0dE>
+
 #########
 # Notes #
 #########
@@ -46,22 +53,31 @@ using Distributions,
 # Initial concentrations of wild-type and mutant mtDNA.
 u0 = [175, 25]
 
-# 80 Years = 960 Months.
-tend = 960.0
-
 # Number of simulation repeats.
 loops = 1000
 
+# VARIABLES > TEMPORAL UNITS
+
+month = 1
+year = month * 12
+day = year / 365
+
+# Target end time.
+tend = year * 80.0
+
+
 # VARIABLES > KINETIC RATES
 
-# Original rates: tuned to favour longer simulation runtime.
-# parameters = (r=0.01, m=0.001, d=0.01)
+# Calculate replication/degradation rate with uncertainty.
+replication_rate = rand(Normal(260, 1), 1)[1]
+replication_rate = log(2) / replication_rate
+replication_rate = replication_rate / (day)
 
-# 1 Month / 28 Days = Daily Rate (0.035714286)
-# parameters = (r=0.035714286, m=0.035714286, d=0.035714286)
+# Mutation rate (uncertainty not accounted for).
+mutation_rate = 2.314e-6  # Adjusted for this model's time-scale.
 
-# 1 Month / 28 Days / 24 Hours = Hourly Rate (0.001488095)
-parameters = (r=0.001488095, m=0.001488095, d=0.001488095)
+parameters = (r=replication_rate, m=mutation_rate, d=replication_rate)
+
 
 # VARIABLES > PATHS
 
@@ -98,7 +114,7 @@ fig = plot(
     y,  # Mutation Level
     xlabel="Time (years)",
     ylabel="Mutation level (%)",
-    ylims=(0, 100),
+    ylims=(0, 100),  # Comment to automatically zoom.
     title="Patient with mutant mtDNA inheritance",
     legend=false,
     dpi=1200
@@ -120,7 +136,7 @@ fig2 = plot(
     y2,  # Certainty [2.5th percentile, 50th percentile, 97.5th percentile]
     xlabel="Time (years)",
     ylabel="Certainty (%)",
-    ylims=(0, 100),
+    ylims=(0, 100),  # Comment to automatically zoom.
     title="Patient with mutant mtDNA inheritance",
     label=["97.5th percentile" "50th percentile" "2.5th percentile"],
     dpi=1200
