@@ -9,4 +9,4 @@
     parameters intended to mimic a patient who has inherited mutant mtDNA since
     birth.
   - Included example plots to view what results may look like per-situation.
-  - Included `sweep_plots.sh` to remove plots during testing process.
+  - Plots are now stored within a well-defined directory structure.

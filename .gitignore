@@ -27,3 +27,4 @@ Manifest.toml
 src/*.mp4
 src/*.png
 src/*/*.png
+src/*/plots

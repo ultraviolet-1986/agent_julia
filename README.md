@@ -10,7 +10,6 @@ submission for academic year 2020/2021.
 - [Execution Instructions](#execution-instructions)
   - [Agent Julia Model](#agent-julia-model)
   - [Gillespie SSA Model](#gillespie-ssa-model)
-  - [Batch Remove Plot Files](#batch-remove-plot-files)
 - [Development Environment](#development-environment)
 - [Resources](#resources)
 - [References](#references)
@@ -75,23 +74,6 @@ include("name_of_use_case.jl")
 In both events, the use-case script will define the simulation parameters and
 call the model script to perform the simulation, finally providing a report and
 a plot showing the results of the simulation.
-
-### Batch Remove Plot Files
-
-The `sweep_plots.sh` script is designed to move all generated plots to the
-Wastebasket during code testing. It will parse the folders from its current
-location and will not outright delete files. They can be restored from the file
-manager if required and is intended to prevent the accidental removal of model
-and simulation files. This script is intended for use under a GNU/Linux system
-and may be executed from the command-line by using the following command:
-
-```bash
-./sweep_plots.sh
-
-# OR
-
-bash sweep_plots.sh
-```
 
 ## Development Environment
 
