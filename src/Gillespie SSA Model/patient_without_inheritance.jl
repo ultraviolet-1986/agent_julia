@@ -35,6 +35,14 @@
 # Imports #
 ###########
 
+import Pkg
+
+Pkg.add([
+    "Distributions",
+    "Plots",
+    "StatsPlots"
+])
+
 using Distributions,
       Plots,
       StatsPlots
