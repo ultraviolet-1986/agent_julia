@@ -353,7 +353,7 @@ println("\nRESULTS\n=======\n")
 println("Simulation was looped $(loops) time(s).")
 println("Initial concentration of wild-type mtDNA: $(u0[1]) molecule(s).")
 println("Initial concentration of mutant mtDNA: $(u0[2]) molecule(s).")
-println("Population went extinct at $(num_times)/$(Int(floor(tend))) cycle(s) ",
+println("Population went extinct at $(num_times)/$(Int(floor(tend))) epoch(s) ",
     "or $(int_years) year(s) and $(int_months) month(s).")
 println("97.5th percentile (Head): $(upper_quantile[1:5])")
 println("50th percentile (Head):   $(middle_quantile[1:5])")
