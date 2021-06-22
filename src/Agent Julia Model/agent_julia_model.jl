@@ -89,6 +89,7 @@ function update_nodes!(a::SimpleCell)
     a.p2 = a.pos .- offset
 end
 
+
 unitvector(φ) = reverse(sincos(φ))
 
 
@@ -103,6 +104,7 @@ function model_step!(model)
             add_agent!(a.p1, model, 0.0, a.orientation, 0.0, 0.1 * rand(model.rng) + 0.05)
             add_agent!(a.p2, model, 0.0, a.orientation, 0.0, 0.1 * rand(model.rng) + 0.05)
             kill_agent!(a, model)
+
         else
             # The rest lengh of the internal spring grows with time.
             # This causes the nodes to physically separate.
@@ -112,6 +114,7 @@ function model_step!(model)
             a.f2 = internalforce
         end
     end
+
     # Bacteria can interact with more than on other cell at the same
     # time, therefore, we need to specify the option `:all` in
     # `interacting_pairs`
@@ -124,11 +127,15 @@ end
 function agent_step!(agent::SimpleCell, model::ABM)
     fsym, compression, torque = transform_forces(agent)
     new_pos = agent.pos .+ model.dt * model.mobility .* fsym
+
     move_agent!(agent, new_pos, model)
+
     agent.length += model.dt * model.mobility .* compression
     agent.orientation += model.dt * model.mobility .* torque
     agent.growthprog += model.dt * agent.growthrate
+
     update_nodes!(agent)
+
     return agent.pos
 end
 
@@ -138,6 +145,7 @@ function interact!(a1::SimpleCell, a2::SimpleCell, model)
     n12 = noderepulsion(a1.p1, a2.p2, model)
     n21 = noderepulsion(a1.p2, a2.p1, model)
     n22 = noderepulsion(a1.p2, a2.p2, model)
+
     a1.f1 = @. a1.f1 + (n11 + n12)
     a1.f2 = @. a1.f2 + (n21 + n22)
     a2.f1 = @. a2.f1 - (n11 + n21)
@@ -148,10 +156,12 @@ end
 function noderepulsion(p1::NTuple{2,Float64}, p2::NTuple{2,Float64}, model::ABM)
     delta = p1 .- p2
     distance = norm(delta)
+
     if distance ≤ 1
         uv = delta ./ distance
         return (model.hardness * (1 - distance)) .* uv
     end
+
     return (0, 0)
 end
 
@@ -159,11 +169,14 @@ end
 function transform_forces(agent::SimpleCell)
     # symmetric forces (CM movement)
     fsym = agent.f1 .+ agent.f2
+
     # antisymmetric forces (compression, torque)
     fasym = agent.f1 .- agent.f2
+
     uv = unitvector(agent.orientation)
     compression = dot(uv, fasym)
     torque = 0.5 * cross2D(uv, fasym)
+
     return fsym, compression, torque
 end
 
@@ -211,6 +224,7 @@ bacteria_color(b) = CairoMakie.RGBf0(b.id * 3.14 % 1, 0.2, 0.2)
 
 abm_video(
     "bacteria.mp4", model, agent_step!, model_step!;
+
     am = cassini_oval, ac = bacteria_color,
     spf = 50, framerate = 30, frames = 200,
     title = "Growing bacteria"
