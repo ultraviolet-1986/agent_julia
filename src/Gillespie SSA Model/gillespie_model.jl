@@ -83,7 +83,7 @@ Random.seed!(41269)
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
 """
-function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0)
+function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0/12.0)
     t = tstart    # Current time.
     ts = [t]      # List of reaction times.
     u = copy(u0)  # Current state.
@@ -119,24 +119,30 @@ end
 Propensity model for this reaction.
 Reaction of `Wild-type <-> Mutant` with rate constants `u[1]` & `u[2]`.
 """
-function model(u, p, t)
+function model(u, p, t; target_upper=250, target_lower=150)
     # Define copy number.
     cn = u[1] + u[2]
 
-    # Prevent early extinction.
-    if cn < 50
-        r1 = p.r * u[1]
-        r4 = p.r * u[2]
-    else
-        r1 = 0
-        r4 = 0
+    rxn1 = p.r * u[1]
+    rxn2 = p.d * u[1]
+    rxn3 = p.m * u[1]
+    rxn4 = p.r * u[2]
+    rxn5 = p.d * u[2]
+
+    # Prevent early extinction and population explosion.
+    if cn > target_upper
+        rxn1 = 0.0
+        rxn4 = 0.0
+    elseif cn < target_lower
+        rxn2 = 0.0
+        rxn5 = 0.0
     end
 
-    return [r1,          # Reaction 1: Replicate wild-type mtDNA.
-            p.d * u[1],  # Reaction 2: Degrade wild-type mtDNA.
-            p.m * u[1],  # Reaction 3: Mutate wild-type mtDNA.
-            r4,          # Reaction 4: Replicate mutant mtDNA.
-            p.d * u[2]]  # Reaction 5: Degrade mutant mtDNA.
+    return [rxn1,  # Reaction 1: Replicate wild-type mtDNA.
+            rxn2,  # Reaction 2: Degrade wild-type mtDNA.
+            rxn3,  # Reaction 3: Mutate wild-type mtDNA.
+            rxn4,  # Reaction 4: Replicate mutant mtDNA.
+            rxn5]  # Reaction 5: Degrade mutant mtDNA.
 end
 
 
@@ -355,8 +361,8 @@ println("Initial concentration of wild-type mtDNA: $(u0[1]) molecule(s).")
 println("Initial concentration of mutant mtDNA: $(u0[2]) molecule(s).")
 println("Population went extinct at $(num_times)/$(Int(floor(tend))) epoch(s) ",
     "or $(int_years) year(s) and $(int_months) month(s).")
-println("97.5th percentile (Head): $(upper_quantile[1:5])")
-println("50th percentile (Head):   $(middle_quantile[1:5])")
-println("2.5th percentile (Head):  $(lower_quantile[1:5])")
+# println("97.5th percentile (Head): $(upper_quantile[1:5])")
+# println("50th percentile (Head):   $(middle_quantile[1:5])")
+# println("2.5th percentile (Head):  $(lower_quantile[1:5])")
 
 # End of File.

@@ -66,9 +66,15 @@ loops = 1000
 
 # VARIABLES > TEMPORAL UNITS
 
-month = 1
-year = month * 12
-day = year / 365
+# month = 1
+# year = month * 12
+# day = year / 365
+
+# TODO Update kinetic rates to match example material.
+
+year = 1.0
+month = year / 12.0
+day = year / 365.0
 
 # Target end time.
 tend = year * 80.0
@@ -77,14 +83,16 @@ tend = year * 80.0
 # VARIABLES > KINETIC RATES
 
 # Calculate replication/degradation rate with uncertainty.
-replication_rate = rand(Normal(260, 1), 1)[1]
-replication_rate = log(2) / replication_rate
-replication_rate = replication_rate / (day)
+lambda = rand(Normal(260, 1), 1)[1]  # Unit in days.
+replication_rate = log(2) / lambda   # Unit is 1/day.
+replication_rate = 365 * replication_rate # replication_rate / (day)
 
 # Mutation rate (uncertainty not accounted for).
-mutation_rate = 2.314e-6  # Adjusted for this model's time-scale.
+# mutation_rate_pm = 2.314e-6  # Adjusted for this model's time-scale.
+mutation_rate_ps = 1.157e-12  # Per-second.
+mutation_rate = mutation_rate_ps * 60.0 * 60.0 * 24.0 * 365.0
 
-parameters = (r=replication_rate, m=mutation_rate, d=replication_rate)
+parameters = (r=replication_rate, m=0.0, d=replication_rate)
 
 
 # VARIABLES > PATHS
@@ -141,9 +149,9 @@ y2 = [upper_quantile, middle_quantile, lower_quantile] * 100
 print("Creating quantile plot '$(plot_2_path)'... ")
 fig2 = plot(
     x,   # Temporal States
-    y2,  # Certainty [2.5th percentile, 50th percentile, 97.5th percentile]
+    y2,  # Mutation level [2.5th percentile, 50th percentile, 97.5th percentile]
     xlabel="Time (years)",
-    ylabel="Certainty (%)",
+    ylabel="Mutation level (%)",
     ylims=(0, 100),  # Comment to automatically zoom.
     title="Patient with mutant mtDNA inheritance",
     label=["97.5th percentile" "50th percentile" "2.5th percentile"],
