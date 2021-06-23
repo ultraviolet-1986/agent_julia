@@ -38,8 +38,6 @@
 # Imports #
 ###########
 
-# TODO Remove unused libraries.
-
 import Pkg
 
 Pkg.add([
@@ -83,7 +81,7 @@ Random.seed!(41269)
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
 """
-function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0/12.0)
+function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0)
     t = tstart    # Current time.
     ts = [t]      # List of reaction times.
     u = copy(u0)  # Current state.
@@ -213,11 +211,12 @@ end
 
 
 """
-`loop_simulation(n::Int64)`
+`loop_simulation(n=1::Int64)`
 
 Perform the simulation `n` number of times and return the result. Note
 that this function is hard-coded to run a single model defined eslwhere
-in the `gillespie_model.jl` file.
+in the `gillespie_model.jl` file and will run the simulation only once
+if an argument is not provided.
 
 # Examples
 
@@ -225,7 +224,7 @@ in the `gillespie_model.jl` file.
 julia> loop_simulation(10)
 ```
 """
-function loop_simulation(n::Int64)
+function loop_simulation(n=1::Int64)
     # Create new arrays for holding all results.
     time_states = []
     concentration_states = []
@@ -254,6 +253,7 @@ nanmedian(x) = median(filter(!isnan, x))
 nanmedian(x, y) = mapslices(nanmedian, x, dims=y)
 
 nanquantile(x, y) = quantile(filter(!isnan,x), y)
+
 
 ###########
 # Exports #
@@ -287,6 +287,7 @@ num_times = size(results.u[1])[1]
 num_species = size(results.u[1])[2]
 
 # Create a list of times.
+# NOTE Each row will be exactly the same.
 times = results.t[1]
 
 # Preallocate array for states.
@@ -308,7 +309,7 @@ end
 total = sum(molecules, dims=3)
 
 # Calculate percentage of wild-type and mutant mtDNA.
-wild_load = molecules[:, :, 1] ./total
+wild_load = molecules[:, :, 1] ./ total
 mutation_load = molecules[:, :, 2] ./ total
 
 # Calculate metrics for plotting.
@@ -361,8 +362,8 @@ println("Initial concentration of wild-type mtDNA: $(u0[1]) molecule(s).")
 println("Initial concentration of mutant mtDNA: $(u0[2]) molecule(s).")
 println("Population went extinct at $(num_times)/$(Int(floor(tend))) epoch(s) ",
     "or $(int_years) year(s) and $(int_months) month(s).")
-# println("97.5th percentile (Head): $(upper_quantile[1:5])")
-# println("50th percentile (Head):   $(middle_quantile[1:5])")
-# println("2.5th percentile (Head):  $(lower_quantile[1:5])")
+println("97.5th percentile (Head): $(upper_quantile[1:5])")
+println("50th percentile (Head):   $(middle_quantile[1:5])")
+println("2.5th percentile (Head):  $(lower_quantile[1:5])")
 
 # End of File.

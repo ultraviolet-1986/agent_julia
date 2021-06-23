@@ -59,41 +59,54 @@ using Distributions,
 #############
 
 # Initial concentrations of wild-type and mutant mtDNA.
-u0 = [175, 25]
+u0 = [200, 25]
 
 # Number of simulation repeats.
 loops = 1000
 
 # VARIABLES > TEMPORAL UNITS
 
-# month = 1
-# year = month * 12
-# day = year / 365
-
-# TODO Update kinetic rates to match example material.
-
-year = 1.0
-month = year / 12.0
+month = 1.0
+year = month * 12.0
 day = year / 365.0
+week = day * 7.0
 
 # Target end time.
 tend = year * 80.0
 
-
 # VARIABLES > KINETIC RATES
 
-# Calculate replication/degradation rate with uncertainty.
-lambda = rand(Normal(260, 1), 1)[1]  # Unit in days.
-replication_rate = log(2) / lambda   # Unit is 1/day.
-replication_rate = 365 * replication_rate # replication_rate / (day)
+lambda = rand(Normal(260.0, 1), 1)[1]
+replication_rate = log(2) / lambda
+replication_rate = replication_rate ./ (day)
 
-# Mutation rate (uncertainty not accounted for).
+## OLD
+# # Calculate replication/degradation rate with uncertainty.
+# lambda = rand(Normal(260, 1), 1)[1]  # Unit in days.
+# replication_rate = log(2) / lambda   # Unit is 1/day.
+# # replication_rate = 365 * replication_rate # replication_rate / (day)
+# replication_rate = replication_rate ./ (day)
+
+# # Mutation rate (uncertainty not accounted for).
 # mutation_rate_pm = 2.314e-6  # Adjusted for this model's time-scale.
-mutation_rate_ps = 1.157e-12  # Per-second.
-mutation_rate = mutation_rate_ps * 60.0 * 60.0 * 24.0 * 365.0
+# mutation_rate_ps = 1.157e-12  # Per-second.
+# # mutation_rate = mutation_rate_ps * 60.0 * 60.0 * 24.0 * 365.0
 
-parameters = (r=replication_rate, m=0.0, d=replication_rate)
+mutation_rate = 2.314e-6
 
+# /OLD
+
+# parameters = (r=replication_rate, m=mutation_rate, d=replication_rate)
+
+# 1 Month / 28 Days / 24 Hours = Hourly Rate (0.001488095)
+# parameters = (r=0.001488095, m=0.0, d=0.001488095)
+
+# 1 Month / 28 Days = Daily Rate (0.035714286)
+# parameters = (r=0.035714286, m=0.0, d=0.035714286)
+
+# Original rates: tuned to favour longer simulation runtime.
+# parameters = (r=0.01, m=0.00001, d=0.01)
+parameters = (r=replication_rate, m=mutation_rate, d=replication_rate)
 
 # VARIABLES > PATHS
 
@@ -102,7 +115,6 @@ plot_path = "$(pwd())/plots/patient_with_inheritance"
 plot_1_path = "$(plot_path)/01_timeline.png"
 plot_2_path = "$(plot_path)/02_quantiles.png"
 plot_3_path = "$(plot_path)/03_density.png"
-plot_4_path = "$(plot_path)/04_distribution.png"
 
 #############
 # Kickstart #
@@ -121,8 +133,8 @@ include("$(pwd())/gillespie_model.jl")
 # DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
 # Define plot axis elements.
-x = times / 12.0       # Convert months to years.
-y = mean_mutant * 100  # Convert mutation level to percentage.
+x = times / 12.0         # Convert months to years.
+y = mean_mutant * 100.0  # Convert mutation level to percentage.
 
 print("\nCreating mutation/time plot '$(plot_1_path)'... ")
 fig = plot(
@@ -152,9 +164,12 @@ fig2 = plot(
     y2,  # Mutation level [2.5th percentile, 50th percentile, 97.5th percentile]
     xlabel="Time (years)",
     ylabel="Mutation level (%)",
-    ylims=(0, 100),  # Comment to automatically zoom.
+    ylims=(-5, 100),  # Comment to automatically zoom.
     title="Patient with mutant mtDNA inheritance",
-    label=["97.5th percentile" "50th percentile" "2.5th percentile"],
+    # label=["97.5th percentile" "50th percentile" "2.5th percentile"],
+    legend=false,
+    linecolor=:black,
+    linealpha=0.5,
     dpi=1200
 )
 
@@ -178,24 +193,6 @@ fig3 = density(
 )
 
 savefig(fig3, "$(plot_3_path)")
-println("Done")
-
-
-# DEFINE NORMAL DISTRIBUTION PLOT (PLOT 4)
-
-# Define axis elements.
-x4 = Normal(mean(mean_mutant))
-
-print("Creating distribution plot '$(plot_4_path)'... ")
-fig4 = plot(
-    x4,
-    title="Patient with mutant mtDNA inheritance",
-    xlabel="Distribution (mutation mean)",
-    legend=false,
-    dpi=1200
-)
-
-savefig(fig4, "$(plot_4_path)")
 println("Done")
 
 # End of File.
