@@ -22,13 +22,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-##############
-# References #
-##############
-
-# Joseph Morgan, GitHub, RatesWithUncertaincy.m
-# - <https://git.io/Jn0dE>
-
 #########
 # Notes #
 #########
@@ -58,31 +51,13 @@ using Distributions,
 # Variables #
 #############
 
+# VARIABLES > INITIAL CONDITIONS
+
 # Initial concentrations of wild-type and mutant mtDNA.
 u0 = [175, 25]
 
 # Number of simulation repeats.
 loops = 1000
-
-
-# VARIABLES > TEMPORAL UNITS
-
-month = 1.0
-year = month * 12.0
-day = year / 365.0
-hour = day / 24.0
-week = day * 7.0
-
-# Target end time.
-tend = year * 80.0
-
-
-# VARIABLES > KINETIC RATES
-
-replication_rate = hour
-
-parameters = (r=replication_rate, m=0.0, d=replication_rate)
-
 
 # VARIABLES > PATHS
 
@@ -100,12 +75,11 @@ plot_3_path = "$(plot_path)/03_density.png"
 
 mkpath(plot_path)
 
-
 # EXECUTE MODEL
 
 # Run Gillespie SSA model with above parameters.
+# NOTE Static seed will be assigned from this file.
 include("$(pwd())/gillespie_model.jl")
-
 
 # DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
@@ -129,7 +103,6 @@ fig = plot(
 savefig(fig, "$(plot_1_path)")
 println("Done")
 
-
 # DEFINE PERCENTILE PLOT (PLOT 2)
 
 # Define axis elements.
@@ -150,7 +123,6 @@ fig2 = plot(
 # Save plot in current working directory.
 savefig(fig2, "$(plot_2_path)")
 println("Done")
-
 
 # DEFINE DENSITY PLOT (PLOT 3)
 

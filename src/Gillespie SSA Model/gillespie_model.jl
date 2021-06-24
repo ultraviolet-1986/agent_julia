@@ -65,8 +65,27 @@ Random.seed!(41269)
 # Variables #
 #############
 
-# - Variables are to be defined within a simulation file.
+# VARIABLES > INITIAL CONDITIONS
+
+# - These variables are to be defined within a simulation file.
 #   - e.g. `patient_with_inheritance.jl`.
+
+# VARIABLES > TEMPORAL UNITS
+
+month = 1.0
+year = month * 12.0
+day = year / 365.0
+hour = day / 24.0
+week = day * 7.0
+
+# Target end time.
+tend = year * 80.0
+
+# VARIABLES > KINETIC RATES
+
+replication_rate = hour
+
+parameters = (r=replication_rate, m=0.0, d=replication_rate)
 
 #############
 # Functions #
@@ -85,6 +104,8 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0::Fl
     ts = [t]      # List of reaction times.
     u = copy(u0)  # Current state.
     us = copy(u)  # Record of states.
+
+    # delta = month  # Uncomment `delta` to override delta.
 
     times = [tstart: delta: tend;]
     tindex = 2
