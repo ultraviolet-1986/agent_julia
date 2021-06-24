@@ -62,12 +62,11 @@ u0 = [random_wild, random_mutant]
 
 # VARIABLES > PATHS
 
-plot_path = "$(pwd())/plots/random_simulation"
+plot_path = "$(Base.source_dir())/plots/random_simulation"
 
 plot_1_path = "$(plot_path)/01_timeline.png"
 plot_2_path = "$(plot_path)/02_quantiles.png"
 plot_3_path = "$(plot_path)/03_density.png"
-plot_4_path = "$(plot_path)/04_distribution.png"
 
 #############
 # Kickstart #
@@ -80,7 +79,7 @@ mkpath(plot_path)
 
 # Run Gillespie SSA model with above parameters.
 # NOTE Static seed will be assigned from this file.
-include("$(pwd())/gillespie_model.jl")
+include("$(Base.source_dir())/gillespie_model.jl")
 
 # DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
