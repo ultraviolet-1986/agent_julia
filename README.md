@@ -31,8 +31,7 @@ context.
 ## Requirements
 
 At the time of writing, this software requires `Julia` versions greater than or
-equal to `v1.6`. Have confirmed the software will not operate under a
-`Julia v1.4.x` environment.
+equal to `v1.6.0` and previous versions have not been accounted for.
 
 ## Execution Instructions
 
@@ -74,6 +73,10 @@ include("name_of_use_case.jl")
 In both events, the use-case script will define the simulation parameters and
 call the model script to perform the simulation, finally providing a report and
 a plot showing the results of the simulation.
+
+Note that *Microsoft Visual Studio Code* users may simply open the simulation
+file of their choice and run the file using the built-in debugger, or the `Run`
+button toward the right of the tab bar.
 
 ## Development Environment
 
