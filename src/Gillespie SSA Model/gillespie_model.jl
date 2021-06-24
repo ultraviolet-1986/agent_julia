@@ -117,7 +117,7 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0::Fl
             tindex = tindex + 1
         end
 
-        dx = model(u, p, t)
+        dx = model(u, p)
         total_hazard = sum(dx)
         dt = Random.randexp() / total_hazard
         stoich = choose_stoich(dx, total_hazard)
@@ -132,12 +132,12 @@ end
 
 
 """
-`model(u, p; target_upper=250::Int, target_lower=150::Int)`
+`model(u, p; target_upper=250::Int64, target_lower=150::Int64)`
 
 Propensity model for this reaction.
 Reaction of `wild-type mtDNA <-> mutant mtDNA` with rate constants `u[1]` & `u[2]`.
 """
-function model(u, p; target_upper=250::Int, target_lower=150::Int64)
+function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
     # Define copy number.
     cn = u[1] + u[2]
 
