@@ -135,7 +135,8 @@ end
 `model(u, p; target_upper=250::Int64, target_lower=150::Int64)`
 
 Propensity model for this reaction.
-Reaction of `wild-type mtDNA <-> mutant mtDNA` with rate constants `u[1]` & `u[2]`.
+Reactions of `wild-type mtDNA` and `mutant mtDNA` using kinetic rates
+`p.d`, `p.m` and `p.r`.
 """
 function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
     # Define copy number.
@@ -202,25 +203,19 @@ function choose_stoich(dx, dxsum=sum(dx))
     roll = rand()
 
     # Reaction 1: Replicate wild-type mtDNA.
-    if roll <= sections[1]
-        stoich = [1, 0]
+    if roll <= sections[1]; stoich = [1, 0]
 
     # Reaction 2: Degrade wild-type mtDNA.
-    elseif roll <= sections[2]
-        stoich = [-1, 0]
+    elseif roll <= sections[2]; stoich = [-1, 0]
 
     # Reaction 3: Mutate wild-type mtDNA.
-    elseif roll <= sections[3]
-        stoich = [0, 1]
+    elseif roll <= sections[3]; stoich = [0, 1]
 
     # Reaction 4: Replicate mutant mtDNA.
-    elseif roll <= sections[4]
-        stoich = [0, 1]
+    elseif roll <= sections[4]; stoich = [0, 1]
 
     # Reaction 5: Degrade mutant mtDNA.
-    else
-        stoich = [0, -1]
-    end
+    else; stoich = [0, -1]; end
 
     return stoich
 end
