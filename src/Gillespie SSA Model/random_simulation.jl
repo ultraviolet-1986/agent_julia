@@ -22,32 +22,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#########
-# Notes #
-#########
-
-# - Requires Julia >= v1.6.
-# - Time-scale for this model is that integer '1' equals 1 month.
-#   - Scales are adjusted to years when defining the plot only.
-#   - With 'delta' being '1', we are recording results monthly.
-
 ###########
 # Imports #
 ###########
 
 import Pkg
 
-Pkg.add([
-    "Distributions",
-    "Plots",
-    "Random",
-    "StatsPlots"
-])
+Pkg.add("Distributions")
+Pkg.add("Plots")
+Pkg.add("Random")
+Pkg.add("StatsPlots")
 
-using Distributions,
-      Plots,
-      Random,
-      StatsPlots
+using Distributions
+using Plots
+using Random
+using StatsPlots
 
 #################
 # Prerequisites #
@@ -73,9 +62,6 @@ random_mutant = max_elements - random_wild
 # Initial concentrations of wild-type and mutant mtDNA.
 u0 = [random_wild, random_mutant]
 
-# Number of simulation repeats.
-loops = 1000
-
 # VARIABLES > PATHS
 
 plot_path = "$(pwd())/plots/random_simulation"
@@ -89,8 +75,7 @@ plot_4_path = "$(plot_path)/04_distribution.png"
 # Kickstart #
 #############
 
-# CREATE PLOT DIRECTORY
-
+# Create plot directory.
 mkpath(plot_path)
 
 # EXECUTE MODEL
@@ -111,7 +96,7 @@ fig = plot(
     y,  # Mutation Level
     xlabel="Time (years)",
     ylabel="Mutation level (%)",
-    ylims=(0, 100),  # Comment to automatically zoom.
+    ylims=(-10, 100),  # Comment to automatically zoom.
     title="Patient with random mutant mtDNA inheritance",
     legend=false,
     dpi=1200
@@ -132,7 +117,7 @@ fig2 = plot(
     y2,  # Mutation level [2.5th percentile, 50th percentile, 97.5th percentile]
     xlabel="Time (years)",
     ylabel="Mutation level (%)",
-    ylims=(-5, 100),  # Comment to automatically zoom.
+    ylims=(-10, 100),  # Comment to automatically zoom.
     title="Patient with random mutant mtDNA inheritance",
     label=["97.5th percentile" "50th percentile" "2.5th percentile"],
     dpi=1200

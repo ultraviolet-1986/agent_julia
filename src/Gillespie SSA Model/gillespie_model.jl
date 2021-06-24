@@ -27,6 +27,9 @@
 #########
 
 # - Requires Julia >= v1.6.
+# - Time-scale for this model is that integer `1` equals 1 month.
+#   - Scales are adjusted to years when defining the plot only.
+#   - With 'delta' being `1`, we are recording results monthly.
 
 ##############
 # References #
@@ -40,19 +43,13 @@
 
 import Pkg
 
-Pkg.add([
-    "IterTools",
-    "Plots",
-    "StatsBase",
-    "StatsPlots"
-])
+Pkg.add("IterTools")
+Pkg.add("Random")
+Pkg.add("Statistics")
 
-using IterTools,
-      Plots,
-      Random,
-      Statistics,
-      StatsBase,
-      StatsPlots
+using IterTools
+using Random
+using Statistics
 
 #################
 # Prerequisites #
@@ -67,8 +64,11 @@ Random.seed!(41269)
 
 # VARIABLES > INITIAL CONDITIONS
 
-# - These variables are to be defined within a simulation file.
-#   - e.g. `patient_with_inheritance.jl`.
+# The `u0` variable is to be defined within a simulation file e.g.
+# `patient_with_inheritance.jl`.
+
+# Number of simulation repeats.
+loops = 1000
 
 # VARIABLES > TEMPORAL UNITS
 
@@ -139,8 +139,7 @@ Reactions of `wild-type mtDNA` and `mutant mtDNA` using kinetic rates
 `p.d`, `p.m` and `p.r`.
 """
 function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
-    # Define copy number.
-    cn = u[1] + u[2]
+    cn = u[1] + u[2]  # Define copy number.
 
     rxn1 = p.r * u[1]  # Reaction 1: Replicate wild-type mtDNA.
     rxn2 = p.d * u[1]  # Reaction 2: Degrade wild-type mtDNA.
@@ -148,14 +147,11 @@ function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
     rxn4 = p.r * u[2]  # Reaction 4: Replicate mutant mtDNA.
     rxn5 = p.d * u[2]  # Reaction 5: Degrade mutant mtDNA.
 
-    # Prevent early extinction and population explosion.
-    if cn > target_upper
-        rxn1 = 0.0  # Disable replication.
-        rxn4 = 0.0  # Disable replication.
-    elseif cn < target_lower
-        rxn2 = 0.0  # Disable degradation.
-        rxn5 = 0.0  # Disable degradation.
-    end
+    # Disable replication to prevent population explosion.
+    if cn > target_upper; rxn1 = rxn4 = 0.0
+
+    # Disable degradation to prevnet population extinction.
+    elseif cn < target_lower; rxn2 = rxn5 = 0.0; end
 
     return [rxn1, rxn2, rxn3, rxn4, rxn5]
 end
@@ -240,13 +236,13 @@ function loop_simulation(n=1::Int64)
     time_states = []
     concentration_states = []
 
-    # Start at loop number 1 in intervals of 1 until 'n'.
+    # Start at loop number 1 in intervals of 1 until `n`.
     for i in 1:1:n
         # Define and run the simulation.
         sol = ssa(model, u0, tend, parameters, choose_stoich)
 
-        # - Take the results and store them in 'time_states' and
-        #   'concentration_states' respectively.
+        # Take the results and store them in `time_states` and
+        # `concentration_states` respectively.
         push!(time_states, sol.t)
         push!(concentration_states, sol.u)
     end
@@ -287,7 +283,7 @@ export nanquantile
 # Kickstart #
 #############
 
-# Run simulation 'loops' time(s) and assign output to 'results'.
+# Run simulation `loops` time(s) and assign output to `results`.
 results = loop_simulation(loops)
 
 # Calculate total number of elements.
@@ -302,7 +298,7 @@ times = results.t[1]
 # Preallocate array for states.
 molecules = fill(NaN, num_simulations, num_times, num_species)
 
-# Populate 'molecules' array.
+# Populate `molecules` array.
 # NOTE Empty spaces will contain NaN.
 for i in 1:num_simulations
     for j in 1:num_times
