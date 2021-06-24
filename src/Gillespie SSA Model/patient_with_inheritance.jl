@@ -28,11 +28,9 @@
 
 import Pkg
 
-Pkg.add("Distributions")
 Pkg.add("Plots")
 Pkg.add("StatsPlots")
 
-using Distributions
 using Plots
 using StatsPlots
 
