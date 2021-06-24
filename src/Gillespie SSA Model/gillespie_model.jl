@@ -72,16 +72,15 @@ Random.seed!(41269)
 # Functions #
 #############
 
-
 # FUNCTIONS > GILLESPIE MODEL
 
 """
-`ssa(model, u0, tend, p, choose_stoich, tstart; delta=1.0)`
+`ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0::Float64)`
 
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
 """
-function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0)
+function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0::Float64)
     t = tstart    # Current time.
     ts = [t]      # List of reaction times.
     u = copy(u0)  # Current state.
@@ -112,40 +111,36 @@ end
 
 
 """
-`model(u, p, t)`
+`model(u, p; target_upper=250::Int, target_lower=150::Int)`
 
 Propensity model for this reaction.
-Reaction of `Wild-type <-> Mutant` with rate constants `u[1]` & `u[2]`.
+Reaction of `wild-type mtDNA <-> mutant mtDNA` with rate constants `u[1]` & `u[2]`.
 """
-function model(u, p, t; target_upper=250, target_lower=150)
+function model(u, p; target_upper=250::Int, target_lower=150::Int64)
     # Define copy number.
     cn = u[1] + u[2]
 
-    rxn1 = p.r * u[1]
-    rxn2 = p.d * u[1]
-    rxn3 = p.m * u[1]
-    rxn4 = p.r * u[2]
-    rxn5 = p.d * u[2]
+    rxn1 = p.r * u[1]  # Reaction 1: Replicate wild-type mtDNA.
+    rxn2 = p.d * u[1]  # Reaction 2: Degrade wild-type mtDNA.
+    rxn3 = p.m * u[1]  # Reaction 3: Mutate wild-type mtDNA.
+    rxn4 = p.r * u[2]  # Reaction 4: Replicate mutant mtDNA.
+    rxn5 = p.d * u[2]  # Reaction 5: Degrade mutant mtDNA.
 
     # Prevent early extinction and population explosion.
     if cn > target_upper
-        rxn1 = 0.0
-        rxn4 = 0.0
+        rxn1 = 0.0  # Disable replication.
+        rxn4 = 0.0  # Disable replication.
     elseif cn < target_lower
-        rxn2 = 0.0
-        rxn5 = 0.0
+        rxn2 = 0.0  # Disable degradation.
+        rxn5 = 0.0  # Disable degradation.
     end
 
-    return [rxn1,  # Reaction 1: Replicate wild-type mtDNA.
-            rxn2,  # Reaction 2: Degrade wild-type mtDNA.
-            rxn3,  # Reaction 3: Mutate wild-type mtDNA.
-            rxn4,  # Reaction 4: Replicate mutant mtDNA.
-            rxn5]  # Reaction 5: Degrade mutant mtDNA.
+    return [rxn1, rxn2, rxn3, rxn4, rxn5]
 end
 
 
 @doc raw"""
-`choose_stoich(dx, dxsum)`
+`choose_stoich(dx, dxsum=sum(dx))`
 
 This function will choose and return the Stoichiometry which dictates
 what reaction has occurred.
@@ -177,7 +172,7 @@ M_2 \begin{array}{c}rM_2\\ \Rightarrow\end{array} 2M_2
 M_2 \begin{array}{c}dM_2\\ \Rightarrow\end{array} \emptyset
 ```
 """
-function choose_stoich(dx, dxsum = sum(dx))
+function choose_stoich(dx, dxsum=sum(dx))
     # Calculate probability.
     sections = cumsum(dx / dxsum)
 
@@ -243,7 +238,6 @@ function loop_simulation(n=1::Int64)
     return(t = time_states, u = concentration_states)
 end
 
-
 # FUNCTIONS > NaN HANDLING
 
 nanmean(x) = mean(filter(!isnan, x))
@@ -253,7 +247,6 @@ nanmedian(x) = median(filter(!isnan, x))
 nanmedian(x, y) = mapslices(nanmedian, x, dims=y)
 
 nanquantile(x, y) = quantile(filter(!isnan,x), y)
-
 
 ###########
 # Exports #
@@ -324,7 +317,6 @@ mean_mutant = collect(Iterators.flatten(mean_mutant))
 median_wild = collect(Iterators.flatten(median_wild))
 median_mutant = collect(Iterators.flatten(median_mutant))
 
-
 # DEFINE QUANTILES
 
 upper_quantile = fill(NaN, num_times)
@@ -338,12 +330,10 @@ for j in 1:num_times
     lower_quantile[j] = nanquantile(mutation_loads, 0.025)
 end
 
-
 # DEFINE PLOT
 
 # - Plot and elements are to be defined within a simulation file.
 #   - e.g. `patient_with_inheritance.jl`.
-
 
 # TEXT REPORT
 
