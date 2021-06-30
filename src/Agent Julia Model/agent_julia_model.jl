@@ -35,19 +35,17 @@
 
 import Pkg
 
-Pkg.add([
-    "Agents",
-    "CairoMakie",
-    "InteractiveDynamics",
-    "LinearAlgebra",
-    "Random"
-])
+Pkg.add("Agents")
+Pkg.add("CairoMakie")
+Pkg.add("InteractiveDynamics")
+Pkg.add("LinearAlgebra")
+Pkg.add("Random")
 
-using Agents,
-      CairoMakie,
-      InteractiveDynamics,
-      LinearAlgebra,
-      Random
+using Agents
+using CairoMakie
+using InteractiveDynamics
+using LinearAlgebra
+using Random
 
 #################
 # Prerequisites #
