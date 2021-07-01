@@ -96,7 +96,8 @@ cross2D(a, b) = a[1] * b[2] - a[2] * b[1]
 
 function model_step!(model)
     for a in allagents(model)
-        if a.growthprog ≥ 1
+        # if a.growthprog ≥ 1
+        if a.growthprog >= 1
             # When a cell has matured, it divides into two daughter
             # cells on the positions of its nodes.
             add_agent!(a.p1, model, 0.0, a.orientation, 0.0, 0.1 * rand(model.rng) + 0.05)
