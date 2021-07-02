@@ -180,7 +180,7 @@ end
 
 
 # Dictate grid size.
-space = ContinuousSpace((200, 100), 1.0; periodic = false)
+space = ContinuousSpace((16, 9), 1.0; periodic = false)
 
 
 model = ABM(
@@ -226,8 +226,8 @@ try
         "bacteria.mp4", model, agent_step!, model_step!;
 
         am = cassini_oval, ac = bacteria_color,
-        spf = 50, framerate = 30, frames = 200,
-        title = "Growing bacteria"
+        spf=25, framerate=60, frames=400, resolution=(1920, 1080),
+        title = "mtDNA population dynamics"
     )
 catch
     println("\nERROR: Failed to create video file.")
