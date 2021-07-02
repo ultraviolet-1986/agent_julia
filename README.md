@@ -1,7 +1,7 @@
 # Agent Julia
 
-Project code for Newcastle University MSc Bioinformatics project
-submission for academic year 2020/2021.
+Project code for Newcastle University MSc Bioinformatics project submission for
+academic year 2020/2021.
 
 ## Table of Contents
 
@@ -16,17 +16,15 @@ submission for academic year 2020/2021.
 
 ## Description
 
-This repository contains the code for the `Agent Julia` program. This is
-a model for measuring the dynamics of mtDNA within a 3-dimensional space
-over the course of a human life-span of approximately 90 years. It is
-written in the Julia programming language (v1.6.0) and makes use of the
-`Agents.jl` package.
+This repository contains the code for the `Agent Julia` program. This is a model
+for measuring the dynamics of mtDNA within a 3-dimensional space over the course
+of a human life-span of approximately 90 years. It is written in the Julia
+programming language (v1.6.0) and makes use of the `Agents.jl` package.
 
-The timeline of this project is: `26/04/2021` to `27/08/2021` and
-package versions will be contemporary to this time and no changes will
-be applied once the code is ready for submission. Updates past this
-time represent a continuation of the project outside of an academic
-context.
+The timeline of this project is: `26/04/2021` to `27/08/2021` and package
+versions will be contemporary to this time and no changes will be applied once
+the code is ready for submission. Updates past this time represent a
+continuation of the project outside of an academic context.
 
 ## Requirements
 
@@ -40,7 +38,10 @@ executed from within the Julia REPL.
 
 ### Agent Julia Model
 
-**To be written.**
+Note that this script has a companion called `integrated_gpu_support.sh`, which
+is intended to be ran in the event that the user has a machine with an
+integrated GPU. This is due to a change within the `CairoMakie` package, this
+package is used to render the output.
 
 ### Gillespie SSA Model
 
@@ -91,12 +92,12 @@ time of writing):
 
 ## Resources
 
-This section will contain a list of resources including code and
-sources of data which were used to create this software.
+This section will contain a list of resources including code and sources of data
+which were used to create this software.
 
 - [Gillespie Model in Julia](https://nextjournal.com/bebi5009/gillespie-julia)
 
 ## References
 
-This section will contain a list of academic papers which were used to
-create this software.
+This section will contain a list of academic papers which were used to create
+this software.

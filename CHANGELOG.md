@@ -8,5 +8,10 @@
     situations. For example, the `patient_with_inheritance.jl` file contains
     parameters intended to mimic a patient who has inherited mutant mtDNA since
     birth.
-  - Included example plots to view what results may look like per-situation.
-  - Plots are now stored within a well-defined directory structure.
+- Included example plots to view what results may look like per-situation.
+- Plots are now stored within a well-defined directory structure.
+- Included `integrated_gpu_support.sh` to correct an update for the
+  `CairoMakie` package, which no longer supports integrated GPUs by default.
+  - This script will execute the `agent_julia_model.jl` with `sudo` permissions
+    and will also be used to change permissions for the output. Review code
+    before use.
