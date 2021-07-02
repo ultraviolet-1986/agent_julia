@@ -32,7 +32,7 @@
 # Notes #
 #########
 
-# - This script requires `sudo` permissions and assumes you are using a
+# - This script requires 'sudo' permissions and assumes you are using a
 #   machine that has an integrated GPU e.g. Intel HD/UHD chipsets.
 # - Users of an NVIDIA/AMD GPU should not need to use this script.
 
@@ -44,7 +44,7 @@ echo "NOTE Using 'sudo' permissions to execute 'agent_julia_model.jl'."
 echo "NOTE Enforcing the use of integrated GPU for plotting."
 sudo DRI_PRIME=1 julia 'agent_julia_model.jl'
 
-# Change ownership of `bacteria.mp4` from `root` to the current user if
+# Change ownership of 'bacteria.mp4' from 'root' to the current user if
 # the file exists.
 if [ -f 'bacteria.mp4' ]; then
   echo "NOTE Using 'sudo' to change 'bacteria.mp4' permissions."
