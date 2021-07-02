@@ -179,7 +179,8 @@ function transform_forces(agent::SimpleCell)
 end
 
 
-space = ContinuousSpace((14, 9), 1.0; periodic = false)
+# Dictate grid size.
+space = ContinuousSpace((200, 100), 1.0; periodic = false)
 
 
 model = ABM(
@@ -220,12 +221,17 @@ adata = [:pos, :length, :orientation, :growthprog, :p1, :p2, :f1, :f2]
 
 bacteria_color(b) = CairoMakie.RGBf0(b.id * 3.14 % 1, 0.2, 0.2)
 
-abm_video(
-    "bacteria.mp4", model, agent_step!, model_step!;
+try
+    abm_video(
+        "bacteria.mp4", model, agent_step!, model_step!;
 
-    am = cassini_oval, ac = bacteria_color,
-    spf = 50, framerate = 30, frames = 200,
-    title = "Growing bacteria"
-)
+        am = cassini_oval, ac = bacteria_color,
+        spf = 50, framerate = 30, frames = 200,
+        title = "Growing bacteria"
+    )
+catch
+    println("\nERROR: Failed to create video file.")
+    println("NOTE:  Please run the 'integrated_gpu_support.sh' script.")
+end
 
 # End of File.
