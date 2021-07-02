@@ -8,8 +8,8 @@ academic year 2020/2021.
 - [Description](#description)
 - [Requirements](#requirements)
 - [Execution Instructions](#execution-instructions)
-  - [Agent Julia Model](#agent-julia-model)
   - [Gillespie SSA Model](#gillespie-ssa-model)
+  - [Agent Julia Model](#agent-julia-model)
 - [Development Environment](#development-environment)
 - [Resources](#resources)
 - [References](#references)
@@ -35,25 +35,6 @@ equal to `v1.6.0` and previous versions have not been accounted for.
 
 This program was written to be executed from the command line but may also be
 executed from within the Julia REPL.
-
-### Agent Julia Model
-
-Note that this script has a companion called `integrated_gpu_support.sh`, which
-is intended to be ran in the event that the user has a machine with an
-integrated GPU. This is due to a change within the `CairoMakie` package, this
-package is used to render the output.
-
-It is possible to execute the companion script using the Terminal with the
-following command (This script may also be executed using the Julia REPL by
-switching into shell mode by using the `;` key and using the same commands):
-
-```bash
-bash integrated_gpu_support.sh
-
-# OR
-
-./integrated_gpu_support.sh
-```
 
 ### Gillespie SSA Model
 
@@ -90,6 +71,25 @@ a plot showing the results of the simulation.
 Note that *Microsoft Visual Studio Code* users may simply open the simulation
 file of their choice and run the file using the built-in debugger, or the `Run`
 button toward the right of the tab bar.
+
+### Agent Julia Model
+
+Note that this script has a companion called `integrated_gpu_support.sh`, which
+is intended to be ran in the event that the user has a machine with an
+integrated GPU. This is due to a change within the `CairoMakie` package, this
+package is used to render the output.
+
+It is possible to execute the companion script using the Terminal with the
+following command (This script may also be executed using the Julia REPL by
+switching into shell mode by using the `;` key and using the same commands):
+
+```bash
+bash integrated_gpu_support.sh
+
+# OR
+
+./integrated_gpu_support.sh
+```
 
 ## Development Environment
 
