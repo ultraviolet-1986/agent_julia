@@ -22,12 +22,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#########
-# Notes #
-#########
+##############
+# References #
+##############
 
-# - This model is built using an `Agents.jl` tutorial model.
-#   - <https://git.io/JnMyF>
+# - [Agents.jl Tutorial](https://git.io/JnMyF)
 
 ###########
 # Imports #

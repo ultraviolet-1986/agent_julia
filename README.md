@@ -43,6 +43,18 @@ is intended to be ran in the event that the user has a machine with an
 integrated GPU. This is due to a change within the `CairoMakie` package, this
 package is used to render the output.
 
+It is possible to execute the companion script using the Terminal with the
+following command (This script may also be executed using the Julia REPL by
+switching into shell mode by using the `;` key and using the same commands):
+
+```bash
+bash integrated_gpu_support.sh
+
+# OR
+
+./integrated_gpu_support.sh
+```
+
 ### Gillespie SSA Model
 
 The code for the Gillespie stochastic simulation algorithm is stored within the
