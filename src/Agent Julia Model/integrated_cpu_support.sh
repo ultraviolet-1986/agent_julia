@@ -33,7 +33,8 @@
 #########
 
 # - This script requires `sudo` permissions and assumes you are using a
-#   machine that has an integrated GPU.
+#   machine that has an integrated GPU e.g. Intel HD/UHD chipsets.
+# - Users of an NVIDIA/AMD GPU should not need to use this script.
 
 #############
 # Kickstart #
@@ -51,4 +52,3 @@ if [ -f 'bacteria.mp4' ]; then
 fi
 
 # End of File.
-
