@@ -26,7 +26,7 @@
 # References #
 ##############
 
-# - [Agents.jl Tutorial](https://git.io/JnMyF)
+# - [Agents.jl Tutorial](https://git.io/Jc1w6)
 
 ###########
 # Imports #
