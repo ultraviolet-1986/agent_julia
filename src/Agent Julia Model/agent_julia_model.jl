@@ -86,6 +86,7 @@ agent_step!(agent, model) = move_agent!(agent, model, model.dt)
 try
     abm_video(
         "bacteria.mp4",
+        resolution=(1920, 1080),
         model,
         agent_step!;
         title = "Ball Model",
