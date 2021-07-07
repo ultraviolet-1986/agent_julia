@@ -110,8 +110,8 @@ function sir_initiation(;
     dt = 1.0,
     speed = 0.002,
     death_rate = 0.044, # from website of WHO
-    N = 1000,
-    initial_infected = 5,
+    N = 200,
+    initial_infected = 1,
     seed = 42,
     βmin = 0.4,
     βmax = 0.8,
@@ -125,7 +125,9 @@ function sir_initiation(;
         interaction_radius,
         dt,
     )
+
     space = ContinuousSpace((1,1), 0.02)
+
     model = ABM(PoorSoul, space, properties = properties, rng = MersenneTwister(seed))
 
     # Add initial individuals
@@ -193,12 +195,12 @@ end
 
 model = ball_model()
 
-sir_model = sir_initiation()
+# sir_model = sir_initiation()
 
 sir_colors(a) = a.status == :S ? "#2b2b33" : a.status == :I ? "#bf2642" : "#338c54"
 
-fig, abmstepper = abm_plot(sir_model; ac = sir_colors)
-fig # display figure
+# fig, abmstepper = abm_plot(sir_model; ac = sir_colors)
+# fig # display figure
 
 
 sir_model = sir_initiation()
