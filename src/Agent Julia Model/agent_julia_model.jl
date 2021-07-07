@@ -55,7 +55,7 @@ Random.seed!(41269)
 # Functions #
 #############
 
-mutable struct Agent <: AbstractAgent
+mutable struct Wild_mtDNA <: AbstractAgent
     id::Int
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
@@ -63,12 +63,38 @@ mutable struct Agent <: AbstractAgent
 end
 
 
+# Attempt to inherit the 'Wild' struct.
+mutable struct Mutant_mtDNA <: AbstractAgent
+    id::Int
+    pos::NTuple{2,Float64}
+    vel::NTuple{2,Float64}
+    mass::Float64
+    days_mutated::Int  # number of days since mutated, may be useless
+    status::Symbol     # :S, :I or :R, may be useless
+    β::Float64         # May also be useless
+end
+
+
 function ball_model(; speed = 0.002)
     space2d = ContinuousSpace((1, 1), 0.02)
-    model = ABM(Agent, space2d, properties = Dict(:dt => 1.0), rng = MersenneTwister(42))
 
-    # And add some agents to the model
-    for ind in 1:500
+    model = ABM(
+        Wild_mtDNA,
+        space2d,
+        properties = Dict(:dt => 1.0),
+        rng = MersenneTwister(41269)
+    )
+
+    # model2 = ABM(
+    #     Mutant_mtDNA,
+    #     space2d,
+    #     properties = Dict(:dt => 1.0),
+    #     rng = MersenneTwister(41269)
+    # )
+
+    # And add some agents to the model.
+    # NOTE Change this to include the wild-type and mutant mtDNA.
+    for ind in 1:200
         pos = Tuple(rand(model.rng, 2))
         vel = sincos(2π * rand(model.rng)) .* speed
         add_agent!(pos, model, vel, 1.0)
