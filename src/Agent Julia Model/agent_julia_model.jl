@@ -100,7 +100,6 @@ function ball_model(; speed = 0.002)
     return model
 end
 
-using DrWatson: @dict
 function sir_initiation(;
     infection_period = 30 * steps_per_day,
     detection_time = 14 * steps_per_day,
@@ -216,6 +215,7 @@ abm_video(
     as = 10,
     spf = 1,
     framerate = 60,
+    resolution = (1920, 1080),
 )
 
 # End of File.
