@@ -60,7 +60,14 @@ Random.seed!(seed)
 # Variables #
 #############
 
+# Temporal units
+
 const steps_per_day = 24
+
+const day = steps_per_day
+const year = day * 365.0
+
+const tend = year * 80.0
 
 # Colours
 
