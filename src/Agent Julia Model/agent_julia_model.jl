@@ -71,22 +71,22 @@ const tend = year * 80.0
 
 # Colours
 
-const grey = "#2b2b33"
-const green = "#338c54"
-const red = "#bf2642"
+const grey = "#2b2b33"   # Wild-type mtDNA
+const green = "#338c54"  # Mutant mtDNA
+const red = "#bf2642"    # Remnant from SIR model
 
 ###########
 # Structs #
 ###########
 
-mutable struct Agent <: AbstractAgent
+mutable struct Wild_mtDNA <: AbstractAgent
     id::Int
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
     mass::Float64
 end
 
-mutable struct PoorSoul <: AbstractAgent
+mutable struct Mutant_mtDNA <: AbstractAgent
     id::Int
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
@@ -102,14 +102,21 @@ end
 
 function ball_model(; speed = 0.002)
     space2d = ContinuousSpace((1, 1), 0.02)
-    model = ABM(Agent, space2d, properties = Dict(:dt => 1.0), rng = MersenneTwister(42))
+
+    model = ABM(
+        Wild_mtDNA,
+        space2d,
+        properties = Dict(:dt => 1.0),
+        rng = MersenneTwister(42)
+    )
 
     # And add some agents to the model
-    for ind in 1:500
+    for i in 1:500
         pos = Tuple(rand(model.rng, 2))
         vel = sincos(2π * rand(model.rng)) .* speed
         add_agent!(pos, model, vel, 1.0)
     end
+
     return model
 end
 
@@ -140,7 +147,7 @@ function sir_initiation(;
 
     space = ContinuousSpace((1,1), 0.02)
 
-    model = ABM(PoorSoul, space, properties = properties, rng = MersenneTwister(seed))
+    model = ABM(Mutant_mtDNA, space, properties = properties, rng = MersenneTwister(seed))
 
     # Add initial individuals
     for ind in 1:N
