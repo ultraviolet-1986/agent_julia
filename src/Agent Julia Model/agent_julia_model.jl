@@ -62,6 +62,12 @@ Random.seed!(seed)
 
 const steps_per_day = 24
 
+# Colours
+
+const grey = "#2b2b33"
+const green = "#338c54"
+const red = "#bf2642"
+
 ###########
 # Structs #
 ###########
@@ -194,13 +200,7 @@ end
 
 model = ball_model()
 
-# sir_model = sir_initiation()
-
-sir_colors(a) = a.status == :S ? "#2b2b33" : a.status == :I ? "#bf2642" : "#338c54"
-
-# fig, abmstepper = abm_plot(sir_model; ac = sir_colors)
-# fig # display figure
-
+sir_colors(a) = a.status == :S ? grey : a.status == :I ? red : green
 
 sir_model = sir_initiation()
 
@@ -215,7 +215,6 @@ abm_video(
     as = 10,
     spf = 1,
     framerate = 60,
-    resolution = (1920, 1080),
 )
 
 # End of File.
