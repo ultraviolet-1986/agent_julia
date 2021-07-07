@@ -35,11 +35,13 @@
 import Pkg
 
 Pkg.add("Agents")
+Pkg.add("DrWatson")
 Pkg.add("CairoMakie")
 Pkg.add("InteractiveDynamics")
 Pkg.add("Random")
 
 using Agents
+using DrWatson: @dict
 using CairoMakie
 using InteractiveDynamics
 using Random
@@ -48,12 +50,24 @@ using Random
 # Prerequisites #
 #################
 
+# Share seed throughout program.
+const seed = 41269
+
 # Ensure results are reproducible.
-Random.seed!(41269)
+Random.seed!(seed)
 
 #############
-# Functions #
+# Variables #
 #############
+
+# Set temporal units.
+const day = 24.0
+const year = day * 365.0
+const tend = year * 80.0
+
+###########
+# Structs #
+###########
 
 mutable struct Wild_mtDNA <: AbstractAgent
     id::Int
@@ -69,38 +83,37 @@ mutable struct Mutant_mtDNA <: AbstractAgent
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
     mass::Float64
-    days_mutated::Int  # number of days since mutated, may be useless
-    status::Symbol     # :S, :I or :R, may be useless
-    β::Float64         # May also be useless
+    days_mutated::Int              # number of days since mutated
+    status::Symbol                 # :S, :I or :R
+    mutation_probability::Float64  # May also be useless
 end
 
 
-function ball_model(; speed = 0.002)
-    space2d = ContinuousSpace((1, 1), 0.02)
+#############
+# Functions #
+#############
 
-    model = ABM(
-        Wild_mtDNA,
-        space2d,
-        properties = Dict(:dt => 1.0),
-        rng = MersenneTwister(41269)
-    )
+# EDIT Comment to import S.I.R. model.
+# function ball_model(; speed = 0.002)
+#     space2d = ContinuousSpace((1, 1), 0.02)
 
-    # model2 = ABM(
-    #     Mutant_mtDNA,
-    #     space2d,
-    #     properties = Dict(:dt => 1.0),
-    #     rng = MersenneTwister(41269)
-    # )
+#     model = ABM(
+#         Wild_mtDNA,
+#         space2d,
+#         properties = Dict(:dt => 1.0),
+#         rng = MersenneTwister(seed)
+#     )
 
-    # And add some agents to the model.
-    # NOTE Change this to include the wild-type and mutant mtDNA.
-    for ind in 1:200
-        pos = Tuple(rand(model.rng, 2))
-        vel = sincos(2π * rand(model.rng)) .* speed
-        add_agent!(pos, model, vel, 1.0)
-    end
-    return model
-end
+#     # And add some agents to the model.
+#     # NOTE Change this to include the wild-type and mutant mtDNA.
+#     for i in 1:200
+#         pos = Tuple(rand(model.rng, 2))
+#         vel = sincos(2π * rand(model.rng)) .* speed
+#         add_agent!(pos, model, vel, 1.0)
+#     end
+
+#     return model
+# end
 
 #############
 # Kickstart #
@@ -116,9 +129,9 @@ try
         model,
         agent_step!;
         title = "Ball Model",
-        frames = 50,
+        frames = 1000,
         spf = 2,
-        framerate = 25,
+        framerate = 60
     )
 catch
     println("\nERROR: Failed to create video file.")
