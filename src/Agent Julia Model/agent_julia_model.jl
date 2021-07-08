@@ -51,10 +51,10 @@ using Random
 #################
 
 # Share seed throughout program.
-const seed = 41269
+random_seed = 41269
 
 # Ensure results are reproducible.
-Random.seed!(seed)
+Random.seed!(random_seed)
 
 #############
 # Variables #
@@ -62,18 +62,16 @@ Random.seed!(seed)
 
 # Temporal units
 
-const steps_per_day = 24
+day = 24
+year = day * 365.0
 
-const day = steps_per_day
-const year = day * 365.0
-
-const tend = year * 80.0
+tend = year * 80.0
 
 # Colours
 
-const grey = "#2b2b33"   # Wild-type mtDNA
-const green = "#338c54"  # Mutant mtDNA
-const red = "#bf2642"    # Remnant from SIR model
+grey = "#2b2b33"   # Wild-type mtDNA
+green = "#338c54"  # Mutant mtDNA
+red = "#bf2642"    # Remnant from SIR model
 
 # Agent properties
 
@@ -97,7 +95,7 @@ mutable struct Mutant_mtDNA <: AbstractAgent
     mass::Float64
     days_mutated::Int  # Days since agent is mutated.
     status::Symbol     # :S, :I or :R, This will change.
-    β::Float64
+    β::Float64         # Transmission probability, change to mutation.
 end
 
 #############
@@ -126,17 +124,17 @@ end
 
 
 function mutation_initiation(;
-    infection_period = 30 * steps_per_day,
-    detection_time = 14 * steps_per_day,
-    reinfection_probability = 0.05,
-    isolated = 0.0, # in percentage
-    interaction_radius = 0.012,
+    infection_period = 30 * day,     # Irrelevant as above for this model.
+    detection_time = 14 * day,       # Irrelevant as above for this model.
+    reinfection_probability = 0.05,  # Irrelevant as above for this model.
+    isolated = 0.0,                  # Irrelevant as above for this model.
+    interaction_radius = 0.012,      # Irrelevant as above for this model.
     dt = 1.0,
     speed = 0.002,
-    death_rate = 0.044, # from website of WHO
-    N = agent_max,
-    initial_mutated = 1,
-    seed = 42,
+    death_rate = 0.044,   # Change to factor in degradation.
+    N = agent_max,        # Set N to not go above 'agent_max'.
+    initial_mutated = 1,  # Tied to initial conditions.
+    seed = random_seed,
     βmin = 0.4,
     βmax = 0.8,
 )
