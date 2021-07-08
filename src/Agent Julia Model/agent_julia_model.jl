@@ -75,6 +75,10 @@ const grey = "#2b2b33"   # Wild-type mtDNA
 const green = "#338c54"  # Mutant mtDNA
 const red = "#bf2642"    # Remnant from SIR model
 
+# Agent properties
+
+agent_max = 200
+
 ###########
 # Structs #
 ###########
@@ -91,8 +95,8 @@ mutable struct Mutant_mtDNA <: AbstractAgent
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
     mass::Float64
-    days_infected::Int  # number of days since is infected
-    status::Symbol  # :S, :I or :R
+    days_mutated::Int  # Days since agent is mutated.
+    status::Symbol     # :S, :I or :R, This will change.
     β::Float64
 end
 
@@ -100,7 +104,7 @@ end
 # Functions #
 #############
 
-function ball_model(; speed = 0.002)
+function cell_model(; speed = 0.002)
     space2d = ContinuousSpace((1, 1), 0.02)
 
     model = ABM(
@@ -111,7 +115,7 @@ function ball_model(; speed = 0.002)
     )
 
     # And add some agents to the model
-    for i in 1:500
+    for i in 1:agent_max
         pos = Tuple(rand(model.rng, 2))
         vel = sincos(2π * rand(model.rng)) .* speed
         add_agent!(pos, model, vel, 1.0)
@@ -121,7 +125,7 @@ function ball_model(; speed = 0.002)
 end
 
 
-function sir_initiation(;
+function mutation_initiation(;
     infection_period = 30 * steps_per_day,
     detection_time = 14 * steps_per_day,
     reinfection_probability = 0.05,
@@ -130,8 +134,8 @@ function sir_initiation(;
     dt = 1.0,
     speed = 0.002,
     death_rate = 0.044, # from website of WHO
-    N = 200,
-    initial_infected = 1,
+    N = agent_max,
+    initial_mutated = 1,
     seed = 42,
     βmin = 0.4,
     βmax = 0.8,
@@ -153,7 +157,7 @@ function sir_initiation(;
     # Add initial individuals
     for ind in 1:N
         pos = Tuple(rand(model.rng, 2))
-        status = ind ≤ N - initial_infected ? :S : :I
+        status = ind ≤ N - initial_mutated ? :S : :I
         isisolated = ind ≤ isolated * N
         mass = isisolated ? Inf : 1.0
         vel = isisolated ? (0.0, 0.0) : sincos(2π * rand(model.rng)) .* speed
@@ -198,16 +202,16 @@ function sir_agent_step!(agent, model)
 end
 
 
-update!(agent) = agent.status == :I && (agent.days_infected += 1)
+update!(agent) = agent.status == :I && (agent.days_mutated += 1)
 
 
 function recover_or_die!(agent, model)
-    if agent.days_infected ≥ model.infection_period
+    if agent.days_mutated ≥ model.infection_period
         if rand(model.rng) ≤ model.death_rate
             kill_agent!(agent, model)
         else
             agent.status = :R
-            agent.days_infected = 0
+            agent.days_mutated = 0
         end
     end
 end
@@ -216,11 +220,11 @@ end
 # Kickstart #
 #############
 
-model = ball_model()
+model = cell_model()
 
 sir_colors(a) = a.status == :S ? grey : a.status == :I ? red : green
 
-sir_model = sir_initiation()
+sir_model = mutation_initiation()
 
 abm_video(
     "agent_julia_simulation.mp4",
