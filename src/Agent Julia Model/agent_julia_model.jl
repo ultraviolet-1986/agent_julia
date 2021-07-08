@@ -120,6 +120,7 @@ function ball_model(; speed = 0.002)
     return model
 end
 
+
 function sir_initiation(;
     infection_period = 30 * steps_per_day,
     detection_time = 14 * steps_per_day,
@@ -180,6 +181,7 @@ function transmit!(a1, a2, rp)
     healthy.status = :I
 end
 
+
 function sir_model_step!(model)
     r = model.interaction_radius
     for (a1, a2) in interacting_pairs(model, r, :nearest)
@@ -195,7 +197,9 @@ function sir_agent_step!(agent, model)
     recover_or_die!(agent, model)
 end
 
+
 update!(agent) = agent.status == :I && (agent.days_infected += 1)
+
 
 function recover_or_die!(agent, model)
     if agent.days_infected ≥ model.infection_period
