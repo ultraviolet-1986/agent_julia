@@ -26,7 +26,8 @@
 # References #
 ##############
 
-# - <https://makie.juliaplots.org/stable/backends_and_output.html>
+# - Makie / Backends & Output
+#   - <https://tinyurl.com/efrfwz2t>
 
 #########
 # Notes #
