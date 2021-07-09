@@ -204,28 +204,31 @@ end
 function sir_agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
     update!(agent)
-    recover_or_die!(agent, model)
+    replicate_or_degrade!(agent, model)
 end
 
 
 update!(agent) = agent.status == :I && (agent.days_mutated += 1)
 
 
-function recover_or_die!(agent, model)
+function replicate_or_degrade!(agent, model)
     if agent.days_mutated ≥ model.infection_period
 
         # Degrade agent
         if rand(model.rng) ≤ model.death_rate
             kill_agent!(agent, model)  # Degrade.
 
-        # Recover / Replicate agent
+        # Replicate agent
         else
+            # Update original agent.
             agent.status = :R       # Change status of agent.
             agent.days_mutated = 0
 
-            # Replicate agent. Will place randomly adjacent.
+            # Create replicated agent.
+            # NOTE Will be placed randomly adjacent.
             new_agent = add_agent!(agent, model)
-            new_agent.status = :R
+            new_agent.status = :S  # Set to original colour (wild).
+            new_agent.days_mutated = 0
         end
     end
 end
