@@ -220,10 +220,12 @@ function recover_or_die!(agent, model)
 
         # Recover / Replicate agent
         else
-            agent.status = :R       # Original code.
-            agent.days_mutated = 0  # Original code.
+            agent.status = :R       # Change status of agent.
+            agent.days_mutated = 0
 
-            # add_agent!(agent, agent.pos)  # FIXME Replicate in-place
+            # Replicate agent. Will place randomly adjacent.
+            new_agent = add_agent!(agent, model)
+            new_agent.status = :R
         end
     end
 end
