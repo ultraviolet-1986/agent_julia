@@ -62,7 +62,8 @@ Random.seed!(random_seed)
 
 # Temporal units
 
-day = 24
+hour = 1
+day = hour * 24.0
 year = day * 365.0
 
 tend = year * 80.0
