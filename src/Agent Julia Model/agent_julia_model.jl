@@ -192,6 +192,7 @@ end
 
 function sir_model_step!(model)
     r = model.interaction_radius
+
     for (a1, a2) in interacting_pairs(model, r, :nearest)
         transmit!(a1, a2, model.reinfection_probability)
         elastic_collision!(a1, a2, :mass)
@@ -221,7 +222,7 @@ function recover_or_die!(agent, model)
             agent.status = :R       # Original code.
             agent.days_mutated = 0  # Original code.
 
-            # add_agent!(agent, agent.pos)  # FIXME Replicate
+            # add_agent!(agent, agent.pos)  # FIXME Replicate in-place
         end
     end
 end

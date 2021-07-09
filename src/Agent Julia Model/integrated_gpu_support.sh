@@ -40,6 +40,15 @@
 # Variables #
 #############
 
+# VARIABLES > COLOURS
+
+readonly green="\e[32m"   # Success
+readonly red="\e[31m"     # Error
+readonly yellow="\e[33m"  # Warning / Note
+readonly reset="\e[0m"    # Reset text
+
+# VARIABLES > PATHS
+
 readonly model_file='agent_julia_model.jl'
 readonly simulation_video='agent_julia_simulation.mp4'
 
@@ -50,22 +59,24 @@ readonly simulation_video='agent_julia_simulation.mp4'
 # Delete previous video if exists.
 if [ -f "$simulation_video" ]; then
   rm "$simulation_video"
-  echo -e "NOTE Deleted pre-existing '$simulation_video' file."
+  echo -e "${yellow}NOTE${reset} Deleted pre-existing '$simulation_video' file."
 fi
 
 # Execute the simulation if the model file exists at this location.
 if [ -f "$model_file" ]; then
-  echo -e "NOTE Using 'sudo' permissions to execute '$model_file'."
-  echo -e "NOTE Enforcing the use of integrated GPU for plotting.\n"
+  echo -e "${yellow}NOTE${reset} Using 'sudo' permissions to execute '$model_file'."
+  echo -e "${yellow}NOTE${reset} Enforcing the use of integrated GPU for plotting."
+  echo
   sudo DRI_PRIME=1 julia "$model_file"
 else
-  echo -e "ERROR: Simulation file '$model_file' does not exist."
+  echo -e "${red}ERROR${reset} Simulation file '$model_file' does not exist."
 fi
 
 # Change ownership of 'agent_julia_simulation.mp4' from 'root' to the
 # current user if the file exists.
 if [ -f 'agent_julia_simulation.mp4' ]; then
-  echo -e "\nNOTE Using 'sudo' to change 'agent_julia_simulation.mp4' permissions.\n"
+  echo -e "\n${yellow}NOTE${reset} Using 'sudo' to change 'agent_julia_simulation.mp4' permissions."
+  echo
   sudo chown "$USER":"$USER" 'agent_julia_simulation.mp4'
 fi
 
