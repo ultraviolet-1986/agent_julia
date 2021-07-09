@@ -50,6 +50,7 @@ readonly simulation_video='agent_julia_simulation.mp4'
 # Delete previous video if exists.
 if [ -f "$simulation_video" ]; then
   rm "$simulation_video"
+  echo -e "NOTE Deleted pre-existing '$simulation_video' file."
 fi
 
 # Execute the simulation if the model file exists at this location.
