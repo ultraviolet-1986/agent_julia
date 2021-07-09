@@ -69,10 +69,10 @@ tend = year * 80.0
 
 # Colours
 
-green = "\e[32m"
-red = "\e[31m"
-yellow = "\e[33m"
-reset = "\e[0m"
+green = "\e[32m"   # Success
+red = "\e[31m"     # Error
+yellow = "\e[33m"  # Warning / Note
+reset = "\e[0m"    # Reset text
 
 grey_hex = "#2b2b33"   # Wild-type mtDNA
 green_hex = "#338c54"  # Mutant mtDNA
@@ -80,7 +80,7 @@ red_hex = "#bf2642"    # Remnant from SIR model
 
 # Agent properties
 
-agent_max = 200
+agent_max = 200  # Also called 'N'.
 
 ###########
 # Structs #
@@ -211,11 +211,17 @@ update!(agent) = agent.status == :I && (agent.days_mutated += 1)
 
 function recover_or_die!(agent, model)
     if agent.days_mutated ≥ model.infection_period
+
+        # Degrade agent
         if rand(model.rng) ≤ model.death_rate
-            kill_agent!(agent, model)
+            kill_agent!(agent, model)  # Degrade.
+
+        # Recover / Replicate agent
         else
-            agent.status = :R
-            agent.days_mutated = 0
+            agent.status = :R       # Original code.
+            agent.days_mutated = 0  # Original code.
+
+            # add_agent!(agent, agent.pos)  # FIXME Replicate
         end
     end
 end
@@ -257,7 +263,6 @@ println("$(green)Done$(reset)")
 print("Rendering simulation output as 'agent_julia_simulation.mp4'... ")
 try
     render_video()
-
     println("$(green)Done$(reset)")
 catch
     println("$(red)Error$(reset)")

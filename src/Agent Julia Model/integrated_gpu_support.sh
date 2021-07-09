@@ -37,15 +37,32 @@
 # - Users of an NVIDIA/AMD GPU should not need to use this script.
 
 #############
+# Variables #
+#############
+
+readonly model_file='agent_julia_model.jl'
+readonly simulation_video='agent_julia_simulation.mp4'
+
+#############
 # Kickstart #
 #############
 
-echo "NOTE Using 'sudo' permissions to execute 'agent_julia_model.jl'."
-echo -e "NOTE Enforcing the use of integrated GPU for plotting.\n"
-sudo DRI_PRIME=1 julia 'agent_julia_model.jl'
+# Delete previous video if exists.
+if [ -f "$simulation_video" ]; then
+  rm "$simulation_video"
+fi
 
-# Change ownership of 'agent_julia_simulation.mp4' from 'root' to the current user if
-# the file exists.
+# Execute the simulation if the model file exists at this location.
+if [ -f "$model_file" ]; then
+  echo -e "NOTE Using 'sudo' permissions to execute '$model_file'."
+  echo -e "NOTE Enforcing the use of integrated GPU for plotting.\n"
+  sudo DRI_PRIME=1 julia "$model_file"
+else
+  echo -e "ERROR: Simulation file '$model_file' does not exist."
+fi
+
+# Change ownership of 'agent_julia_simulation.mp4' from 'root' to the
+# current user if the file exists.
 if [ -f 'agent_julia_simulation.mp4' ]; then
   echo -e "\nNOTE Using 'sudo' to change 'agent_julia_simulation.mp4' permissions.\n"
   sudo chown "$USER":"$USER" 'agent_julia_simulation.mp4'
