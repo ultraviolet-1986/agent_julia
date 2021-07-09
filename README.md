@@ -91,6 +91,12 @@ bash integrated_gpu_support.sh
 ./integrated_gpu_support.sh
 ```
 
+This script uses `sudo` privileges to execute the model and thus create the
+video output. Once the simulation has completed, the script will use the same
+permissions to change the owner of the video file to the current user, otherwise
+the owner of the file will be `root`. In a `Toolbox` environment, you will not
+be asked for your password and the results should be the same.
+
 ## Development Environment
 
 The following software and tools form the development environment (at

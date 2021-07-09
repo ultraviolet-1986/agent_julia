@@ -69,9 +69,14 @@ tend = year * 80.0
 
 # Colours
 
-grey = "#2b2b33"   # Wild-type mtDNA
-green = "#338c54"  # Mutant mtDNA
-red = "#bf2642"    # Remnant from SIR model
+green = "\e[32m"
+red = "\e[31m"
+yellow = "\e[33m"
+reset = "\e[0m"
+
+grey_hex = "#2b2b33"   # Wild-type mtDNA
+green_hex = "#338c54"  # Mutant mtDNA
+red_hex = "#bf2642"    # Remnant from SIR model
 
 # Agent properties
 
@@ -87,6 +92,7 @@ mutable struct Wild_mtDNA <: AbstractAgent
     vel::NTuple{2,Float64}
     mass::Float64
 end
+
 
 mutable struct Mutant_mtDNA <: AbstractAgent
     id::Int
@@ -109,7 +115,7 @@ function cell_model(; speed = 0.002)
         Wild_mtDNA,
         space2d,
         properties = Dict(:dt => 1.0),
-        rng = MersenneTwister(42)
+        rng = MersenneTwister(42),
     )
 
     # And add some agents to the model
@@ -214,27 +220,48 @@ function recover_or_die!(agent, model)
     end
 end
 
+
+function render_video()
+    abm_video(
+        "agent_julia_simulation.mp4",
+        sir_model,
+        sir_agent_step!,
+        sir_model_step!;
+        title = "mtDNA population dynamics",
+        frames = 1000,
+        ac = sir_colors,
+        as = 10,
+        spf = 1,
+        framerate = 60,
+    )
+end
+
 #############
 # Kickstart #
 #############
 
+println("\n")
+
+print("Creating model... ")
 model = cell_model()
+println("$(green)Done$(reset)")
 
-sir_colors(a) = a.status == :S ? grey : a.status == :I ? red : green
+print("Defining simulation colour palette... ")
+sir_colors(a) = a.status == :S ? grey_hex : a.status == :I ? red_hex : green_hex
+println("$(green)Done$(reset)")
 
+print("Creating mtDNA population dynamics model... ")
 sir_model = mutation_initiation()
+println("$(green)Done$(reset)")
 
-abm_video(
-    "agent_julia_simulation.mp4",
-    sir_model,
-    sir_agent_step!,
-    sir_model_step!;
-    title = "mtDNA population dynamics",
-    frames = 1000,
-    ac = sir_colors,
-    as = 10,
-    spf = 1,
-    framerate = 60,
-)
+print("Rendering simulation output as 'agent_julia_simulation.mp4'... ")
+try
+    render_video()
+
+    println("$(green)Done$(reset)")
+catch
+    println("$(red)Error$(reset)")
+    println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
+end
 
 # End of File.

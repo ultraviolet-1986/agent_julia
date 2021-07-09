@@ -41,13 +41,13 @@
 #############
 
 echo "NOTE Using 'sudo' permissions to execute 'agent_julia_model.jl'."
-echo "NOTE Enforcing the use of integrated GPU for plotting."
+echo -e "NOTE Enforcing the use of integrated GPU for plotting.\n"
 sudo DRI_PRIME=1 julia 'agent_julia_model.jl'
 
 # Change ownership of 'agent_julia_simulation.mp4' from 'root' to the current user if
 # the file exists.
 if [ -f 'agent_julia_simulation.mp4' ]; then
-  echo "NOTE Using 'sudo' to change 'agent_julia_simulation.mp4' permissions."
+  echo -e "\nNOTE Using 'sudo' to change 'agent_julia_simulation.mp4' permissions.\n"
   sudo chown "$USER":"$USER" 'agent_julia_simulation.mp4'
 fi
 
