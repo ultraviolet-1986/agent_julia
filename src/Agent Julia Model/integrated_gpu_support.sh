@@ -26,8 +26,7 @@
 # References #
 ##############
 
-# - Makie / Backends & Output
-#   - <https://tinyurl.com/efrfwz2t>
+# - [Makie Backends & Output](https://tinyurl.com/efrfwz2t)
 
 #########
 # Notes #
