@@ -227,7 +227,7 @@ function replicate_or_degrade!(agent, model)
             # Create replicated agent.
             # NOTE Will be placed randomly adjacent.
             new_agent = add_agent!(agent, model)
-            new_agent.status = :S  # Set to original colour (wild).
+            new_agent.status = :R  # Set to recovered colour (green).
             new_agent.days_mutated = 0
         end
     end
