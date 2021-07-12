@@ -53,7 +53,7 @@ Random.seed!()
 # mutatnt elements.
 
 max_elements = 200
-mutation_range = rand(140:175)
+mutation_range = rand(120:max_elements)
 
 random_wild = mutation_range
 random_mutant = max_elements - mutation_range
