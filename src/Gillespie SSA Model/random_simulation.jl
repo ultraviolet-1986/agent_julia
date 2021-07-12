@@ -53,9 +53,10 @@ Random.seed!()
 # mutatnt elements.
 
 max_elements = 200
+mutation_range = rand(140:175)
 
-random_wild = rand(1:max_elements)
-random_mutant = max_elements - random_wild
+random_wild = mutation_range
+random_mutant = max_elements - mutation_range
 
 # Initial concentrations of wild-type and mutant mtDNA.
 u0 = [random_wild, random_mutant]
