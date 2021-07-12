@@ -52,7 +52,8 @@ Random.seed!()
 # Randomly select number of wild-type elements and assign remaining as
 # mutatnt elements.
 
-max_elements = 200
+max_range = rand(200:250)
+max_elements = max_range
 mutation_range = rand(120:max_elements)
 
 random_wild = mutation_range
