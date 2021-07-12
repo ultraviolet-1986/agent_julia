@@ -225,7 +225,9 @@ function replicate_or_degrade!(agent, model)
             agent.days_mutated = 0
 
             # Create replicated agent.
-            # NOTE Will be placed randomly adjacent.
+            # NOTE Replicated agent will be placed randomly adjacent as
+            #      overlapping is not possible with this model's
+            #      physics.
             new_agent = add_agent!(agent, model)
             new_agent.status = :R  # Set to recovered colour (green).
             new_agent.days_mutated = 0
