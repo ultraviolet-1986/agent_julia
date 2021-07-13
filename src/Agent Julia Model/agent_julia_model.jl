@@ -221,10 +221,12 @@ function replicate_or_degrade!(agent, model)
         # Replicate agent
         else
             # Update original agent.
+            # NOTE Original code block.
             agent.status = :R       # Change status of agent.
             agent.days_mutated = 0
 
             # Create replicated agent.
+            # NOTE Additional code block.
             # NOTE Replicated agent will be placed randomly adjacent as
             #      overlapping is not possible with this model's
             #      physics.

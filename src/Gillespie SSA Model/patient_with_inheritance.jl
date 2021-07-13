@@ -122,6 +122,6 @@ fig3 = density(
 )
 
 savefig(fig3, "$(plot_3_path)")
-println("Done")
+println("Done\n")
 
 # End of File.

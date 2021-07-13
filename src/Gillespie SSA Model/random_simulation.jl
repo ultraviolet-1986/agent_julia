@@ -28,10 +28,12 @@
 
 import Pkg
 
+Pkg.add("Distributions")
 Pkg.add("Plots")
 Pkg.add("Random")
 Pkg.add("StatsPlots")
 
+using Distributions
 using Plots
 using Random
 using StatsPlots
@@ -49,15 +51,17 @@ Random.seed!()
 
 # VARIABLES > INITIAL CONDITIONS
 
-# Randomly select number of wild-type elements and assign remaining as
-# mutatnt elements.
+# Randomly select total number of mtDNA elements using the Poisson
+# distribution, then select the number of wild elements and assign the
+# remainder as mutant.
 
-max_range = rand(200:250)
-max_elements = max_range
-mutation_range = rand(120:max_elements)
+max_elements = rand(Poisson(200))
 
-random_wild = mutation_range
-random_mutant = max_elements - mutation_range
+# Randomly assign amounts and prevent mutation levels greater than
+# approximately 50%.
+
+random_wild = rand(120:max_elements)
+random_mutant = max_elements - random_wild
 
 # Initial concentrations of wild-type and mutant mtDNA.
 u0 = [random_wild, random_mutant]
@@ -141,6 +145,6 @@ fig3 = density(
 )
 
 savefig(fig3, "$(plot_3_path)")
-println("Done")
+println("Done\n")
 
 # End of File.
