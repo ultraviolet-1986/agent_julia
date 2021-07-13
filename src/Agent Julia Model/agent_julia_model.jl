@@ -22,6 +22,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#########
+# Notes #
+#########
+
+# TODO Write event-trigger timing mechanism.
+# TODO Sort agents and choose the top to pass to said mechanism, and
+#      randomly select the event to occur: replicate, degrade, mutate.
+#      Note that agents are to be sorted by their 'time of interaction'
+#      being the shortest.
+# TODO Perform the simulation, then optionally output to video later.
+#      The important thing is to be able to access the data through the
+#      REPL.
+# NOTE Wild-type and mutants have a slightly different mass,
+#      investigate this.
+
 ##############
 # References #
 ##############
@@ -225,12 +240,15 @@ function replicate_or_degrade!(agent, model)
             agent.status = :R       # Change status of agent.
             agent.days_mutated = 0
 
+            # Get mother's position for placing daughter instance.
+            mother_position = agent.pos
+
             # Create replicated agent.
             # NOTE Additional code block.
             # NOTE Replicated agent will be placed randomly adjacent as
             #      overlapping is not possible with this model's
             #      physics.
-            new_agent = add_agent!(agent, model)
+            new_agent = add_agent!(agent, mother_position, model)
             new_agent.status = :R  # Set to recovered colour (green).
             new_agent.days_mutated = 0
         end
