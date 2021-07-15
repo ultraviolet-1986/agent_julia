@@ -138,9 +138,14 @@ function mutation_initiation(;
         dt,
     )
 
-    space = ContinuousSpace((1,1), 0.02)
+    space = ContinuousSpace((16, 9), 0.02)
 
-    model = ABM(mtDNA, space, properties=properties, rng=MersenneTwister(random_seed))
+    model = ABM(
+        mtDNA,
+        space,
+        properties=properties,
+        rng=MersenneTwister(random_seed)
+    )
 
     # Add initial individuals
     for ind in 1:N
@@ -172,6 +177,24 @@ function transmit!(a1, a2, rp)
         rand(sir_model.rng) > rp && return
     end
     healthy.status = :I
+end
+
+
+function random_action!(agent, model)
+    roll = rand()
+
+    # Replicate
+    if roll <= (1 / 3)
+        add_agent!(agent, mother_position, model)
+
+    # Degrade
+    elseif roll <= (2 / 3)
+        kill_agent!(agent, model)
+
+    # Mutate
+    else
+        agent.status = :M
+    end
 end
 
 
