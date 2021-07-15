@@ -65,85 +65,53 @@ using Random
 # Prerequisites #
 #################
 
-# Share seed throughout program.
 random_seed = 41269
-
-# Ensure results are reproducible.
 Random.seed!(random_seed)
 
 #############
 # Variables #
 #############
 
-# Temporal units
+# TEMPORAL UNITS
 
 hour = 1
-day = hour * 24.0
-year = day * 365.0
+day = hour * 24
+year = day * 365
 
-tend = year * 80.0
+tend = year * 80
 
-# Colours
+# COLOURS
 
-green = "\e[32m"   # Success
-red = "\e[31m"     # Error
-yellow = "\e[33m"  # Warning / Note
-reset = "\e[0m"    # Reset text
+green = "\e[32m"
+red = "\e[31m"
+yellow = "\e[33m"
+reset = "\e[0m"
 
 grey_hex = "#2b2b33"   # Wild-type mtDNA
-green_hex = "#338c54"  # Mutant mtDNA
-red_hex = "#bf2642"    # Remnant from SIR model
+green_hex = "#338c54"  # May remove this, mutants cannot recover.
+red_hex = "#bf2642"    # Mutant mtDNA
 
-# Agent properties
+# AGENT PROPERTIES
 
-agent_max = 200  # Also called 'N'.
+agent_max = 200
 
 ###########
 # Structs #
 ###########
 
-mutable struct Wild_mtDNA <: AbstractAgent
-    id::Int
-    pos::NTuple{2,Float64}
-    vel::NTuple{2,Float64}
-    mass::Float64
-end
-
-
-mutable struct Mutant_mtDNA <: AbstractAgent
+mutable struct mtDNA <: AbstractAgent
     id::Int
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
     mass::Float64
     days_mutated::Int  # Days since agent is mutated.
     status::Symbol     # :S, :I or :R, This will change.
-    β::Float64         # Transmission probability, change to mutation.
+    β::Float64         # Mutation probability.
 end
 
 #############
 # Functions #
 #############
-
-function cell_model(; speed = 0.002)
-    space2d = ContinuousSpace((1, 1), 0.02)
-
-    model = ABM(
-        Wild_mtDNA,
-        space2d,
-        properties = Dict(:dt => 1.0),
-        rng = MersenneTwister(42),
-    )
-
-    # And add some agents to the model
-    for i in 1:agent_max
-        pos = Tuple(rand(model.rng, 2))
-        vel = sincos(2π * rand(model.rng)) .* speed
-        add_agent!(pos, model, vel, 1.0)
-    end
-
-    return model
-end
-
 
 function mutation_initiation(;
     infection_period = 30 * day,     # Irrelevant as above for this model.
@@ -172,7 +140,7 @@ function mutation_initiation(;
 
     space = ContinuousSpace((1,1), 0.02)
 
-    model = ABM(Mutant_mtDNA, space, properties = properties, rng = MersenneTwister(seed))
+    model = ABM(mtDNA, space, properties=properties, rng=MersenneTwister(random_seed))
 
     # Add initial individuals
     for ind in 1:N
@@ -182,6 +150,7 @@ function mutation_initiation(;
         mass = isisolated ? Inf : 1.0
         vel = isisolated ? (0.0, 0.0) : sincos(2π * rand(model.rng)) .* speed
 
+        # TODO Trigger event here
         # very high transmission probability
         # we are modelling close encounters after all
         β = (βmax - βmin) * rand(model.rng) + βmin
@@ -197,10 +166,10 @@ function transmit!(a1, a2, rp)
     count(a.status == :I for a in (a1, a2)) ≠ 1 && return
     infected, healthy = a1.status == :I ? (a1, a2) : (a2, a1)
 
-    rand(model.rng) > infected.β && return
+    rand(sir_model.rng) > infected.β && return
 
     if healthy.status == :R
-        rand(model.rng) > rp && return
+        rand(sir_model.rng) > rp && return
     end
     healthy.status = :I
 end
@@ -257,6 +226,7 @@ end
 
 
 function render_video()
+    # RENDER ONLY
     abm_video(
         "agent_julia_simulation.mp4",
         sir_model,
@@ -269,6 +239,18 @@ function render_video()
         spf = 1,
         framerate = 60,
     )
+
+    # RUN ONLY
+    # run!(
+    #     sir_model,
+    #     sir_agent_step!,
+    #     sir_model_step!,
+    #     1000;
+    # )
+
+    # Can be accessed from REPL by using below:
+    # model[1].pos  # Get first agent's position
+    # sir_model[1].mass  # Get SIR mass
 end
 
 #############
@@ -276,10 +258,6 @@ end
 #############
 
 println("\n")
-
-print("Creating model... ")
-model = cell_model()
-println("$(green)Done$(reset)")
 
 print("Defining simulation colour palette... ")
 sir_colors(a) = a.status == :S ? grey_hex : a.status == :I ? red_hex : green_hex
@@ -291,7 +269,7 @@ println("$(green)Done$(reset)")
 
 print("Rendering simulation output as 'agent_julia_simulation.mp4'... ")
 try
-    render_video()
+    simulation = render_video()
     println("$(green)Done$(reset)")
 catch
     println("$(red)Error$(reset)")
