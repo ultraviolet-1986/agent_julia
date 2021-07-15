@@ -185,6 +185,7 @@ function random_action!(agent, model)
 
     # Replicate
     if roll <= (1 / 3)
+        mother_position = agent.pos
         add_agent!(agent, mother_position, model)
 
     # Degrade
@@ -256,7 +257,7 @@ function render_video()
         sir_agent_step!,
         sir_model_step!;
         title = "mtDNA population dynamics",
-        frames = 1000,
+        frames = tend,
         ac = sir_colors,
         as = 10,
         spf = 1,
