@@ -74,11 +74,14 @@ Random.seed!(random_seed)
 
 # TEMPORAL UNITS
 
-hour = 1
-day = hour * 24
-year = day * 365
+# NOTE Stepping functions require type 'Int'.
 
-tend = year * 80
+hour = Int(1)
+day = Int(hour * 24)
+year = Int(day * 365)
+month = Int(year / 12)
+
+tend = Int(year * 80)
 
 # COLOURS
 
@@ -104,7 +107,7 @@ mutable struct mtDNA <: AbstractAgent
     vel::NTuple{2,Float64}
     mass::Float64
     days_mutated::Int  # Days since agent is mutated.
-    status::Symbol     # :S, :I or :R, This will change.
+    status::Symbol     # :W (Wild-type mtDNA), :M (Mutant mtDNA)
     β::Float64         # Mutation probability.
 end
 
@@ -170,12 +173,13 @@ end
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
-    # update!(agent)
+    update!(agent)
     random_action!(agent, model)
 end
 
 
-# update!(agent) = agent.status == :M && (agent.days_mutated += 1)
+update!(agent) = agent.status == :M && (agent.days_mutated += 1)
+
 
 # function update!(agent)
 #     if agent.status == :M
@@ -215,8 +219,7 @@ function random_action!(agent, model)
 
     # Mutate wild-type mtDNA
     else
-        roll2 = rand()
-        if agent.status == :W && roll2 <= model.mutation_probability
+        if agent.status == :W
             agent.status = :M
             agent.days_mutated = 0
             println("Mutate wild-type mtDNA")
@@ -228,30 +231,32 @@ end
 
 function render_video()
     # RENDER ONLY
-    # abm_video(
+    # simulation = abm_video(
     #     "agent_julia_simulation.mp4",
     #     agent_julia_model,
     #     agent_step!,
     #     model_step!;
     #     title = "mtDNA population dynamics",
-    #     frames = 1000,
+    #     frames = tend, # frames = 1000,
     #     ac = model_colours,
     #     as = 10,
-    #     spf = 1,
+    #     spf = month, # spf = 1,
     #     framerate = 60,
     # )
 
     # RUN ONLY
-    run!(
+    simulation = run!(
         agent_julia_model,
         agent_step!,
         model_step!,
-        1000;
+        1;
     )
 
     # Can be accessed from REPL by using below:
     # model[1].pos  # Get first agent's position
     # sir_model[1].mass  # Get SIR mass
+
+    return simulation
 end
 
 #############
