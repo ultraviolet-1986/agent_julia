@@ -26,11 +26,6 @@
 # Notes #
 #########
 
-# TODO Write event-trigger timing mechanism.
-# TODO Sort agents and choose the top to pass to said mechanism, and
-#      randomly select the event to occur: replicate, degrade, mutate.
-#      Note that agents are to be sorted by their 'time of interaction'
-#      being the shortest.
 # TODO Perform the simulation, then optionally output to video later.
 #      The important thing is to be able to access the data through the
 #      REPL.
@@ -50,22 +45,16 @@
 import Pkg
 
 Pkg.add("Agents")
-Pkg.add("DrWatson")
 Pkg.add("CairoMakie")
+Pkg.add("DrWatson")
 Pkg.add("InteractiveDynamics")
 Pkg.add("Random")
 
 using Agents
-using DrWatson: @dict
 using CairoMakie
+using DrWatson: @dict
 using InteractiveDynamics
 using Random
-
-#########
-# Notes #
-#########
-
-# NOTE Get counts of wild/mutant for every step.
 
 #################
 # Prerequisites #
@@ -124,7 +113,7 @@ end
 #############
 
 function mutation_initiation(;
-    mutation_probability = 0.1, # 0.05,
+    mutation_probability = 0.05,
     isolated = 0.0,
     interaction_radius = 0.012,
     dt = 1.0,
@@ -133,8 +122,8 @@ function mutation_initiation(;
     N = agent_max,        # Set N to not go above 'agent_max'.
     initial_mutated = 1,  # Tied to initial conditions.
     seed = random_seed,
-    βmin = 0.0,
-    βmax = 0.2,
+    βmin = 0.4,
+    βmax = 0.8,
 )
 
     properties = @dict(
@@ -284,6 +273,22 @@ println("$(green)Done$(reset)")
 #     println("$(red)Error$(reset)")
 #     println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
 # end
-simulation = render_video()
+# simulation = render_video()
+
+# Get counts of elements
+wild(x) = count(i == :W for i in x)
+mutant(x) = count(i == :M for i in x)
+adata = [(:status, wild), (:status, mutant)]
+
+# Save simulation data
+data1 = run!(agent_julia_model, agent_step!, model_step!, 500; adata)
+
+# data1[(end-10):end, :]  # Errors out.
+
+# Define plot
+# figure = Figure()
+# ax = figure[1, 1] = Axis(figure; ylabel = "Mutation rate")
+# l1 = lines!(ax, data1[:, dataname((:status, mutant))], color = :red)  # Errors out.
+# figure
 
 # End of File.
