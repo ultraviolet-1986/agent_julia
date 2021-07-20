@@ -95,6 +95,8 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 # AGENT PROPERTIES
 
+λ = Int(day * 260)
+
 agent_max = 200
 
 ###########
@@ -121,9 +123,9 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = 1.0,
     speed = hour, # 0.002,
-    death_rate = day * 260.0, # 0.044,
+    death_rate = λ, # 0.044,
     N = agent_max,        # Set N to not go above 'agent_max'.
-    initial_mutated = 10,  # Tied to initial conditions.
+    initial_mutated = 1,  # Tied to initial conditions.
     seed = random_seed,
     βmin = 0.0,
     βmax = 0.2,
@@ -189,6 +191,10 @@ function random_action!(agent, model)
         if Int(length(model.agents)) > 50
             kill_agent!(agent, model)
             println("Degrade mtDNA")
+
+            # TEST Insert new agent, prevent K < 200
+            add_agent!(agent, mother_position, model)
+            agent.status = :W
         end
 
     elseif roll <= (2 / 3)
@@ -236,10 +242,10 @@ function render_video()
         agent_step!,
         model_step!;
         title = "mtDNA population dynamics",
-        frames = 100, # tend, # frames = 1000,
+        frames = 1000, # tend, # frames = 1000,
         ac = model_colours,
         as = 10,
-        spf = 1, #month, # spf = 1,
+        spf = 1, # month, # spf = 1,
         framerate = 60,
     )
 
