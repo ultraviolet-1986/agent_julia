@@ -49,12 +49,14 @@ import Pkg
 
 Pkg.add("Agents")
 Pkg.add("CairoMakie")
+Pkg.add("Distributions")
 Pkg.add("DrWatson")
 Pkg.add("InteractiveDynamics")
 Pkg.add("Random")
 
 using Agents
 using CairoMakie
+using Distributions
 using DrWatson: @dict
 using InteractiveDynamics
 using Random
@@ -95,7 +97,7 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 λ = Int(day * 260)
 
-agent_max = 200
+agent_max = rand(Poisson(200))
 
 ###########
 # Structs #
@@ -167,8 +169,6 @@ function model_step!(model)
 
     for (a1, a2) in interacting_pairs(model, r, :nearest;)  # Errors here on n > 1.
         elastic_collision!(a1, a2, :mass)
-        println("Bounce!")
-        println("Agents remaining: $(length(model.agents)), $(a1.status), $(a2.status)")
     end
 end
 
@@ -185,24 +185,18 @@ function random_action!(agent, model)
 
     # Degrade mtDNA
     if roll <= (1 / 3)
-        # Prevent population extinction
-        #if Int(length(model.agents)) > 50
         kill_agent!(agent, model)
-        println("Degrade mtDNA")
-        # end
 
     elseif roll <= (2 / 3)
         # Replicate wild-type mtDNA
         if agent.status == :W
             add_agent!(agent, mother_position, model)
-            println("Replicate wild-type mtDNA")
 
         # Replicate mutant mtDNA
         else
             add_agent!(agent, mother_position, model)
             agent.status = :M
             agent.days_mutated = 0
-            println("Replicate mutant mtDNA")
         end
 
     # Mutate wild-type mtDNA
@@ -210,7 +204,6 @@ function random_action!(agent, model)
         if agent.status == :W
             agent.status = :M
             agent.days_mutated = 0
-            println("Mutate wild-type mtDNA")
         end
     end
 
@@ -219,7 +212,6 @@ function random_action!(agent, model)
         agent.days_mutated += 1
     end
 
-    println("Agents remaining: $(length(model.agents)), $(agent.status)")
     return
 end
 
