@@ -121,9 +121,9 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = 1.0,
     speed = 0.002,
-    death_rate = 0.044,   # Change to factor in degradation.
+    death_rate = 0.044,
     N = agent_max,        # Set N to not go above 'agent_max'.
-    initial_mutated = 1,  # Tied to initial conditions.
+    initial_mutated = 10,  # Tied to initial conditions.
     seed = random_seed,
     βmin = 0.0,
     βmax = 0.1,
@@ -164,9 +164,10 @@ end
 function model_step!(model)
     r = model.interaction_radius
 
-    for (a1, a2) in interacting_pairs(model, r, :nearest;)
-        println("Bounce!")
+    for (a1, a2) in interacting_pairs(model, r, :nearest;)  # Errors here on n > 1.
         elastic_collision!(a1, a2, :mass)
+        println("Bounce!")
+        println("Agents remaining: $(length(model.agents)), $(a1.status), $(a2.status)")
     end
 end
 
@@ -198,23 +199,24 @@ function random_action!(agent, model)
         if Int(length(model.agents)) > 50
             kill_agent!(agent, model)
             println("Degrade mtDNA")
-            return
         end
 
     elseif roll <= (2 / 3)
-        # Replicate wild-type mtDNA
-        if agent.status == :W
-            add_agent!(agent, mother_position, model)
-            println("Replicate wild-type mtDNA")
-            return
+        # Prevent population explosion
+        if Int(length(model.agents)) < agent_max
 
-        # Replicate mutant mtDNA
-        else
-            add_agent!(agent, mother_position, model)
-            agent.status = :M
-            agent.days_mutated = 0
-            println("Replicate mutant mtDNA")
-            return
+            # Replicate wild-type mtDNA
+            if agent.status == :W
+                add_agent!(agent, mother_position, model)
+                println("Replicate wild-type mtDNA")
+
+            # Replicate mutant mtDNA
+            else
+                add_agent!(agent, mother_position, model)
+                agent.status = :M
+                agent.days_mutated = 0
+                println("Replicate mutant mtDNA")
+            end
         end
 
     # Mutate wild-type mtDNA
@@ -223,9 +225,11 @@ function random_action!(agent, model)
             agent.status = :M
             agent.days_mutated = 0
             println("Mutate wild-type mtDNA")
-            return
         end
     end
+
+    println("Agents remaining: $(length(model.agents)), $(agent.status)")
+    return
 end
 
 
@@ -249,7 +253,7 @@ function render_video()
         agent_julia_model,
         agent_step!,
         model_step!,
-        1;
+        2;
     )
 
     # Can be accessed from REPL by using below:
