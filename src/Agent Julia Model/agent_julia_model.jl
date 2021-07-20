@@ -61,6 +61,12 @@ using CairoMakie
 using InteractiveDynamics
 using Random
 
+#########
+# Notes #
+#########
+
+# NOTE Get counts of wild/mutant for every step.
+
 #################
 # Prerequisites #
 #################
@@ -188,31 +194,23 @@ function random_action!(agent, model)
     # Degrade mtDNA
     if roll <= (1 / 3)
         # Prevent population extinction
-        if Int(length(model.agents)) > 50
-            kill_agent!(agent, model)
-            println("Degrade mtDNA")
-
-            # TEST Insert new agent, prevent K < 200
-            add_agent!(agent, mother_position, model)
-            agent.status = :W
-        end
+        #if Int(length(model.agents)) > 50
+        kill_agent!(agent, model)
+        println("Degrade mtDNA")
+        # end
 
     elseif roll <= (2 / 3)
-        # Prevent population explosion
-        if Int(length(model.agents)) < agent_max
+        # Replicate wild-type mtDNA
+        if agent.status == :W
+            add_agent!(agent, mother_position, model)
+            println("Replicate wild-type mtDNA")
 
-            # Replicate wild-type mtDNA
-            if agent.status == :W
-                add_agent!(agent, mother_position, model)
-                println("Replicate wild-type mtDNA")
-
-            # Replicate mutant mtDNA
-            else
-                add_agent!(agent, mother_position, model)
-                agent.status = :M
-                agent.days_mutated = 0
-                println("Replicate mutant mtDNA")
-            end
+        # Replicate mutant mtDNA
+        else
+            add_agent!(agent, mother_position, model)
+            agent.status = :M
+            agent.days_mutated = 0
+            println("Replicate mutant mtDNA")
         end
 
     # Mutate wild-type mtDNA
@@ -235,27 +233,27 @@ end
 
 
 function render_video()
-    # RENDER ONLY
-    simulation = abm_video(
-        "agent_julia_simulation.mp4",
-        agent_julia_model,
-        agent_step!,
-        model_step!;
-        title = "mtDNA population dynamics",
-        frames = 1000, # tend, # frames = 1000,
-        ac = model_colours,
-        as = 10,
-        spf = 1, # month, # spf = 1,
-        framerate = 60,
-    )
-
-    # # RUN ONLY
-    # simulation = run!(
+    # # RENDER ONLY
+    # simulation = abm_video(
+    #     "agent_julia_simulation.mp4",
     #     agent_julia_model,
     #     agent_step!,
-    #     model_step!,
-    #     30;
+    #     model_step!;
+    #     title = "mtDNA population dynamics",
+    #     frames = 1000, # tend, # frames = 1000,
+    #     ac = model_colours,
+    #     as = 10,
+    #     spf = 1, # month, # spf = 1,
+    #     framerate = 60,
     # )
+
+    # RUN ONLY
+    simulation = run!(
+        agent_julia_model,
+        agent_step!,
+        model_step!,
+        30;
+    )
 
     # Can be accessed from REPL by using below:
     # model[1].pos  # Get first agent's position
