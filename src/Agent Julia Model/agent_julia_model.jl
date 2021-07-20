@@ -116,17 +116,17 @@ end
 #############
 
 function mutation_initiation(;
-    mutation_probability = 0.05,
+    mutation_probability = 0.1, # 0.05,
     isolated = 0.0,
     interaction_radius = 0.012,
     dt = 1.0,
-    speed = 0.002,
-    death_rate = 0.044,
+    speed = hour, # 0.002,
+    death_rate = day * 260.0, # 0.044,
     N = agent_max,        # Set N to not go above 'agent_max'.
     initial_mutated = 10,  # Tied to initial conditions.
     seed = random_seed,
     βmin = 0.0,
-    βmax = 0.1,
+    βmax = 0.2,
 )
 
     properties = @dict(
@@ -136,7 +136,8 @@ function mutation_initiation(;
         dt,
     )
 
-    space = ContinuousSpace((1, 1), 0.02)
+    # space = ContinuousSpace((10, 10), 0.02)
+    space = ContinuousSpace((24, 12), interaction_radius)
 
     model = ABM(
         mtDNA,
@@ -174,19 +175,8 @@ end
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
-    update!(agent)
     random_action!(agent, model)
 end
-
-
-update!(agent) = agent.status == :M && (agent.days_mutated += 1)
-
-
-# function update!(agent)
-#     if agent.status == :M
-#         agent.days_mutated += 1
-#     end
-# end
 
 
 function random_action!(agent, model)
@@ -228,6 +218,11 @@ function random_action!(agent, model)
         end
     end
 
+    # Update agent
+    if agent.status == :M
+        agent.days_mutated += 1
+    end
+
     println("Agents remaining: $(length(model.agents)), $(agent.status)")
     return
 end
@@ -235,26 +230,26 @@ end
 
 function render_video()
     # RENDER ONLY
-    # simulation = abm_video(
-    #     "agent_julia_simulation.mp4",
-    #     agent_julia_model,
-    #     agent_step!,
-    #     model_step!;
-    #     title = "mtDNA population dynamics",
-    #     frames = tend, # frames = 1000,
-    #     ac = model_colours,
-    #     as = 10,
-    #     spf = month, # spf = 1,
-    #     framerate = 60,
-    # )
-
-    # RUN ONLY
-    simulation = run!(
+    simulation = abm_video(
+        "agent_julia_simulation.mp4",
         agent_julia_model,
         agent_step!,
-        model_step!,
-        2;
+        model_step!;
+        title = "mtDNA population dynamics",
+        frames = 100, # tend, # frames = 1000,
+        ac = model_colours,
+        as = 10,
+        spf = 1, #month, # spf = 1,
+        framerate = 60,
     )
+
+    # # RUN ONLY
+    # simulation = run!(
+    #     agent_julia_model,
+    #     agent_step!,
+    #     model_step!,
+    #     30;
+    # )
 
     # Can be accessed from REPL by using below:
     # model[1].pos  # Get first agent's position
