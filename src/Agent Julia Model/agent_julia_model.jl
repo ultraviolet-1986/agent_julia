@@ -26,6 +26,9 @@
 # Notes #
 #########
 
+# TODO Slow the kinetic rates by a factor of 1000, or increase the
+#      speed of the model to account for the higher values. Temporal
+#      rates MUST be integer for the stepping function.
 # TODO Perform the simulation, then optionally output to video later.
 #      The important thing is to be able to access the data through the
 #      REPL.
