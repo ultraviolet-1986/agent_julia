@@ -34,6 +34,8 @@
 #      REPL.
 # NOTE Wild-type and mutants have a slightly different mass,
 #      investigate this.
+# TODO Take kinetic rates from the Gillespie model and translate them
+#      for this model. Reduce the mutation rate.
 
 ##############
 # References #
@@ -74,14 +76,16 @@ Random.seed!(random_seed)
 
 # TEMPORAL UNITS
 
-# NOTE Stepping functions require type 'Int'.
+# NOTE Stepping functions require type 'Int'. Will account for this.
 
-hour = Int(1)
-day = Int(hour * 24)
-year = Int(day * 365)
-month = Int(year / 12)
+hour = 1.0
+day = hour * 24.0
+year = day * 365.0
+month = year / 12.0
 
-tend = Int(year * 80)
+tend = year * 80.0
+
+δ = month
 
 # COLOURS
 
@@ -95,9 +99,13 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 # AGENT PROPERTIES
 
-λ = Int(day * 260)
-
 agent_max = rand(Poisson(200))
+initial_mutants = 10
+
+βmin = 0.0
+βmax = 0.01
+
+λ = day * 260.0
 
 ###########
 # Structs #
@@ -108,9 +116,9 @@ mutable struct mtDNA <: AbstractAgent
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
     mass::Float64
-    days_mutated::Int  # Days since agent is mutated.
-    status::Symbol     # :W (Wild-type mtDNA), :M (Mutant mtDNA)
-    β::Float64         # Mutation probability.
+    age_in_days::Int
+    status::Symbol  # :W (Wild-type mtDNA), :M (Mutant mtDNA)
+    β::Float64      # Mutation probability.
 end
 
 #############
@@ -121,11 +129,11 @@ function mutation_initiation(;
     mutation_probability = 0.05,
     isolated = 0.0,
     interaction_radius = 0.012,
-    dt = 1.0,
-    speed = hour, # 0.002,
-    death_rate = λ, # 0.044,
-    N = agent_max,        # Set N to not go above 'agent_max'.
-    initial_mutated = 1,  # Tied to initial conditions.
+    dt = month,
+    speed = δ,
+    death_rate = λ,
+    N = agent_max,
+    initial_mutated = initial_mutants,
     seed = random_seed,
     βmin = 0.4,
     βmax = 0.8,
@@ -138,7 +146,6 @@ function mutation_initiation(;
         dt,
     )
 
-    # space = ContinuousSpace((10, 10), 0.02)
     space = ContinuousSpace((24, 12), interaction_radius)
 
     model = ABM(
@@ -148,7 +155,7 @@ function mutation_initiation(;
         rng=MersenneTwister(seed)
     )
 
-    # Add initial individuals
+    # Add initial agents
     for ind in 1:N
         pos = Tuple(rand(model.rng, 2))
         status = ind ≤ N - initial_mutated ? :W : :M
@@ -167,7 +174,7 @@ end
 function model_step!(model)
     r = model.interaction_radius
 
-    for (a1, a2) in interacting_pairs(model, r, :nearest;)  # Errors here on n > 1.
+    for (a1, a2) in interacting_pairs(model, r, :nearest;)
         elastic_collision!(a1, a2, :mass)
     end
 end
@@ -184,32 +191,47 @@ function random_action!(agent, model)
     mother_position = agent.pos
 
     # Degrade mtDNA
-    if roll <= (1 / 3)
-        kill_agent!(agent, model)
+    # if roll <= (1 / 3)
+    #     if agent.age_in_days ≥ λ
+    #         kill_agent!(agent, model)
+    #     end
 
-    elseif roll <= (2 / 3)
-        # Replicate wild-type mtDNA
+    # Replicate mtDNA
+    if roll <= (1 / 2)
+    # elseif roll <= (2 / 3)
+        # Wild-type mtDNA
         if agent.status == :W
             add_agent!(agent, mother_position, model)
+            age_in_days = 0
 
-        # Replicate mutant mtDNA
+        # Mutant mtDNA
         else
             add_agent!(agent, mother_position, model)
             agent.status = :M
-            agent.days_mutated = 0
+            age_in_days = 0
         end
 
     # Mutate wild-type mtDNA
     else
         if agent.status == :W
-            agent.status = :M
-            agent.days_mutated = 0
+            # Calculate probability of mutation
+            # β = (βmax - βmin) * rand(agent_julia_model.rng) + βmin
+
+            β = rand(agent_julia_model.rng)
+
+            # Mutate if calculated probability falls within range
+            if β > βmin && β < βmax
+                agent.status = :M
+            end
         end
     end
 
     # Update agent
-    if agent.status == :M
-        agent.days_mutated += 1
+    agent.age_in_days += 1
+
+    # Degrade agent
+    if agent.age_in_days ≥ λ
+        kill_agent!(agent, model)
     end
 
     return
