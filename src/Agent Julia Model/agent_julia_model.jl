@@ -300,14 +300,30 @@ adata = [(:status, wild), (:status, mutant)]
 
 # Save simulation data
 # data1 = run!(agent_julia_model, agent_step!, model_step!, 500; adata)
-data1 = run!(agent_julia_model, agent_step!, model_step!, 500; adata)
+data1 = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
 
 # data1[(end-10):end, :]  # Errors out.
 
-# Define plot
+# Define plot / OLD
 # figure = Figure()
 # ax = figure[1, 1] = Axis(figure; ylabel = "Mutation rate")
 # l1 = lines!(ax, data1[:, dataname((:status, mutant))], color = :red)  # Errors out.
 # figure
+
+# Define plot
+mutants = eachcol(data1[1])[3]
+
+figure = Figure()
+
+ax = figure[1, 1] = Axis(
+    figure;
+    title = "mtDNA population dynamics",
+    ylabel = "Mutation level",
+    xlabel = "Time",
+)
+
+l1 = lines!(ax, mutants, color = :red)
+
+save("plot.svg", figure)
 
 # End of File.
