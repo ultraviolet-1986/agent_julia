@@ -83,9 +83,9 @@ day = hour * 24.0
 year = day * 365.0
 month = year / 12.0
 
-tend = year * 80.0
+tend = Int(year * 80.0)
 
-δ = month
+δ = hour
 
 # COLOURS
 
@@ -103,7 +103,7 @@ agent_max = rand(Poisson(200))
 initial_mutants = 10
 
 βmin = 0.0
-βmax = 0.01
+βmax = 0.0001
 
 λ = day * 260.0
 
@@ -199,6 +199,7 @@ function random_action!(agent, model)
     # Replicate mtDNA
     if roll <= (1 / 2)
     # elseif roll <= (2 / 3)
+
         # Wild-type mtDNA
         if agent.status == :W
             add_agent!(agent, mother_position, model)
@@ -226,13 +227,13 @@ function random_action!(agent, model)
         end
     end
 
-    # Update agent
-    agent.age_in_days += 1
-
     # Degrade agent
     if agent.age_in_days ≥ λ
         kill_agent!(agent, model)
     end
+
+    # Update agent
+    agent.age_in_days += 1
 
     return
 end
@@ -298,6 +299,7 @@ mutant(x) = count(i == :M for i in x)
 adata = [(:status, wild), (:status, mutant)]
 
 # Save simulation data
+# data1 = run!(agent_julia_model, agent_step!, model_step!, 500; adata)
 data1 = run!(agent_julia_model, agent_step!, model_step!, 500; adata)
 
 # data1[(end-10):end, :]  # Errors out.
