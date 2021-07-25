@@ -51,6 +51,7 @@ import Pkg
 
 Pkg.add("Agents")
 Pkg.add("CairoMakie")
+Pkg.add("CSV")
 Pkg.add("Distributions")
 Pkg.add("DrWatson")
 Pkg.add("InteractiveDynamics")
@@ -58,6 +59,7 @@ Pkg.add("Random")
 
 using Agents
 using CairoMakie
+using CSV
 using Distributions
 using DrWatson: @dict
 using InteractiveDynamics
@@ -85,9 +87,9 @@ month = year / 12.0
 
 tend = Int(year * 80.0)
 
-δ = hour
+δ = month
 
-# COLOURS
+# COLOURS (USED FOR VIDEO RENDER ONLY)
 
 green = "\e[32m"
 red = "\e[31m"
@@ -129,9 +131,9 @@ function mutation_initiation(;
     mutation_probability = 0.05,
     isolated = 0.0,
     interaction_radius = 0.012,
-    dt = month,
-    speed = δ,
-    death_rate = λ,
+    dt = δ,
+    speed = δ / 500,
+    death_rate = λ,  # Terminates simulation itself at step 6240 (λ).
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
@@ -182,6 +184,7 @@ end
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
+    agent.age_in_days += 1  # Update agent's age
     random_action!(agent, model)
 end
 
@@ -191,33 +194,31 @@ function random_action!(agent, model)
     mother_position = agent.pos
 
     # Degrade mtDNA
-    # if roll <= (1 / 3)
-    #     if agent.age_in_days ≥ λ
-    #         kill_agent!(agent, model)
-    #     end
+    if roll <= (1 / 3)
+        if agent.age_in_days ≥ λ
+            kill_agent!(agent, model)
+        end
 
     # Replicate mtDNA
-    if roll <= (1 / 2)
-    # elseif roll <= (2 / 3)
+    elseif roll <= (2 / 3)
 
         # Wild-type mtDNA
         if agent.status == :W
             add_agent!(agent, mother_position, model)
-            age_in_days = 0
+            agent.status = :W
+            agent.age_in_days = 0
 
         # Mutant mtDNA
         else
             add_agent!(agent, mother_position, model)
             agent.status = :M
-            age_in_days = 0
+            agent.age_in_days = 0
         end
 
     # Mutate wild-type mtDNA
     else
         if agent.status == :W
             # Calculate probability of mutation
-            # β = (βmax - βmin) * rand(agent_julia_model.rng) + βmin
-
             β = rand(agent_julia_model.rng)
 
             # Mutate if calculated probability falls within range
@@ -226,47 +227,40 @@ function random_action!(agent, model)
             end
         end
     end
+end
 
-    # Degrade agent
-    if agent.age_in_days ≥ λ
-        kill_agent!(agent, model)
-    end
 
-    # Update agent
-    agent.age_in_days += 1
+function render_plot(data)
+    figure = Figure()
+
+    ax = figure[1, 1] = Axis(
+        figure;
+        title = "mtDNA population dynamics",
+        ylabel = "Mutation level",
+        xlabel = "Time",
+    )
+
+    l1 = lines!(ax, data[:, dataname((:status, mutant))], color = :red)
+
+    save("agent_julia_plot.svg", figure)
 
     return
 end
 
 
 function render_video()
-    # # RENDER ONLY
-    # simulation = abm_video(
-    #     "agent_julia_simulation.mp4",
-    #     agent_julia_model,
-    #     agent_step!,
-    #     model_step!;
-    #     title = "mtDNA population dynamics",
-    #     frames = 1000, # tend, # frames = 1000,
-    #     ac = model_colours,
-    #     as = 10,
-    #     spf = 1, # month, # spf = 1,
-    #     framerate = 60,
-    # )
-
-    # RUN ONLY
-    simulation = run!(
+    abm_video(
+        "agent_julia_simulation.mp4",
         agent_julia_model,
         agent_step!,
-        model_step!,
-        30;
+        model_step!;
+        title = "mtDNA population dynamics",
+        frames = λ, # tend, # frames = 1000,
+        ac = model_colours,
+        as = 10,
+        spf = 1, # month, # spf = 1,
+        framerate = 60,
     )
-
-    # Can be accessed from REPL by using below:
-    # model[1].pos  # Get first agent's position
-    # sir_model[1].mass  # Get SIR mass
-
-    return simulation
 end
 
 #############
@@ -291,6 +285,7 @@ println("$(green)Done$(reset)")
 #     println("$(red)Error$(reset)")
 #     println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
 # end
+
 # simulation = render_video()
 
 # Get counts of elements
@@ -299,31 +294,13 @@ mutant(x) = count(i == :M for i in x)
 adata = [(:status, wild), (:status, mutant)]
 
 # Save simulation data
-# data1 = run!(agent_julia_model, agent_step!, model_step!, 500; adata)
-data1 = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
+data, _ = run!(agent_julia_model, agent_step!, model_step!, λ; adata)
 
-# data1[(end-10):end, :]  # Errors out.
+# total_wild = eachcol(data)[2]
+# total_mutants = eachcol(data)[3]
 
-# Define plot / OLD
-# figure = Figure()
-# ax = figure[1, 1] = Axis(figure; ylabel = "Mutation rate")
-# l1 = lines!(ax, data1[:, dataname((:status, mutant))], color = :red)  # Errors out.
-# figure
+CSV.write("agent_julia_data.csv", data)
 
-# Define plot
-mutants = eachcol(data1[1])[3]
-
-figure = Figure()
-
-ax = figure[1, 1] = Axis(
-    figure;
-    title = "mtDNA population dynamics",
-    ylabel = "Mutation level",
-    xlabel = "Time",
-)
-
-l1 = lines!(ax, mutants, color = :red)
-
-save("plot.svg", figure)
+render_plot(data)
 
 # End of File.
