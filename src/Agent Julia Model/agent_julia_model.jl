@@ -294,7 +294,7 @@ mutant(x) = count(i == :M for i in x)
 adata = [(:status, wild), (:status, mutant)]
 
 # Save simulation data
-data, _ = run!(agent_julia_model, agent_step!, model_step!, λ; adata)
+data, _ = run!(agent_julia_model, agent_step!, model_step!, Int(λ); adata)
 
 # total_wild = eachcol(data)[2]
 # total_mutants = eachcol(data)[3]

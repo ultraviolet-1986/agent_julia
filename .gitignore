@@ -27,6 +27,7 @@ Manifest.toml
 src/*.mp4
 src/Agent Julia Model/agent_julia_simulation.mp4
 src/*.png
+src/*/*.csv
 src/*/*.png
 src/*/*.svg
 src/*/plots
