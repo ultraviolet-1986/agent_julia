@@ -80,12 +80,12 @@ Random.seed!(random_seed)
 
 # NOTE Stepping functions require type 'Int'. Will account for this.
 
-hour = 1.0
+hour = 1.0 / 100.0
 day = hour * 24.0
 year = day * 365.0
 month = year / 12.0
 
-tend = Int(year * 80.0)
+tend = Int(round(year * 80.0))
 
 δ = month
 
@@ -240,7 +240,11 @@ function render_plot(data)
         xlabel = "Time",
     )
 
-    l1 = lines!(ax, data[:, dataname((:status, mutant))], color = :red)
+    mutation_line = lines!(
+        ax,
+        data[:, dataname((:status, mutant))],
+        color = :red
+    )
 
     save("agent_julia_plot.svg", figure)
 
@@ -255,7 +259,7 @@ function render_video()
         agent_step!,
         model_step!;
         title = "mtDNA population dynamics",
-        frames = λ, # tend, # frames = 1000,
+        frames = tend, # frames = 1000,
         ac = model_colours,
         as = 10,
         spf = 1, # month, # spf = 1,
@@ -286,7 +290,7 @@ println("$(green)Done$(reset)")
 #     println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
 # end
 
-# simulation = render_video()
+simulation = render_video()
 
 # Get counts of elements
 wild(x) = count(i == :W for i in x)
@@ -294,13 +298,13 @@ mutant(x) = count(i == :M for i in x)
 adata = [(:status, wild), (:status, mutant)]
 
 # Save simulation data
-data, _ = run!(agent_julia_model, agent_step!, model_step!, Int(λ); adata)
+# data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
 
 # total_wild = eachcol(data)[2]
 # total_mutants = eachcol(data)[3]
 
-CSV.write("agent_julia_data.csv", data)
+# CSV.write("agent_julia_data.csv", data)
 
-render_plot(data)
+# render_plot(data)
 
 # End of File.
