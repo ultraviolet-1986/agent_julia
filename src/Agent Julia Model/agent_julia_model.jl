@@ -262,7 +262,7 @@ function render_plot(data)
     )
     println("$(green)Done$(reset)")
 
-    print("Rendering plot to 'agent_julia_mutation_plot.png'... ")
+    print("Rendering plot to $(yellow)agent_julia_mutation_plot.png$(reset)... ")
     plt.savefig(fig, "agent_julia_mutation_plot.png")
     println("$(green)Done$(reset)\n")
 end
@@ -273,7 +273,7 @@ function simulation_to_video()
     model_colours(a) = a.status == :W ? green_hex : red_hex
     println("$(green)Done$(reset)")
 
-    print("Rendering simulation output as 'agent_julia_simulation.mp4'... ")
+    print("Rendering simulation output as $(yellow)agent_julia_simulation.mp4$(reset)... ")
 
     try
         abm_video(
@@ -291,7 +291,7 @@ function simulation_to_video()
         println("$(green)Done$(reset)")
     catch
         println("$(red)Error$(reset)")
-        println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
+        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.")
     end
 end
 
