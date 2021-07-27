@@ -26,17 +26,6 @@
 # Notes #
 #########
 
-# TODO Slow the kinetic rates by a factor of 1000, or increase the
-#      speed of the model to account for the higher values. Temporal
-#      rates MUST be integer for the stepping function.
-# TODO Perform the simulation, then optionally output to video later.
-#      The important thing is to be able to access the data through the
-#      REPL.
-# NOTE Wild-type and mutants have a slightly different mass,
-#      investigate this.
-# TODO Take kinetic rates from the Gillespie model and translate them
-#      for this model. Reduce the mutation rate.
-
 ##############
 # References #
 ##############
@@ -48,6 +37,7 @@
 ###########
 
 import Pkg
+import Plots as plt
 
 Pkg.add("Agents")
 Pkg.add("CairoMakie")
@@ -55,6 +45,7 @@ Pkg.add("CSV")
 Pkg.add("Distributions")
 Pkg.add("DrWatson")
 Pkg.add("InteractiveDynamics")
+Pkg.add("Plots")
 Pkg.add("Random")
 
 using Agents
@@ -78,7 +69,7 @@ Random.seed!(random_seed)
 
 # TEMPORAL UNITS
 
-# NOTE Stepping functions require type 'Int'. Will account for this.
+# NOTE Stepping functions require type 'Int'.
 
 hour = 1.0 / 100.0
 day = hour * 24.0
@@ -89,12 +80,14 @@ tend = Int(round(year * 80.0))
 
 δ = month
 
-# COLOURS (USED FOR VIDEO RENDER ONLY)
+# COLOURS (TEXT OUTPUT ONLY)
 
 green = "\e[32m"
 red = "\e[31m"
 yellow = "\e[33m"
 reset = "\e[0m"
+
+# COLOURS (USED FOR VIDEO RENDER ONLY)
 
 green_hex = "#338c54"  # Wild-type mtDNA
 red_hex = "#bf2642"    # Mutant mtDNA
@@ -104,9 +97,11 @@ red_hex = "#bf2642"    # Mutant mtDNA
 agent_max = rand(Poisson(200))
 initial_mutants = 10
 
+# Mutant replication boundaries.
 βmin = 0.0
 βmax = 0.0001
 
+# mtDNA half-life (death rate).
 λ = day * 260.0
 
 ###########
@@ -133,7 +128,7 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
     speed = δ / 500,
-    death_rate = λ,  # Terminates simulation itself at step 6240 (λ).
+    death_rate = λ,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
@@ -148,7 +143,7 @@ function mutation_initiation(;
         dt,
     )
 
-    space = ContinuousSpace((24, 12), interaction_radius)
+    space = ContinuousSpace((24, 12), interaction_radius; periodic = true)
 
     model = ABM(
         mtDNA,
@@ -230,42 +225,72 @@ function random_action!(agent, model)
 end
 
 
+function perform_simulation()
+    wild(x) = count(i == :W for i in x)
+    mutant(x) = count(i == :M for i in x)
+
+    adata = [(:status, wild), (:status, mutant)]
+
+    print("Performing simulation. Please wait... ")
+    data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
+    println("$(green)Done$(reset)")
+
+    CSV.write("agent_julia_data.csv", data)
+
+    render_plot(data)
+
+    return data
+end
+
+
 function render_plot(data)
-    figure = Figure()
+    x = eachcol(data)[1] / 100.0  # Times (years), tied to 'hour'.
+    y = eachcol(data)[3]          # Mutation level (n)
 
-    ax = figure[1, 1] = Axis(
-        figure;
-        title = "mtDNA population dynamics",
-        ylabel = "Mutation level",
-        xlabel = "Time",
+    fig = plt.plot(
+        x,
+        y,
+        xlims=(0, 80),
+        title="mtDNA population dynamics (agent)",
+        xlabel="Time (years)",
+        ylabel="Mutation level (n)",
+        legend=false,
+        dpi=1200,
     )
 
-    mutation_line = lines!(
-        ax,
-        data[:, dataname((:status, mutant))],
-        color = :red
-    )
-
-    save("agent_julia_plot.svg", figure)
-
-    return
+    print("Rendering graph ato 'agent_julia_mutation_plot.png'... ")
+    plt.savefig(fig, "agent_julia_mutation_plot.png")
+    println("$(green)Done$(reset)")
 end
 
 
-function render_video()
-    abm_video(
-        "agent_julia_simulation.mp4",
-        agent_julia_model,
-        agent_step!,
-        model_step!;
-        title = "mtDNA population dynamics",
-        frames = tend, # frames = 1000,
-        ac = model_colours,
-        as = 10,
-        spf = 1, # month, # spf = 1,
-        framerate = 60,
-    )
+function simulation_to_video()
+    print("Defining simulation colour palette... ")
+    model_colours(a) = a.status == :W ? green_hex : red_hex
+    println("$(green)Done$(reset)")
+
+    print("Rendering simulation output as 'agent_julia_simulation.mp4'... ")
+
+    try
+        abm_video(
+            "agent_julia_simulation.mp4",
+            agent_julia_model,
+            agent_step!,
+            model_step!;
+            title = "mtDNA population dynamics",
+            frames = tend,
+            ac = model_colours,
+            as = 10,
+            spf = 1,
+            framerate = 60,
+        )
+        println("$(green)Done$(reset)")
+    catch
+        println("$(red)Error$(reset)")
+        println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
+    end
 end
+
 
 #############
 # Kickstart #
@@ -273,38 +298,12 @@ end
 
 println("\n")
 
-print("Defining simulation colour palette... ")
-model_colours(a) = a.status == :W ? green_hex : red_hex
-println("$(green)Done$(reset)")
-
 print("Creating mtDNA population dynamics model... ")
 agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
-# print("Rendering simulation output as 'agent_julia_simulation.mp4'... ")
-# try
-#     simulation = render_video()
-#     println("$(green)Done$(reset)")
-# catch
-#     println("$(red)Error$(reset)")
-#     println("$(yellow)Please run the 'integrated_gpu_support.sh' script.$(reset)")
-# end
-
-simulation = render_video()
-
-# Get counts of elements
-wild(x) = count(i == :W for i in x)
-mutant(x) = count(i == :M for i in x)
-adata = [(:status, wild), (:status, mutant)]
-
-# Save simulation data
-# data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
-
-# total_wild = eachcol(data)[2]
-# total_mutants = eachcol(data)[3]
-
-# CSV.write("agent_julia_data.csv", data)
-
-# render_plot(data)
+# NOTE Use only one method below.
+# simulation_to_video()
+data = perform_simulation()
 
 # End of File.
