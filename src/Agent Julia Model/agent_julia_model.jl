@@ -26,6 +26,9 @@
 # Notes #
 #########
 
+# TODO Discover how to include a hard boundary.
+# TODO Adjust space to more closely match a muscle fibre cell.
+
 ##############
 # References #
 ##############
@@ -143,7 +146,7 @@ function mutation_initiation(;
         dt,
     )
 
-    space = ContinuousSpace((24, 12), interaction_radius; periodic = true)
+    space = ContinuousSpace((24, 12), interaction_radius)
 
     model = ABM(
         mtDNA,
@@ -152,7 +155,6 @@ function mutation_initiation(;
         rng=MersenneTwister(seed)
     )
 
-    # Add initial agents
     for ind in 1:N
         pos = Tuple(rand(model.rng, 2))
         status = ind ≤ N - initial_mutated ? :W : :M
@@ -179,7 +181,7 @@ end
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
-    agent.age_in_days += 1  # Update agent's age
+    agent.age_in_days += 1
     random_action!(agent, model)
 end
 
@@ -213,10 +215,8 @@ function random_action!(agent, model)
     # Mutate wild-type mtDNA
     else
         if agent.status == :W
-            # Calculate probability of mutation
             β = rand(agent_julia_model.rng)
 
-            # Mutate if calculated probability falls within range
             if β > βmin && β < βmax
                 agent.status = :M
             end
