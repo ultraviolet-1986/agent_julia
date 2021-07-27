@@ -74,7 +74,9 @@ Random.seed!(random_seed)
 
 # NOTE Stepping functions require type 'Int'.
 
-hour = 1.0 / 100.0
+time_factor = 100.0
+
+hour = 1.0 / time_factor
 day = hour * 24.0
 year = day * 365.0
 month = year / 12.0
@@ -244,9 +246,10 @@ end
 
 
 function render_plot(data)
-    x = eachcol(data)[1] / 100.0  # Times (years), tied to 'hour'.
-    y = eachcol(data)[3]          # Mutation level (n)
+    x = eachcol(data)[1] / time_factor  # Times (years)
+    y = eachcol(data)[3]                # Mutation level (n)
 
+    print("Building plot. Please wait... ")
     fig = plt.plot(
         x,
         y,
@@ -257,10 +260,11 @@ function render_plot(data)
         legend=false,
         dpi=1200,
     )
-
-    print("Rendering graph ato 'agent_julia_mutation_plot.png'... ")
-    plt.savefig(fig, "agent_julia_mutation_plot.png")
     println("$(green)Done$(reset)")
+
+    print("Rendering plot to 'agent_julia_mutation_plot.png'... ")
+    plt.savefig(fig, "agent_julia_mutation_plot.png")
+    println("$(green)Done$(reset)\n")
 end
 
 
