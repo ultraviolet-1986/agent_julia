@@ -85,12 +85,14 @@ time_factor = 100.0
 
 hour = 1.0 / time_factor
 day = hour * 24.0
+week = day * 7.0
+fortnight = week * 2.0
 year = day * 365.0
 month = year / 12.0
 
 tend = Int(round(year * 80.0))
 
-δ = month
+δ = fortnight
 
 # COLOURS (TEXT OUTPUT ONLY)
 
@@ -140,7 +142,7 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
     speed = δ / 500,
-    death_rate = λ,
+    death_rate = day,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
@@ -314,7 +316,7 @@ agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
 # NOTE Use only one method below.
-# simulation_to_video()
-data = perform_simulation()
+simulation_to_video()
+# data = perform_simulation()
 
 # End of File.
