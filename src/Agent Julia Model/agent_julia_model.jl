@@ -107,7 +107,11 @@ week = day * 7.0
 
 tend = Int(round(year * 80.0))
 
+# Iteration length.
 δ = month
+
+# mtDNA half-life (death rate).
+λ = day * 260.0
 
 # COLOURS (TEXT OUTPUT ONLY)
 
@@ -125,13 +129,6 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 agent_max = rand(Poisson(200))
 initial_mutants = 10
-
-# Mutant replication boundaries.
-βmin = 0.0
-βmax = 0.0001
-
-# mtDNA half-life (death rate).
-λ = day * 260.0
 
 ###########
 # Structs #
@@ -161,8 +158,8 @@ function mutation_initiation(;
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
-    βmin = 0.4,
-    βmax = 0.8,
+    βmin = 0.0,
+    βmax = 0.0001,
 )
 
     properties = @dict(
