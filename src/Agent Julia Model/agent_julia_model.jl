@@ -83,16 +83,31 @@ Random.seed!(random_seed)
 
 time_factor = 100.0
 
-hour = 1.0 / time_factor
-day = hour * 24.0
+############################################################################################
+# hour = 1.0 / time_factor
+# day = hour * 24.0
+# week = day * 7.0
+# fortnight = week * 2.0
+# year = day * 365.0
+# month = year / 12.0
+############################################################################################
+month = 1.0 # / time_factor
+year = month * 12.0
+day = year / 365.0
+hour = day / 24.0
 week = day * 7.0
-fortnight = week * 2.0
-year = day * 365.0
-month = year / 12.0
+############################################################################################
+# day = 1.0 / time_factor
+# week = day * 7.0
+# fortnight = week * 2.0
+# year = day * 365.0
+# month = year / 12.0
+# hour = day / 24.0
+############################################################################################
 
 tend = Int(round(year * 80.0))
 
-δ = fortnight
+δ = month
 
 # COLOURS (TEXT OUTPUT ONLY)
 
@@ -137,12 +152,12 @@ end
 #############
 
 function mutation_initiation(;
-    mutation_probability = 0.05,
+    mutation_probability = 0.0,
     isolated = 0.0,
     interaction_radius = 0.012,
     dt = δ,
-    speed = δ / 500,
-    death_rate = day,
+    speed = δ,
+    death_rate = λ,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
@@ -163,7 +178,7 @@ function mutation_initiation(;
         mtDNA,
         space,
         properties=properties,
-        rng=MersenneTwister(seed)
+        rng=MersenneTwister(seed),
     )
 
     for ind in 1:N
@@ -192,45 +207,38 @@ end
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
-    agent.age_in_days += 1
+    agent.age_in_days += Int(round(δ))
     random_action!(agent, model)
 end
 
 
 function random_action!(agent, model)
-    roll = rand()
-    mother_position = agent.pos
-
     # Degrade mtDNA
-    if roll <= (1 / 3)
-        if agent.age_in_days ≥ λ
+    if length(model.agents) > 50
+        if rand(model.rng) ≤ model.death_rate
             kill_agent!(agent, model)
         end
+    end
 
-    # Replicate mtDNA
-    elseif roll <= (2 / 3)
+    # Replicate Wild-type mtDNA
+    if agent.status == :W
+        wild = add_agent_pos!(agent, model)
+        wild.status = :W
+        wild.age_in_days = 0
 
-        # Wild-type mtDNA
-        if agent.status == :W
-            add_agent!(agent, mother_position, model)
-            agent.status = :W
-            agent.age_in_days = 0
-
-        # Mutant mtDNA
-        else
-            add_agent!(agent, mother_position, model)
-            agent.status = :M
-            agent.age_in_days = 0
-        end
-
-    # Mutate wild-type mtDNA
+    # Replicate Mutant mtDNA
     else
-        if agent.status == :W
-            β = rand(agent_julia_model.rng)
+        mutant = add_agent_pos!(agent, model)
+        mutant.status = :M
+        mutant.age_in_days = 0
+    end
 
-            if β > βmin && β < βmax
-                agent.status = :M
-            end
+    # Mutate
+    if agent.status == :W
+        β = rand(model.rng)
+
+        if β > βmin && β < βmax
+            agent.status = :M
         end
     end
 end
@@ -255,7 +263,7 @@ end
 
 
 function render_plot(data)
-    x = eachcol(data)[1] / time_factor  # Times (years)
+    x = eachcol(data)[1] / year  # Times (years)
     y = eachcol(data)[3]                # Mutation level (n)
 
     print("Building plot. Please wait... ")
@@ -263,6 +271,7 @@ function render_plot(data)
         x,
         y,
         xlims=(0, 80),
+        ylims=(0, agent_max),
         title="mtDNA population dynamics (agent)",
         xlabel="Time (years)",
         ylabel="Mutation level (n)",
@@ -294,7 +303,7 @@ function simulation_to_video()
             frames = tend,
             ac = model_colours,
             as = 10,
-            spf = 1,
+            spf = Int(round(month)), # 1,
             framerate = 60,
         )
         println("$(green)Done$(reset)")
@@ -316,7 +325,7 @@ agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
 # NOTE Use only one method below.
-simulation_to_video()
-# data = perform_simulation()
+# simulation_to_video()
+data = perform_simulation()
 
 # End of File.
