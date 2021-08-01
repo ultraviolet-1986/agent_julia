@@ -91,11 +91,13 @@ time_factor = 100.0
 # year = day * 365.0
 # month = year / 12.0
 ############################################################################################
-month = 1.0 # / time_factor
-year = month * 12.0
-day = year / 365.0
-hour = day / 24.0
-week = day * 7.0
+# # CORRECT TIME FACTORS
+# month = 1.0
+# year = month * 12.0
+# day = year / 365.0
+# hour = day / 24.0
+# week = day * 7.0
+# # / CORRECT TIME FACTORS
 ############################################################################################
 # day = 1.0 / time_factor
 # week = day * 7.0
@@ -104,11 +106,17 @@ week = day * 7.0
 # month = year / 12.0
 # hour = day / 24.0
 ############################################################################################
+week = 1.0
+day = week / 7.0
+year = day * 365.0
+hour = day / 24.0
+month = year / 12
 
 tend = Int(round(year * 80.0))
 
 # Iteration length.
-δ = month
+# δ = month
+δ = week
 
 # mtDNA half-life (death rate).
 λ = day * 260.0
@@ -322,7 +330,7 @@ agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
 # NOTE Use only one method below.
-# simulation_to_video()
-data = perform_simulation()
+simulation_to_video()
+# data = perform_simulation()
 
 # End of File.
