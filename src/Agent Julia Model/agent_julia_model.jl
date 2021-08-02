@@ -91,13 +91,13 @@ time_factor = 100.0
 # year = day * 365.0
 # month = year / 12.0
 ############################################################################################
-# # CORRECT TIME FACTORS
-# month = 1.0
-# year = month * 12.0
-# day = year / 365.0
-# hour = day / 24.0
-# week = day * 7.0
-# # / CORRECT TIME FACTORS
+# CORRECT TIME FACTORS
+month = 1.0
+year = month * 12.0
+day = year / 365.0
+hour = day / 24.0
+week = day * 7.0
+# / CORRECT TIME FACTORS
 ############################################################################################
 # day = 1.0 / time_factor
 # week = day * 7.0
@@ -106,17 +106,17 @@ time_factor = 100.0
 # month = year / 12.0
 # hour = day / 24.0
 ############################################################################################
-week = 1.0
-day = week / 7.0
-year = day * 365.0
-hour = day / 24.0
-month = year / 12
+# week = 1.0
+# day = week / 7.0
+# year = day * 365.0
+# hour = day / 24.0
+# month = year / 12
+############################################################################################
 
 tend = Int(round(year * 80.0))
 
 # Iteration length.
-# δ = month
-δ = week
+δ = month
 
 # mtDNA half-life (death rate).
 λ = day * 260.0
@@ -135,8 +135,12 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 # AGENT PROPERTIES
 
+agent_min = 50
 agent_max = rand(Poisson(200))
 initial_mutants = 10
+
+βmin = 0.0
+βmax = 0.0001
 
 ###########
 # Structs #
@@ -162,17 +166,19 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
     speed = δ,
-    death_rate = λ,
+    degradation_rate = hour,
+    replication_rate = hour,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
-    βmin = 0.0,
-    βmax = 0.0001,
+    βmin = 0.4,
+    βmax = 0.8,
 )
 
     properties = @dict(
         mutation_probability,
-        death_rate,
+        degradation_rate,
+        replication_rate,
         interaction_radius,
         dt,
     )
@@ -219,23 +225,27 @@ end
 
 function random_action!(agent, model)
     # Degrade mtDNA
-    if length(model.agents) > 50
-        if rand(model.rng) ≤ model.death_rate
+    if length(model.agents) ≥ agent_min
+        if rand(model.rng) ≤ model.degradation_rate
             kill_agent!(agent, model)
         end
     end
 
-    # Replicate Wild-type mtDNA
-    if agent.status == :W
-        wild = add_agent_pos!(agent, model)
-        wild.status = :W
-        wild.age_in_days = 0
+    if length(model.agents) ≤ agent_max
+        if rand(model.rng) ≥ model.replication_rate
+            # Replicate Wild-type mtDNA
+            if agent.status == :W
+                wild = add_agent_pos!(agent, model)
+                wild.status = :W
+                wild.age_in_days = 0
 
-    # Replicate Mutant mtDNA
-    else
-        mutant = add_agent_pos!(agent, model)
-        mutant.status = :M
-        mutant.age_in_days = 0
+            # Replicate Mutant mtDNA
+            else
+                mutant = add_agent_pos!(agent, model)
+                mutant.status = :M
+                mutant.age_in_days = 0
+            end
+        end
     end
 
     # Mutate
@@ -263,20 +273,22 @@ function perform_simulation()
 
     render_plot(data)
 
+    simulation_to_video(agent_julia_model, agent_step!, model_step!)
+
     return data
 end
 
 
 function render_plot(data)
-    x = eachcol(data)[1] / year  # Times (years)
-    y = eachcol(data)[3]                # Mutation level (n)
+    times = eachcol(data)[1] / year    # Years
+    mutation_level = eachcol(data)[3]  # N
 
     print("Building plot. Please wait... ")
     fig = plt.plot(
-        x,
-        y,
+        times,
+        mutation_level,
         xlims=(0, 80),
-        ylims=(0, agent_max),
+        # ylims=(0, agent_max),
         title="mtDNA population dynamics (agent)",
         xlabel="Time (years)",
         ylabel="Mutation level (n)",
@@ -287,11 +299,11 @@ function render_plot(data)
 
     print("Rendering plot to $(yellow)agent_julia_mutation_plot.png$(reset)... ")
     plt.savefig(fig, "agent_julia_mutation_plot.png")
-    println("$(green)Done$(reset)\n")
+    println("$(green)Done$(reset)")
 end
 
 
-function simulation_to_video()
+function simulation_to_video(model, agent_step, model_step)
     print("Defining simulation colour palette... ")
     model_colours(a) = a.status == :W ? green_hex : red_hex
     println("$(green)Done$(reset)")
@@ -301,9 +313,9 @@ function simulation_to_video()
     try
         abm_video(
             "agent_julia_simulation.mp4",
-            agent_julia_model,
-            agent_step!,
-            model_step!;
+            model,
+            agent_step,
+            model_step;
             title = "mtDNA population dynamics",
             frames = tend,
             ac = model_colours,
@@ -311,10 +323,10 @@ function simulation_to_video()
             spf = Int(round(month)), # 1,
             framerate = 60,
         )
-        println("$(green)Done$(reset)")
+        println("$(green)Done$(reset)\n")
     catch
         println("$(red)Error$(reset)")
-        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.")
+        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.\n")
     end
 end
 
@@ -330,7 +342,7 @@ agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
 # NOTE Use only one method below.
-simulation_to_video()
-# data = perform_simulation()
+# simulation_to_video()
+data = perform_simulation()
 
 # End of File.
