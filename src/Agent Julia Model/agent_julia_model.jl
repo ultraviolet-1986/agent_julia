@@ -84,20 +84,20 @@ Random.seed!(random_seed)
 time_factor = 100.0
 
 ############################################################################################
-# hour = 1.0 / time_factor
+# hour = 1.0 # / time_factor
 # day = hour * 24.0
 # week = day * 7.0
 # fortnight = week * 2.0
 # year = day * 365.0
 # month = year / 12.0
 ############################################################################################
-# CORRECT TIME FACTORS
-month = 1.0
-year = month * 12.0
-day = year / 365.0
-hour = day / 24.0
-week = day * 7.0
-# / CORRECT TIME FACTORS
+# # CORRECT TIME FACTORS
+# month = 1.0
+# year = month * 12.0
+# day = year / 365.0
+# hour = day / 24.0
+# week = day * 7.0
+# # / CORRECT TIME FACTORS
 ############################################################################################
 # day = 1.0 / time_factor
 # week = day * 7.0
@@ -106,17 +106,17 @@ week = day * 7.0
 # month = year / 12.0
 # hour = day / 24.0
 ############################################################################################
-# week = 1.0
-# day = week / 7.0
-# year = day * 365.0
-# hour = day / 24.0
-# month = year / 12
+week = 1.0
+day = week / 7.0
+year = day * 365.0
+hour = day / 24.0
+month = year / 12
 ############################################################################################
 
 tend = Int(round(year * 80.0))
 
 # Iteration length.
-δ = month
+δ = week
 
 # mtDNA half-life (death rate).
 λ = day * 260.0
@@ -166,8 +166,7 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
     speed = δ,
-    degradation_rate = hour,
-    replication_rate = hour,
+    reaction_rate = hour,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
@@ -177,8 +176,7 @@ function mutation_initiation(;
 
     properties = @dict(
         mutation_probability,
-        degradation_rate,
-        replication_rate,
+        reaction_rate,
         interaction_radius,
         dt,
     )
@@ -193,7 +191,8 @@ function mutation_initiation(;
     )
 
     for ind in 1:N
-        pos = Tuple(rand(model.rng, 2))
+        # pos = Tuple(rand(model.rng, 2))
+        pos = (rand(Uniform(0.0, 24.0)), rand(Uniform(0.0, 12.0)))
         status = ind ≤ N - initial_mutated ? :W : :M
         isisolated = ind ≤ isolated * N
         mass = isisolated ? Inf : 1.0
@@ -225,33 +224,28 @@ end
 
 function random_action!(agent, model)
     # Degrade mtDNA
-    if length(model.agents) ≥ agent_min
-        if rand(model.rng) ≤ model.degradation_rate
+    if length(model.agents) > 50
+        if rand(model.rng) ≤ model.reaction_rate
             kill_agent!(agent, model)
         end
     end
 
-    if length(model.agents) ≤ agent_max
-        if rand(model.rng) ≥ model.replication_rate
-            # Replicate Wild-type mtDNA
-            if agent.status == :W
-                wild = add_agent_pos!(agent, model)
-                wild.status = :W
-                wild.age_in_days = 0
+    # Replicate Wild-type mtDNA
+    if agent.status == :W
+        wild = add_agent_pos!(agent, model)
+        wild.status = :W
+        wild.age_in_days = 0
 
-            # Replicate Mutant mtDNA
-            else
-                mutant = add_agent_pos!(agent, model)
-                mutant.status = :M
-                mutant.age_in_days = 0
-            end
-        end
+    # Replicate Mutant mtDNA
+    else
+        mutant = add_agent_pos!(agent, model)
+        mutant.status = :M
+        mutant.age_in_days = 0
     end
 
     # Mutate
     if agent.status == :W
         β = rand(model.rng)
-
         if β > βmin && β < βmax
             agent.status = :M
         end
