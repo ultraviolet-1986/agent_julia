@@ -109,8 +109,12 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 # AGENT PROPERTIES
 
+# Initial conditions.
+
 agent_max = rand(Poisson(200))
 initial_mutants = 25
+
+# Mutation probabilities.
 
 βmin = 0.0
 βmax = 0.0001
@@ -197,23 +201,27 @@ end
 
 function random_action!(agent, model)
     # Degrade mtDNA
-    if length(model.agents) > 50
-        if rand(model.rng) ≤ model.reaction_rate
+    if length(model.agents) >= 50
+        if rand(model.rng) <= model.reaction_rate
             kill_agent!(agent, model)
         end
     end
 
-    # Replicate Wild-type mtDNA
-    if agent.status == :W
-        wild = add_agent_pos!(agent, model)
-        wild.status = :W
-        wild.age_in_days = 0
+    if length(model.agents) <= agent_max
+        if rand(model.rng) >= model.reaction_rate
+            # Replicate Wild-type mtDNA
+            if agent.status == :W
+                wild = add_agent_pos!(agent, model)
+                wild.status = :W
+                wild.age_in_days = 0
 
-    # Replicate Mutant mtDNA
-    else
-        mutant = add_agent_pos!(agent, model)
-        mutant.status = :M
-        mutant.age_in_days = 0
+            # Replicate Mutant mtDNA
+            else
+                mutant = add_agent_pos!(agent, model)
+                mutant.status = :M
+                mutant.age_in_days = 0
+            end
+        end
     end
 
     # Mutate
@@ -240,8 +248,6 @@ function perform_simulation()
 
     render_plot(data)
 
-    simulation_to_video(agent_julia_model, agent_step!, model_step!)
-
     return data
 end
 
@@ -250,12 +256,16 @@ function render_plot(data)
     times = eachcol(data)[1] / year    # Years
     mutation_level = eachcol(data)[3]  # N
 
+    # Y-Axis boundaries.
+    first_mutation_boundary = first(mutation_level)
+    last_mutation_boundary = last(mutation_level)
+
     print("Building plot. Please wait... ")
     fig = plt.plot(
         times,
         mutation_level,
         xlims=(0, 80),
-        # ylims=(0, agent_max),
+        ylims=(first_mutation_boundary, last_mutation_boundary),
         title="mtDNA population dynamics (agent)",
         xlabel="Time (years)",
         ylabel="Mutation level (n)",
@@ -270,7 +280,7 @@ function render_plot(data)
 end
 
 
-function simulation_to_video(model, agent_step, model_step)
+function simulation_to_video()
     print("Defining simulation colour palette... ")
     model_colours(a) = a.status == :W ? green_hex : red_hex
     println("$(green)Done$(reset)")
@@ -280,9 +290,9 @@ function simulation_to_video(model, agent_step, model_step)
     try
         abm_video(
             "agent_julia_simulation.mp4",
-            model,
-            agent_step,
-            model_step;
+            agent_julia_model,
+            agent_step!,
+            model_step!;
             title = "mtDNA population dynamics",
             frames = tend,
             ac = model_colours,
