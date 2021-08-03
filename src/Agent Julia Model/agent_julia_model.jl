@@ -271,6 +271,7 @@ function render_plot(data)
         ylabel="Mutation level (n)",
         legend=false,
         dpi=1200,
+        # smooth=true,  # Shows line of best fit.
     )
     println("$(green)Done$(reset)")
 
@@ -297,7 +298,7 @@ function simulation_to_video()
             frames = tend,
             ac = model_colours,
             as = 10,
-            spf = Int(round(month)), # 1,
+            spf = Int(round(δ)),
             framerate = 60,
         )
         println("$(green)Done$(reset)\n")
@@ -319,7 +320,7 @@ agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
 # NOTE Use only one method below.
-# simulation_to_video()
 data = perform_simulation()
+# simulation_to_video()
 
 # End of File.
