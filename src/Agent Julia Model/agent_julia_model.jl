@@ -89,32 +89,31 @@ week = day * 7.0
 
 tend = Int(round(year * 80.0))
 
-# Iteration length.
 δ = month
 
-# mtDNA half-life (death rate).
-λ = day * 260.0
-
-# COLOURS (TEXT OUTPUT ONLY)
+# COLOURS > TEXT OUTPUT
 
 green = "\e[32m"
 red = "\e[31m"
 yellow = "\e[33m"
 reset = "\e[0m"
 
-# COLOURS (USED FOR VIDEO RENDER ONLY)
+# COLOURS > SIMULATION VIDEO
 
 green_hex = "#338c54"  # Wild-type mtDNA
 red_hex = "#bf2642"    # Mutant mtDNA
 
-# AGENT PROPERTIES
+# GRAPH PROPERTIES
 
-# Initial conditions.
+graph_width = 24.0
+graph_height = 12.0
 
+# AGENT PROPERTIES > INITIAL CONDITIONS
+
+agent_min = 150
 agent_max = rand(Poisson(200))
-# initial_mutants = 25  # Written into simulation file.
 
-# Mutation probabilities.
+initial_mutants = 25
 
 βmin = 0.0
 βmax = 0.0001
@@ -139,16 +138,12 @@ end
 
 function mutation_initiation(;
     mutation_probability = 0.0,
-    isolated = 0.0,
     interaction_radius = 0.012,
     dt = δ,
-    speed = δ,
     reaction_rate = hour,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
-    βmin = 0.4,
-    βmax = 0.8,
 )
 
     properties = @dict(
@@ -158,7 +153,7 @@ function mutation_initiation(;
         dt,
     )
 
-    space = ContinuousSpace((24, 12), interaction_radius)
+    space = ContinuousSpace((graph_width, graph_height), interaction_radius)
 
     model = ABM(
         mtDNA,
@@ -168,68 +163,57 @@ function mutation_initiation(;
     )
 
     for ind in 1:N
-        # pos = Tuple(rand(model.rng, 2))
-        pos = (rand(Uniform(0.0, 24.0)), rand(Uniform(0.0, 12.0)))  # Change to variable
+        pos = (rand(Uniform(0.0, graph_width)), rand(Uniform(0.0, graph_height)))
         status = ind ≤ N - initial_mutated ? :W : :M
-        isisolated = ind ≤ isolated * N  # May remove
-        mass = isisolated ? Inf : 1.0  # Mass = 1
-        vel = isisolated ? (0.0, 0.0) : sincos(2π * rand(model.rng)) .* speed  # vel = sincos(2π * rand(model.rng)) .* speed
+        mass = 1.0
+        vel = sincos(2π * rand(model.rng)) .* δ
 
-        β = (βmax - βmin) * rand(model.rng) + βmin  # remove line
-        add_agent!(pos, model, vel, mass, 0, status, β)  # remove β, what is 0?
+        β = (βmax - βmin) * rand(model.rng) + βmin
+        add_agent!(pos, model, vel, mass, 0, status, β)
     end
 
     return model
 end
 
 
-function model_step!()  # model)
-    # r = model.interaction_radius
-
-    # for (a1, a2) in interacting_pairs(model, r, :nearest;)
-    #     elastic_collision!(a1, a2, :mass)
-    # end
-
-    # No interaction, interact with edges
+function model_step!(model)
+    # No action required.
 end
 
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
-    # agent.age_in_days += Int(round(δ))
     random_action!(agent, model)
 end
 
 
 function random_action!(agent, model)
+    roll = rand(Uniform(0.0, 1.0))
+
+    copy_number = length(model.agents)
+
+    # Replicate mtDNA
+    if roll <= (1 / 2)
+        if copy_number <= agent_max
+            pos = agent.pos
+            status = agent.status
+            mass = 1.0
+            vel = sincos(2π * rand(model.rng)) .* δ
+
+            β = (βmax - βmin) * rand(model.rng) + βmin
+            add_agent!(pos, model, vel, mass, 0, status, β)
+        end
+
     # Degrade mtDNA
-    if length(model.agents) >= 50
-        if rand(model.rng) <= model.reaction_rate
+    else
+        if copy_number >= agent_min
             kill_agent!(agent, model)
         end
     end
 
-    if length(model.agents) <= agent_max
-        if rand(model.rng) >= model.reaction_rate
-            # Replicate Wild-type mtDNA
-            if agent.status == :W
-                wild = add_agent_pos!(agent, model)
-                wild.status = :W
-                wild.age_in_days = 0
-
-            # Replicate Mutant mtDNA
-            else
-                mutant = add_agent_pos!(agent, model)
-                mutant.status = :M
-                mutant.age_in_days = 0
-            end
-        end
-    end
-
-    # Mutate
+    # Mutate mtDNA
     if agent.status == :W
-        β = rand(model.rng)
-        if β > βmin && β < βmax
+        if roll <= (1 / 10000)
             agent.status = :M
         end
     end
@@ -256,25 +240,22 @@ end
 
 function render_plot(data)
     times = eachcol(data)[1] / year    # Years
+    wild_level = eachcol(data)[2]      # N
     mutation_level = eachcol(data)[3]  # N
-
-    # Y-Axis boundaries.
-    first_mutation_boundary = first(mutation_level)
-    last_mutation_boundary = last(mutation_level)
 
     print("Building plot. Please wait... ")
     fig = plt.plot(
         times,
-        mutation_level,
+        [wild_level, mutation_level],
         xlims=(0, 80),
-        # ylims=(first_mutation_boundary, last_mutation_boundary),
-        ylims=(0, agent_max),
+        ylims=(-5, agent_max),
         title="mtDNA population dynamics (agent)",
+        label=["Wild-type" "Mutant"],
         xlabel="Time (years)",
         ylabel="Mutation level (n)",
-        legend=false,
+        # legend=false,
+        # smooth=true,
         dpi=1200,
-        # smooth=true,  # Shows line of best fit.
     )
     println("$(green)Done$(reset)")
 
@@ -322,8 +303,8 @@ print("Creating mtDNA population dynamics model... ")
 agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
-# NOTE Use only one method below.
+# NOTE Each method creates a separate simulation.
 data = perform_simulation()
-# simulation_to_video()
+simulation_to_video()
 
 # End of File.
