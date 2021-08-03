@@ -20,7 +20,7 @@ academic year 2020/2021.
 This repository contains the code for the `Agent Julia` program. This is a model
 for measuring the dynamics of mtDNA within a 3-dimensional space over the course
 of a human life-span of approximately 90 years. It is written in the Julia
-programming language (v1.6.0) and makes use of the `Agents.jl` package.
+programming language (v1.6.x) and makes use of the `Agents.jl` package.
 
 The timeline of this project is: `26/04/2021` to `27/08/2021` and package
 versions will be contemporary to this time and no changes will be applied once
@@ -31,6 +31,11 @@ continuation of the project outside of an academic context.
 
 At the time of writing, this software requires `Julia` versions greater than or
 equal to `v1.6.0` and previous versions have not been accounted for.
+
+Each script contained within this repository will install any dependencies they
+require before execution so no extra software is required except a `Julia REPL`
+and a `BASH` terminal for video rendering on integrated graphics scenarios (see
+below).
 
 ## Execution Instructions
 
@@ -78,9 +83,10 @@ button toward the right of the tab bar.
 This model also contains use-case simulation files in the same manner as the
 `Gillespie SSA` model, these work in the same way. Plots will be placed within
 the same directory as the `agent_julia_model.jl` script. This model will export
-two types of result by default: 1) a CSV file containing agent counts at each
-given time point (duration of 1 month by default), and 2) a graphical plot of
-these data. It is also possible to render a video of a simulation (see below).
+two types of result by default: **1)** a CSV file containing agent counts at
+each given time point (duration of 1 month by default), and **2)** a graphical
+plot of these data. It is also possible to render a video of a simulation (see
+below).
 
 #### A Note on Video Rendering
 
@@ -95,7 +101,8 @@ to a video file as the simulation occurs.
 Note that these scripts have a companion called `integrated_gpu_support.sh`,
 which is intended to be ran in the event that the user has a machine with an
 integrated GPU. This is due to a change within the `CairoMakie` package, this
-package is used to render the output.
+package is used to render the output. Users of NVIDIA or AMD graphics chipsets
+need not use this BASH script.
 
 It is possible to execute the companion script using the Terminal with the
 following command (This script may also be executed using the Julia REPL by
