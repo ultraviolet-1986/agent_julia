@@ -10,6 +10,7 @@ academic year 2020/2021.
 - [Execution Instructions](#execution-instructions)
   - [Gillespie SSA Model](#gillespie-ssa-model)
   - [Agent Julia Model](#agent-julia-model)
+    - [A Note on Video Rendering](#a-note-on-video-rendering)
 - [Development Environment](#development-environment)
 - [Resources](#resources)
 - [References](#references)
@@ -74,8 +75,25 @@ button toward the right of the tab bar.
 
 ### Agent Julia Model
 
-Note that this script has a companion called `integrated_gpu_support.sh`, which
-is intended to be ran in the event that the user has a machine with an
+This model also contains use-case simulation files in the same manner as the
+`Gillespie SSA` model, these work in the same way. Plots will be placed within
+the same directory as the `agent_julia_model.jl` script. This model will export
+two types of result by default: 1) a CSV file containing agent counts at each
+given time point (duration of 1 month by default), and 2) a graphical plot of
+these data. It is also possible to render a video of a simulation (see below).
+
+#### A Note on Video Rendering
+
+In the `agent_julia_model.jl` file, it is possible to generate a video of the
+simulation by using the command `simulation_to_video()` function within the
+Julia REPL once the simulation has completed. Because of the use of a set seed,
+results should be the same as results shown within the plot, but this cannot be
+verified and there is currently no way to export the simulation data directly to
+video and so the same simulation will be executed again but results are written
+to a video file as the simulation occurs.
+
+Note that these scripts have a companion called `integrated_gpu_support.sh`,
+which is intended to be ran in the event that the user has a machine with an
 integrated GPU. This is due to a change within the `CairoMakie` package, this
 package is used to render the output.
 
@@ -114,8 +132,11 @@ This section will contain a list of resources including code and sources of data
 which were used to create this software.
 
 - [Gillespie Model in Julia](https://nextjournal.com/bebi5009/gillespie-julia)
+- [Continuous space social distancing for COVID-19](https://git.io/Jc1w6)
 
 ## References
 
-This section will contain a list of academic papers which were used to create
-this software.
+Datseris, G., Vahdati, A.R., and DuBois, T.C. (2021) 'Agents.jl: A performant
+and feature-full agent based modelling software of minimal code complexity'.
+[Preprint]. Available at: <https://arxiv.org/abs/2101.10072>
+(Accessed: 26/04/2021).
