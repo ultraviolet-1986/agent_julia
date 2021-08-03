@@ -169,32 +169,34 @@ function mutation_initiation(;
 
     for ind in 1:N
         # pos = Tuple(rand(model.rng, 2))
-        pos = (rand(Uniform(0.0, 24.0)), rand(Uniform(0.0, 12.0)))
+        pos = (rand(Uniform(0.0, 24.0)), rand(Uniform(0.0, 12.0)))  # Change to variable
         status = ind ≤ N - initial_mutated ? :W : :M
-        isisolated = ind ≤ isolated * N
-        mass = isisolated ? Inf : 1.0
-        vel = isisolated ? (0.0, 0.0) : sincos(2π * rand(model.rng)) .* speed
+        isisolated = ind ≤ isolated * N  # May remove
+        mass = isisolated ? Inf : 1.0  # Mass = 1
+        vel = isisolated ? (0.0, 0.0) : sincos(2π * rand(model.rng)) .* speed  # vel = sincos(2π * rand(model.rng)) .* speed
 
-        β = (βmax - βmin) * rand(model.rng) + βmin
-        add_agent!(pos, model, vel, mass, 0, status, β)
+        β = (βmax - βmin) * rand(model.rng) + βmin  # remove line
+        add_agent!(pos, model, vel, mass, 0, status, β)  # remove β, what is 0?
     end
 
     return model
 end
 
 
-function model_step!(model)
-    r = model.interaction_radius
+function model_step!()  # model)
+    # r = model.interaction_radius
 
-    for (a1, a2) in interacting_pairs(model, r, :nearest;)
-        elastic_collision!(a1, a2, :mass)
-    end
+    # for (a1, a2) in interacting_pairs(model, r, :nearest;)
+    #     elastic_collision!(a1, a2, :mass)
+    # end
+
+    # No interaction, interact with edges
 end
 
 
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
-    agent.age_in_days += Int(round(δ))
+    # agent.age_in_days += Int(round(δ))
     random_action!(agent, model)
 end
 
@@ -265,7 +267,8 @@ function render_plot(data)
         times,
         mutation_level,
         xlims=(0, 80),
-        ylims=(first_mutation_boundary, last_mutation_boundary),
+        # ylims=(first_mutation_boundary, last_mutation_boundary),
+        ylims=(0, agent_max),
         title="mtDNA population dynamics (agent)",
         xlabel="Time (years)",
         ylabel="Mutation level (n)",
