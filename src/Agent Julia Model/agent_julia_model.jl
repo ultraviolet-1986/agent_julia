@@ -244,7 +244,7 @@ function render_plot(data)
         title="mtDNA population dynamics (agent)",
         label=["Wild-type" "Mutant"],
         xlabel="Time (years)",
-        ylabel="Mutation level (n)",
+        ylabel="mtDNA counts (n)",
         # legend=false,
         # smooth=true,
         dpi=1200,
