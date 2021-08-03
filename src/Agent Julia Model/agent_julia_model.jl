@@ -112,7 +112,7 @@ red_hex = "#bf2642"    # Mutant mtDNA
 # Initial conditions.
 
 agent_max = rand(Poisson(200))
-initial_mutants = 25
+# initial_mutants = 25  # Written into simulation file.
 
 # Mutation probabilities.
 
