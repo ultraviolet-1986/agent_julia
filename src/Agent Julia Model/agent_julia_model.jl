@@ -115,9 +115,6 @@ agent_max = rand(Poisson(200))
 
 initial_mutants = 25
 
-βmin = 0.0
-βmax = 0.0001
-
 ###########
 # Structs #
 ###########
@@ -129,7 +126,6 @@ mutable struct mtDNA <: AbstractAgent
     mass::Float64
     age_in_days::Int
     status::Symbol  # :W (Wild-type mtDNA), :M (Mutant mtDNA)
-    β::Float64      # Mutation probability.
 end
 
 #############
@@ -137,7 +133,6 @@ end
 #############
 
 function mutation_initiation(;
-    mutation_probability = 0.0,
     interaction_radius = 0.012,
     dt = δ,
     reaction_rate = hour,
@@ -147,7 +142,6 @@ function mutation_initiation(;
 )
 
     properties = @dict(
-        mutation_probability,
         reaction_rate,
         interaction_radius,
         dt,
@@ -168,8 +162,7 @@ function mutation_initiation(;
         mass = 1.0
         vel = sincos(2π * rand(model.rng)) .* δ
 
-        β = (βmax - βmin) * rand(model.rng) + βmin
-        add_agent!(pos, model, vel, mass, 0, status, β)
+        add_agent!(pos, model, vel, mass, 0, status)
     end
 
     return model
@@ -200,8 +193,7 @@ function random_action!(agent, model)
             mass = 1.0
             vel = sincos(2π * rand(model.rng)) .* δ
 
-            β = (βmax - βmin) * rand(model.rng) + βmin
-            add_agent!(pos, model, vel, mass, 0, status, β)
+            add_agent!(pos, model, vel, mass, 0, status)
         end
 
     # Degrade mtDNA
