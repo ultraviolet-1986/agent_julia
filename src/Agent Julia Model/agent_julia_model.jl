@@ -81,42 +81,16 @@ Random.seed!(random_seed)
 
 # NOTE Stepping functions require type 'Int'.
 
-time_factor = 100.0
-
-############################################################################################
-# hour = 1.0 # / time_factor
-# day = hour * 24.0
-# week = day * 7.0
-# fortnight = week * 2.0
-# year = day * 365.0
-# month = year / 12.0
-############################################################################################
-# # CORRECT TIME FACTORS
-# month = 1.0
-# year = month * 12.0
-# day = year / 365.0
-# hour = day / 24.0
-# week = day * 7.0
-# # / CORRECT TIME FACTORS
-############################################################################################
-# day = 1.0 / time_factor
-# week = day * 7.0
-# fortnight = week * 2.0
-# year = day * 365.0
-# month = year / 12.0
-# hour = day / 24.0
-############################################################################################
-week = 1.0
-day = week / 7.0
-year = day * 365.0
+month = 1.0
+year = month * 12.0
+day = year / 365.0
 hour = day / 24.0
-month = year / 12
-############################################################################################
+week = day * 7.0
 
 tend = Int(round(year * 80.0))
 
 # Iteration length.
-δ = week
+δ = month
 
 # mtDNA half-life (death rate).
 λ = day * 260.0
@@ -135,9 +109,8 @@ red_hex = "#bf2642"    # Mutant mtDNA
 
 # AGENT PROPERTIES
 
-agent_min = 50
 agent_max = rand(Poisson(200))
-initial_mutants = 10
+initial_mutants = 25
 
 βmin = 0.0
 βmax = 0.0001
