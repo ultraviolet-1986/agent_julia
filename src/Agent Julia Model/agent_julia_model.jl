@@ -213,6 +213,7 @@ end
 
 
 function perform_simulation()
+    # NOW HANDLED BY NUMBER OF LOOPS
     wild(x) = count(i == :W for i in x)
     mutant(x) = count(i == :M for i in x)
 
@@ -221,12 +222,40 @@ function perform_simulation()
     print("Performing simulation. Please wait... ")
     data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
     println("$(green)Done$(reset)")
+    # / NOW HANDLED BY NUMBER OF LOOPS
+
+    # LOOPING MECHANISM
+    # data = loop_simulation(10)
+    # / LOOPING MECHANISM
 
     CSV.write("agent_julia_data.csv", data)
 
     render_plot(data)
 
     return data
+end
+
+
+function loop_simulation(n)
+    # TODO Correct appending data to the new vector.
+
+    composite_results = []
+
+    for i in n
+        agent_julia_model = mutation_initiation()
+
+        wild(x) = count(i == :W for i in x)
+        mutant(x) = count(i == :M for i in x)
+
+        adata = [(:status, wild), (:status, mutant)]
+        println(adata)
+        # adata = [:status, wild, :status, mutant]
+        data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
+
+        append!(composite_results, data)
+    end
+
+    return composite_results
 end
 
 
