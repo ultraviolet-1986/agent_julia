@@ -28,10 +28,7 @@
 
 # TODO Discover how to include a hard boundary.
 # TODO Adjust space to more closely match a muscle fibre cell.
-# TODO Include measure for discretising time so we have 960 states in
-#      months rather than recording every step. This must be tied to δ.
 # TODO Have the model populated with evenly dispersed agents.
-# TODO Include positional data as part of the CSV export.
 # TODO Export each frame as PNG and use FFMPEG to stitch together a
 #      video and remove the 'abm_video' function call. This helps to
 #      ensure plots and states match that simulation.
