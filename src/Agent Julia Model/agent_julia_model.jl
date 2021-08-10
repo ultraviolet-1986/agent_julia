@@ -285,7 +285,7 @@ function render_plot(data)
         ylims=(0, agent_max),
         title="mtDNA population dynamics (agent)",
         xlabel="Time (years)",
-        ylabel="mtDNA counts (n)",
+        ylabel="Mutation level (n)",
         legend=false,
         # smooth=true,
         dpi=1200,
