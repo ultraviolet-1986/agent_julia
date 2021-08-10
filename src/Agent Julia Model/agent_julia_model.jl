@@ -52,6 +52,7 @@ import Plots as plt
 Pkg.add("Agents")
 Pkg.add("CairoMakie")
 Pkg.add("CSV")
+Pkg.add("DataFrames")
 Pkg.add("Distributions")
 Pkg.add("DrWatson")
 Pkg.add("InteractiveDynamics")
@@ -61,6 +62,7 @@ Pkg.add("Random")
 using Agents
 using CairoMakie
 using CSV
+using DataFrames
 using Distributions
 using DrWatson: @dict
 using InteractiveDynamics
@@ -114,6 +116,10 @@ agent_min = 150
 agent_max = rand(Poisson(200))
 
 initial_mutants = 25
+
+# SIMULATION PARAMETERS
+
+loops = 10
 
 ###########
 # Structs #
@@ -213,22 +219,13 @@ end
 
 
 function perform_simulation()
-    # NOW HANDLED BY NUMBER OF LOOPS
-    wild(x) = count(i == :W for i in x)
-    mutant(x) = count(i == :M for i in x)
-
-    adata = [(:status, wild), (:status, mutant)]
-
-    print("Performing simulation. Please wait... ")
-    data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
+    print("Performing simulation $(loops) time(s). Please wait... ")
+    data = loop_simulation(loops)
     println("$(green)Done$(reset)")
-    # / NOW HANDLED BY NUMBER OF LOOPS
 
-    # LOOPING MECHANISM
-    # data = loop_simulation(10)
-    # / LOOPING MECHANISM
-
+    print("Writing data to $(yellow)agent_julia_data.csv$(reset) Please wait... ")
     CSV.write("agent_julia_data.csv", data)
+    println("$(green)Done$(reset)")
 
     render_plot(data)
 
@@ -236,24 +233,41 @@ function perform_simulation()
 end
 
 
-function loop_simulation(n)
-    # TODO Correct appending data to the new vector.
+function loop_simulation(n=1::Int64)
+    temp_results = []
 
-    composite_results = []
-
-    for i in n
-        agent_julia_model = mutation_initiation()
-
+    for i in 1:1:n
         wild(x) = count(i == :W for i in x)
         mutant(x) = count(i == :M for i in x)
-
         adata = [(:status, wild), (:status, mutant)]
-        println(adata)
-        # adata = [:status, wild, :status, mutant]
         data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
-
-        append!(composite_results, data)
+        push!(temp_results, data)
     end
+
+    # Create final composite results.
+    steps = eachcol(temp_results[1])[1]
+    wild_counts = []
+    mutant_counts = []
+
+    for j in 1:1:length(temp_results)
+        wild_count = eachcol(temp_results[j])[2]
+        push!(wild_counts, wild_count)
+    end
+
+    for k in 1:1:length(temp_results)
+        mutant_count = eachcol(temp_results[k])[3]
+        push!(mutant_counts, mutant_count)
+    end
+
+    wild_mean = mean(wild_counts)
+    mutant_mean = mean(mutant_counts)
+
+    # Place final results in composite DataFrame.
+    composite_results = DataFrame(
+        steps = steps,
+        wild_mean = wild_mean,
+        mutant_mean = mutant_mean
+    )
 
     return composite_results
 end
@@ -261,20 +275,18 @@ end
 
 function render_plot(data)
     times = eachcol(data)[1] / year    # Years
-    wild_level = eachcol(data)[2]      # N
     mutation_level = eachcol(data)[3]  # N
 
     print("Building plot. Please wait... ")
     fig = plt.plot(
         times,
-        [wild_level, mutation_level],
+        mutation_level,
         xlims=(0, 80),
-        ylims=(-5, agent_max),
+        ylims=(0, agent_max),
         title="mtDNA population dynamics (agent)",
-        label=["Wild-type" "Mutant"],
         xlabel="Time (years)",
         ylabel="mtDNA counts (n)",
-        # legend=false,
+        legend=false,
         # smooth=true,
         dpi=1200,
     )
