@@ -26,13 +26,6 @@
 # Imports #
 ###########
 
-import Pkg
-
-Pkg.add("Distributions")
-Pkg.add("Plots")
-Pkg.add("Random")
-Pkg.add("StatsPlots")
-
 using Distributions
 using Plots
 using Random

@@ -43,18 +43,7 @@
 # Imports #
 ###########
 
-import Pkg
 import Plots as plt
-
-Pkg.add("Agents")
-Pkg.add("CairoMakie")
-Pkg.add("CSV")
-Pkg.add("DataFrames")
-Pkg.add("Distributions")
-Pkg.add("DrWatson")
-Pkg.add("InteractiveDynamics")
-Pkg.add("Plots")
-Pkg.add("Random")
 
 using Agents
 using CairoMakie
@@ -234,6 +223,8 @@ function loop_simulation(n=1::Int64)
     temp_results = []
 
     for i in 1:1:n
+        agent_julia_model = nothing
+        agent_julia_model = mutation_initiation()
         wild(x) = count(i == :W for i in x)
         mutant(x) = count(i == :M for i in x)
         adata = [(:status, wild), (:status, mutant)]
@@ -282,7 +273,7 @@ function render_plot(data)
         ylims=(0, agent_max),
         title="mtDNA population dynamics (agent)",
         xlabel="Time (years)",
-        ylabel="Mutation level (n)",
+        ylabel="Mutation levels (n)",
         legend=false,
         # smooth=true,
         dpi=1200,
@@ -330,6 +321,7 @@ end
 println("\n")
 
 print("Creating mtDNA population dynamics model... ")
+agent_julia_model = nothing
 agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 

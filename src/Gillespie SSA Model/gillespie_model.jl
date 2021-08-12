@@ -41,12 +41,6 @@
 # Imports #
 ###########
 
-import Pkg
-
-Pkg.add("IterTools")
-Pkg.add("Random")
-Pkg.add("Statistics")
-
 using IterTools
 using Random
 using Statistics

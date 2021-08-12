@@ -30,4 +30,4 @@ src/*.png
 src/*/*.csv
 src/*/*.png
 src/*/*.svg
-src/*/plots
+src/*/plots/*

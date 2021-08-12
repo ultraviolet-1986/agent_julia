@@ -8,6 +8,7 @@ academic year 2020/2021.
 - [Description](#description)
 - [Requirements](#requirements)
 - [Execution Instructions](#execution-instructions)
+  - [Prerequisites](#prerequisites)
   - [Gillespie SSA Model](#gillespie-ssa-model)
   - [Agent Julia Model](#agent-julia-model)
     - [A Note on Video Rendering](#a-note-on-video-rendering)
@@ -41,6 +42,21 @@ below).
 
 This program was written to be executed from the command line but may also be
 executed from within the Julia REPL.
+
+### Prerequisites
+
+The models contained within these scripts require many packages. To reduce the
+amount of downloads and updates required, a script named `dependencies.jl` is
+included. This script must be ran before using **any** of the model files. This
+script can be launched from the Julia REPL by using the following command:
+
+```julia
+include("dependencies.jl")
+```
+
+This script may take time to complete, but will reduce the amount of time
+required to run a simulation, particularly if you are using many packages
+already.
 
 ### Gillespie SSA Model
 

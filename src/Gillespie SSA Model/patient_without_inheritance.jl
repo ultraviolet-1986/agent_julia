@@ -26,11 +26,6 @@
 # Imports #
 ###########
 
-import Pkg
-
-Pkg.add("Plots")
-Pkg.add("StatsPlots")
-
 using Plots
 using StatsPlots
 
