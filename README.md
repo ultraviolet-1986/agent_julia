@@ -56,7 +56,7 @@ include("dependencies.jl")
 
 This script may take time to complete, but will reduce the amount of time
 required to run a simulation, particularly if you are using many packages
-already.
+already. Please note this script may also perform updates on installed packages.
 
 ### Gillespie SSA Model
 

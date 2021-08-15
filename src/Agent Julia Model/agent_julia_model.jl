@@ -105,7 +105,7 @@ initial_mutants = 25
 
 # SIMULATION PARAMETERS
 
-loops = 10
+loops = 1000
 
 ###########
 # Structs #
@@ -223,10 +223,13 @@ function loop_simulation(n=1::Int64)
     temp_results = []
 
     for i in 1:1:n
+        # Clear and redefine model.
         agent_julia_model = nothing
         agent_julia_model = mutation_initiation()
+
         wild(x) = count(i == :W for i in x)
         mutant(x) = count(i == :M for i in x)
+
         adata = [(:status, wild), (:status, mutant)]
         data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
         push!(temp_results, data)
@@ -236,25 +239,36 @@ function loop_simulation(n=1::Int64)
     steps = eachcol(temp_results[1])[1]
     wild_counts = []
     mutant_counts = []
+    total_counts = []
 
     for j in 1:1:length(temp_results)
+    # for j in 1:1:length(steps)
         wild_count = eachcol(temp_results[j])[2]
         push!(wild_counts, wild_count)
     end
 
     for k in 1:1:length(temp_results)
+    # for k in 1:1:length(steps)
         mutant_count = eachcol(temp_results[k])[3]
         push!(mutant_counts, mutant_count)
     end
 
+    for l in 1:1:length(temp_results)
+    # for l in 1:1:length(steps)
+        total_cn = eachcol(temp_results[l])[2] + eachcol(temp_results[l])[3]
+        push!(total_counts, total_cn)
+    end
+
     wild_mean = mean(wild_counts)
     mutant_mean = mean(mutant_counts)
+    total_mean = mean(total_counts)
 
     # Place final results in composite DataFrame.
     composite_results = DataFrame(
         steps = steps,
         wild_mean = wild_mean,
-        mutant_mean = mutant_mean
+        mutant_mean = mutant_mean,
+        total_count = total_mean
     )
 
     return composite_results
@@ -262,10 +276,13 @@ end
 
 
 function render_plot(data)
-    times = eachcol(data)[1] / year    # Years
-    mutation_level = eachcol(data)[3]  # N
+    times = eachcol(data)[1] / year        # Years
+    mutation_level = eachcol(data)[3]      # N
+    total_copy_numbers = eachcol(data)[4]  # N
 
-    print("Building plot. Please wait... ")
+    # Plot 1: Average mutation counts
+
+    print("Building mutation levels plot. Please wait... ")
     fig = plt.plot(
         times,
         mutation_level,
@@ -282,6 +299,27 @@ function render_plot(data)
 
     print("Rendering plot to $(yellow)agent_julia_mutation_plot.png$(reset)... ")
     plt.savefig(fig, "agent_julia_mutation_plot.png")
+    println("$(green)Done$(reset)")
+
+    # Plot 2: Average total copy numbers
+
+    print("Building total average copy number plot. Please wait...")
+    fig2 = plt.plot(
+        times,
+        total_copy_numbers,
+        xlims=(0, 80),
+        ylims=(0, agent_max),
+        title="mtDNA population dynamics (agent)",
+        xlabel="Time (years)",
+        ylabel="Total agent levels (n, mean)",
+        legend=false,
+        # smooth=true,
+        dpi=1200,
+    )
+    println("$(green)Done$(reset)")
+
+    print("Rendering plot to $(yellow)agent_julia_copy_number_plot.png$(reset)... ")
+    plt.savefig(fig2, "agent_julia_copy_number_plot.png")
     println("$(green)Done$(reset)")
 end
 
