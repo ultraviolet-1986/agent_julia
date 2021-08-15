@@ -26,6 +26,10 @@
 # Imports #
 ###########
 
+import Plots as plt
+
+using CairoMakie
+using CSV
 using Distributions
 
 #############

@@ -43,11 +43,7 @@
 # Imports #
 ###########
 
-import Plots as plt
-
 using Agents
-using CairoMakie
-using CSV
 using DataFrames
 using Distributions
 using DrWatson: @dict
