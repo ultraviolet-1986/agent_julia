@@ -59,7 +59,12 @@ Random.seed!(41269)
 # VARIABLES > INITIAL CONDITIONS
 
 # The `u0` variable is to be defined within a simulation file e.g.
-# `patient_with_inheritance.jl`.
+# `patient_with_inheritance.jl`. Terminate execution if variable does
+# not exist.
+
+if (! @isdefined u0)
+    error("Please run a simulation file e.g.: 'patient_with_inheritance.jl'.")
+end
 
 # Number of simulation repeats.
 loops = 1000

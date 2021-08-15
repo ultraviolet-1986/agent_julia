@@ -24,10 +24,7 @@ docs/site/
 Manifest.toml
 
 # User-specified patterns
-src/*.mp4
-src/Agent Julia Model/agent_julia_simulation.mp4
-src/*.png
-src/*/*.csv
-src/*/*.png
-src/*/*.svg
-src/*/plots/*
+src/Agent Julia Model/data
+src/Agent Julia Model/plots
+src/Agent Julia Model/videos
+src/Gillespie SSA Model/plots

@@ -101,7 +101,15 @@ graph_height = 12.0
 agent_min = 150
 agent_max = rand(Poisson(200))
 
-initial_mutants = 25
+# The `initial_mutants` variable is to be defined within a simulation
+# file e.g. `patient_with_inheritance.jl`. Terminate execution if
+# variable does not exist.
+
+if (! @isdefined initial_mutants)
+    error("Please run a simulation file e.g.: 'patient_with_inheritance.jl'.")
+end
+
+nwild = agent_max - initial_mutants
 
 # SIMULATION PARAMETERS
 
@@ -124,6 +132,19 @@ end
 # Functions #
 #############
 
+
+"""
+`mutation_initiation(;
+    interaction_radius = 0.012,
+    dt = δ,
+    reaction_rate = hour,
+    N = agent_max,
+    initial_mutated = initial_mutants,
+    seed = random_seed,
+)`
+
+Create and populate the Agent Julia model with specified agents.
+"""
 function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
@@ -161,17 +182,32 @@ function mutation_initiation(;
 end
 
 
-function model_step!(model)
-    # No action required.
-end
+"""
+`model_step!(model)`
+
+Perform all model actions at currrent step.
+
+NOTE: Agent Julia does not require model actions.
+"""
+function model_step!(model); end
 
 
+"""
+`agent_step!(agent, model)`
+
+Perform all agent actions at currrent step.
+"""
 function agent_step!(agent, model)
     move_agent!(agent, model, model.dt)
     random_action!(agent, model)
 end
 
 
+"""
+`random_action!(agent, model)`
+
+Randomly select an action: Replicate, Degrade, or Mutate an agent.
+"""
 function random_action!(agent, model)
     roll = rand(Uniform(0.0, 1.0))
 
@@ -204,21 +240,26 @@ function random_action!(agent, model)
 end
 
 
+"""
+`perform_simulation()`
+
+Run the simulation through the `loop_simulation(n)` function `n`
+time(s).
+"""
 function perform_simulation()
-    print("Performing simulation $(loops) time(s). Please wait... ")
+    print("Performing simulation $(yellow)$(loops)$(reset) time(s). Please wait... ")
     data = loop_simulation(loops)
     println("$(green)Done$(reset)")
-
-    print("Writing data to $(yellow)agent_julia_data.csv$(reset) Please wait... ")
-    CSV.write("agent_julia_data.csv", data)
-    println("$(green)Done$(reset)")
-
-    render_plot(data)
 
     return data
 end
 
 
+"""
+`loop_simulation(n=1::Int64)`
+
+Perform the Agent Julia simulation `n` number of times.
+"""
 function loop_simulation(n=1::Int64)
     temp_results = []
 
@@ -234,7 +275,6 @@ function loop_simulation(n=1::Int64)
         adata = nothing
         adata = [(:status, wild), (:status, mutant)]
 
-        # Run simulation 'n' and push results to 'temp_results'.
         data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
         push!(temp_results, data)
     end
@@ -276,96 +316,24 @@ function loop_simulation(n=1::Int64)
 end
 
 
-function render_plot(data)
-    times = eachcol(data)[1] / year        # Years
-    mutation_level = eachcol(data)[3]      # N
-    total_copy_numbers = eachcol(data)[4]  # N
-
-    # Plot 1: Average mutation counts
-
-    print("Building mutation levels plot. Please wait... ")
-    fig = plt.plot(
-        times,
-        mutation_level,
-        xlims=(0, 80),
-        ylims=(0, agent_max),
-        title="mtDNA population dynamics (agent)",
-        xlabel="Time (years)",
-        ylabel="Mutation levels (n)",
-        legend=false,
-        # smooth=true,
-        dpi=1200,
-    )
-    println("$(green)Done$(reset)")
-
-    print("Rendering plot to $(yellow)agent_julia_mutation_plot.png$(reset)... ")
-    plt.savefig(fig, "agent_julia_mutation_plot.png")
-    println("$(green)Done$(reset)")
-
-    # Plot 2: Average total copy numbers
-
-    print("Building total average copy number plot. Please wait...")
-    fig2 = plt.plot(
-        times,
-        total_copy_numbers,
-        xlims=(0, 80),
-        ylims=(0, agent_max),
-        title="mtDNA population dynamics (agent)",
-        xlabel="Time (years)",
-        ylabel="Total agent levels (n, mean)",
-        legend=false,
-        # smooth=true,
-        dpi=1200,
-    )
-    println("$(green)Done$(reset)")
-
-    print("Rendering plot to $(yellow)agent_julia_copy_number_plot.png$(reset)... ")
-    plt.savefig(fig2, "agent_julia_copy_number_plot.png")
-    println("$(green)Done$(reset)")
-end
-
-
-function simulation_to_video()
-    print("Defining simulation colour palette... ")
-    model_colours(a) = a.status == :W ? green_hex : red_hex
-    println("$(green)Done$(reset)")
-
-    print("Rendering simulation output as $(yellow)agent_julia_simulation.mp4$(reset)... ")
-
-    try
-        abm_video(
-            "agent_julia_simulation.mp4",
-            agent_julia_model,
-            agent_step!,
-            model_step!;
-            title = "mtDNA population dynamics",
-            frames = tend,
-            ac = model_colours,
-            as = 10,
-            spf = Int(round(δ)),
-            framerate = 60,
-        )
-        println("$(green)Done$(reset)\n")
-    catch
-        println("$(red)Error$(reset)")
-        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.\n")
-    end
-end
-
-
 #############
 # Kickstart #
 #############
 
-println("\n")
+println("\nRUNNING AGENT JULIA SIMULATION")
+println("==============================\n")
+
+println("Total agents:     $(green)$(agent_max)$(reset)")
+println("Wild-type agents: $(green)$(nwild)$(reset)")
+println("Mutant elements:  $(green)$(initial_mutants)$(reset)")
+println("Simulation loops: $(green)$(loops)$(reset)\n")
 
 print("Creating mtDNA population dynamics model... ")
 agent_julia_model = nothing
 agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
-# NOTE Each method creates a separate simulation.
+# Execute Agent Julia simulation.
 data = perform_simulation()
-simulation_to_video()
 
 # End of File.

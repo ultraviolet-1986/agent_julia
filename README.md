@@ -19,7 +19,7 @@ academic year 2020/2021.
 ## Description
 
 This repository contains the code for the `Agent Julia` program. This is a model
-for measuring the dynamics of mtDNA within a 3-dimensional space over the course
+for measuring the dynamics of mtDNA within a 2-dimensional space over the course
 of a human life-span of approximately 90 years. It is written in the Julia
 programming language (v1.6.x) and makes use of the `Agents.jl` package.
 
@@ -97,46 +97,56 @@ button toward the right of the tab bar.
 ### Agent Julia Model
 
 This model also contains use-case simulation files in the same manner as the
-`Gillespie SSA` model, these work in the same way. Plots will be placed within
-the same directory as the `agent_julia_model.jl` script. This model will export
-two types of result by default: **1)** a CSV file containing agent counts at
-each given time point (duration of 1 month by default), and **2)** a graphical
-plot of these data. It is also possible to render a video of a simulation (see
-below).
+`Gillespie SSA` model, and work in the same way. This model will export three
+types of result by default:
+
+1. A CSV file in the format of `patient_type.csv` within the `data` directory.
+2. Two plots in the format of `0X plot_type.png` within the `plots/patient_type`
+   directory.
+3. A video file in the format of `patient_type.mp4` within the `videos`
+   directory.
+
+This approach allows the user to keep all output in a consistent manner and all
+examples of these data and outputs may be found within the project's `examples`
+directory. These examples are updated along with the code regularly to ensure
+that they are current and relevant.
 
 #### A Note on Video Rendering
 
-In the `agent_julia_model.jl` file, it is possible to generate a video of the
-simulation by using the command `simulation_to_video()` function within the
-Julia REPL once the simulation has completed. Because of the use of a set seed,
-results should be the same as results shown within the plot, but this cannot be
-verified and there is currently no way to export the simulation data directly to
-video and so the same simulation will be executed again but results are written
-to a video file as the simulation occurs.
+By default, Agent Julia simulation files will generate a video simulation using
+the given parameters will be created. These simulation videos are not
+representative of the values exported in CSV format or shown in the plots. They
+are separate, but they do make use of the same parameters as the current
+simulation and also the set random seed - this means that although they are a
+different simulation, they will be very similar to the results shown within the
+plots and CSV file.
 
 Note that these scripts have a companion called `integrated_gpu_support.sh`,
 which is intended to be ran in the event that the user has a machine with an
 integrated GPU. This is due to a change within the `CairoMakie` package, this
-package is used to render the output. Users of NVIDIA or AMD graphics chipsets
-need not use this BASH script.
+package is used to render the output. Users of **NVIDIA** or **AMD** graphics
+chipsets need not use this BASH script.
 
 It is possible to execute the companion script using the Terminal with the
 following command (This script may also be executed using the Julia REPL by
 switching into shell mode by using the `;` key and using the same commands):
 
 ```bash
-bash integrated_gpu_support.sh
+bash "integrated_gpu_support.sh" "name_of_use_case.jl"
 
 # OR
 
-./integrated_gpu_support.sh
+./"integrated_gpu_support.sh" "name_of_use_case.jl"
 ```
 
 This script uses `sudo` privileges to execute the model and thus create the
-video output. Once the simulation has completed, the script will use the same
-permissions to change the owner of the video file to the current user, otherwise
-the owner of the file will be `root`. In a `Toolbox` environment, you will not
-be asked for your password and the results should be the same.
+video output. This means that a user may need to manually change the permissions
+of the video file once it has been created, this is possible using the following
+command as your current user (not `root`):
+
+```bash
+sudo chown "$USER":"$USER" "name_of_file.mp4"
+```
 
 ## Development Environment
 

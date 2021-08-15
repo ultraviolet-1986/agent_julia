@@ -49,18 +49,11 @@ readonly reset="\e[0m"    # Reset text
 
 # VARIABLES > PATHS
 
-readonly model_file='agent_julia_model.jl'
-readonly simulation_video='agent_julia_simulation.mp4'
+readonly model_file="$1"
 
 #############
 # Kickstart #
 #############
-
-# Delete previous video if exists.
-if [ -f "$simulation_video" ]; then
-  rm "$simulation_video"
-  echo -e "${yellow}NOTE${reset} Deleted pre-existing '$simulation_video' file."
-fi
 
 # Execute the simulation if the model file exists at this location.
 if [ -f "$model_file" ]; then
@@ -70,14 +63,6 @@ if [ -f "$model_file" ]; then
   sudo DRI_PRIME=1 julia "$model_file"
 else
   echo -e "${red}ERROR${reset} Simulation file '$model_file' does not exist."
-fi
-
-# Change ownership of 'agent_julia_simulation.mp4' from 'root' to the
-# current user if the file exists.
-if [ -f 'agent_julia_simulation.mp4' ]; then
-  echo -e "\n${yellow}NOTE${reset} Using 'sudo' to change 'agent_julia_simulation.mp4' permissions."
-  echo
-  sudo chown "$USER":"$USER" 'agent_julia_simulation.mp4'
 fi
 
 # End of File.
