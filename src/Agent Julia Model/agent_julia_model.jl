@@ -223,14 +223,18 @@ function loop_simulation(n=1::Int64)
     temp_results = []
 
     for i in 1:1:n
-        # Clear and redefine model.
+        # Purge and redefine model for new simulation.
         agent_julia_model = nothing
         agent_julia_model = mutation_initiation()
 
         wild(x) = count(i == :W for i in x)
         mutant(x) = count(i == :M for i in x)
 
+        # Purge and redefine 'adata' for new simulation.
+        adata = nothing
         adata = [(:status, wild), (:status, mutant)]
+
+        # Run simulation 'n' and push results to 'temp_results'.
         data, _ = run!(agent_julia_model, agent_step!, model_step!, tend; adata)
         push!(temp_results, data)
     end
@@ -242,19 +246,16 @@ function loop_simulation(n=1::Int64)
     total_counts = []
 
     for j in 1:1:length(temp_results)
-    # for j in 1:1:length(steps)
         wild_count = eachcol(temp_results[j])[2]
         push!(wild_counts, wild_count)
     end
 
     for k in 1:1:length(temp_results)
-    # for k in 1:1:length(steps)
         mutant_count = eachcol(temp_results[k])[3]
         push!(mutant_counts, mutant_count)
     end
 
     for l in 1:1:length(temp_results)
-    # for l in 1:1:length(steps)
         total_cn = eachcol(temp_results[l])[2] + eachcol(temp_results[l])[3]
         push!(total_counts, total_cn)
     end

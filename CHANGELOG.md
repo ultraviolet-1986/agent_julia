@@ -15,3 +15,6 @@
   - This script will execute the `agent_julia_model.jl` with `sudo` permissions
     and will also be used to change permissions for the output. Review code
     before use.
+- `Agent Julia` model can now loop simulations in the same manner as the
+  Gillespie SSA model. Because of the complexity of the model, it does take much
+  longer to complete the simulation at `n = 1000`.
