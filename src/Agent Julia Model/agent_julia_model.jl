@@ -90,7 +90,7 @@ red_hex = "#bf2642"    # Mutant mtDNA
 # GRAPH PROPERTIES
 
 graph_width = 24.0
-graph_height = 12.0
+graph_height = 6.0
 
 # AGENT PROPERTIES > INITIAL CONDITIONS
 
