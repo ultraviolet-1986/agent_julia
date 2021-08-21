@@ -26,6 +26,8 @@
 # Imports #
 ###########
 
+using CSV
+using DataFrames
 using Plots
 using StatsPlots
 
@@ -40,17 +42,21 @@ u0 = [175, 25]
 
 # VARIABLES > PATHS
 
+data_path = "$(Base.source_dir())/data"
 plot_path = "$(Base.source_dir())/plots/patient_with_inheritance"
 
 plot_1_path = "$(plot_path)/01_timeline.png"
 plot_2_path = "$(plot_path)/02_quantiles.png"
 plot_3_path = "$(plot_path)/03_density.png"
 
+csv_path = "$(data_path)/patient_with_inheritance.csv"
+
 #############
 # Kickstart #
 #############
 
 # Create plot directory.
+mkpath(data_path)
 mkpath(plot_path)
 
 # EXECUTE MODEL
@@ -118,5 +124,18 @@ fig3 = density(
 
 savefig(fig3, "$(plot_3_path)")
 println("Done\n")
+
+# DEFINE CSV EXPORT FILE
+
+data = DataFrame(
+    steps = times,
+    wild_mean = mean_wild,
+    mutant_mean = mean_mutant,
+    total_counts = mean_wild + mean_mutant
+)
+
+print("Writing data to $(yellow)$(csv_path)$(reset) Please wait... ")
+CSV.write("$(csv_path)", data)
+println("$(green)Done$(reset)")
 
 # End of File.

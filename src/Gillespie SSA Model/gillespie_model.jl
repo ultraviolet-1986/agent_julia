@@ -56,6 +56,13 @@ Random.seed!(41269)
 # Variables #
 #############
 
+# COLOURS > TEXT OUTPUT
+
+green = "\e[32m"
+red = "\e[31m"
+yellow = "\e[33m"
+reset = "\e[0m"
+
 # VARIABLES > INITIAL CONDITIONS
 
 # The `u0` variable is to be defined within a simulation file e.g.
