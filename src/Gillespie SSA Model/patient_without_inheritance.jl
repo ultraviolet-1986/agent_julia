@@ -55,7 +55,6 @@ csv_path = "$(data_path)/patient_without_inheritance.csv"
 # Kickstart #
 #############
 
-# Create plot directory.
 mkpath(data_path)
 mkpath(plot_path)
 
@@ -67,75 +66,55 @@ include("$(Base.source_dir())/gillespie_model.jl")
 
 # DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
-# Define plot axis elements.
-x = times / 12.0         # Convert months to years.
-y = mean_mutant * 100.0  # Convert mutation level to percentage.
+years = times / year
+counts = [wild_copy_median, mutant_copy_median]  # n
 
-print("\nCreating mutation/time plot '$(plot_1_path)'... ")
+print("\nCreating mutation/time plot $(yellow)plots/$(basename(plot_1_path))$(reset)... ")
 fig = plot(
-    x,  # Temporal States
-    y,  # Mutation Level
+    years,
+    counts,
     xlabel="Time (years)",
-    ylabel="Mutation level (%)",
-    ylims=(-10, 100),  # Comment to automatically zoom.
+    ylabel="mtDNA count (n)",
+    ylims=(-5, (agent_max + 10)),
     title="Patient without mutant mtDNA inheritance",
-    legend=false,
+    label=["Wild count" "Mutant count"],
+    legend=:outertopright,
     dpi=1200
 )
 
-# Save plot in current working directory.
 savefig(fig, "$(plot_1_path)")
-println("Done")
+println("$(green)Done$(reset)")
 
 # DEFINE PERCENTILE PLOT (PLOT 2)
 
-# Define axis elements.
-y2 = [upper_quantile, middle_quantile, lower_quantile] * 100
+quantiles = [upper_quantile, middle_quantile, lower_quantile] * agent_max
 
-print("Creating quantile plot '$(plot_2_path)'... ")
+print("Creating quantile plot $(yellow)plots/$(basename(plot_2_path))$(reset)... ")
 fig2 = plot(
-    x,   # Temporal States
-    y2,  # Mutation level [2.5th percentile, 50th percentile, 97.5th percentile]
+    years,
+    quantiles,
     xlabel="Time (years)",
-    ylabel="Mutation level (%)",
-    ylims=(-10, 100),  # Comment to automatically zoom.
+    ylabel="mtDNA count (n)",
+    ylims=(-5, (agent_max + 10)),
     title="Patient without mutant mtDNA inheritance",
-    label=["97.5th percentile" "50th percentile" "2.5th percentile"],
-    linealpha=0.5,
+    label=["95th percentile" "50th percentile" "5th percentile"],
+    legend=:outertopright,
     dpi=1200
 )
 
-# Save plot in current working directory.
 savefig(fig2, "$(plot_2_path)")
-println("Done")
-
-# DEFINE DENSITY PLOT (PLOT 3)
-
-# Define axis elements.
-x3 = vec(mean_mutant)
-
-print("Creating density plot '$(plot_3_path)'... ")
-fig3 = density(
-    x3,  # Mean of mutant levels
-    title="Patient without mutant mtDNA inheritance",
-    xlabel="Density (mutation mean)",
-    legend=false,
-    dpi=1200
-)
-
-savefig(fig3, "$(plot_3_path)")
-println("Done\n")
+println("$(green)Done$(reset)")
 
 # DEFINE CSV EXPORT FILE
 
 data = DataFrame(
-    steps = times,
-    wild_mean = mean_wild,
-    mutant_mean = mean_mutant,
-    total_counts = mean_wild + mean_mutant
+    steps = time_list,
+    wild_median = wild_copy_median,
+    mutant_median = mutant_copy_median,
+    total_counts = total_copy_median
 )
 
-print("Writing data to $(yellow)$(csv_path)$(reset) Please wait... ")
+print("Writing data to $(yellow)data/$(basename(csv_path))$(reset) Please wait... ")
 CSV.write("$(csv_path)", data)
 println("$(green)Done$(reset)")
 

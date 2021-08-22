@@ -29,7 +29,7 @@
 # - Requires Julia >= v1.6.
 # - Time-scale for this model is that integer `1` equals 1 month.
 #   - Scales are adjusted to years when defining the plot only.
-#   - With 'delta' being `1`, we are recording results monthly.
+#   - With 'δ' being `1`, we are recording results monthly.
 
 ##############
 # References #
@@ -41,6 +41,7 @@
 # Imports #
 ###########
 
+using Distributions
 using IterTools
 using Random
 using Statistics
@@ -73,25 +74,56 @@ if (! @isdefined u0)
     error("Please run a simulation file e.g.: 'patient_with_inheritance.jl'.")
 end
 
+agent_max = u0[1] + u0[2]
+
 # Number of simulation repeats.
 loops = 1000
 
 # VARIABLES > TEMPORAL UNITS
 
-month = 1.0
-year = month * 12.0
-day = year / 365.0
-hour = day / 24.0
+# month = 1.0
+# year = month * 12.0
+# day = year / 365.0
+# hour = day / 24.0
+# week = day * 7.0
+# minute = hour / 60.0
+# second = minute / 60.0
+
+day = 24.0 * 3600.0
 week = day * 7.0
+year = day * 365.0
+month = year / 12.0
+hour = day / 24.0
+minute = hour /60.0
+second = minute / 60.0
+fortnight = month / 2.0
 
 # Target end time.
 tend = year * 80.0
 
+day       = Float64(day)
+week      = Float64(week)
+year      = Float64(year)
+month     = Float64(month)
+hour      = Float64(hour)
+minute    = Float64(minute)
+second    = Float64(second)
+fortnight = Float64(fortnight)
+
+tend = Float64(tend)
+
+δ = month
+
 # VARIABLES > KINETIC RATES
 
-replication_rate = hour
+λ = rand(Normal(260.0, 1), 1)[1]
 
-parameters = (r=replication_rate, m=0.0, d=replication_rate)
+reaction_rate = log(2) / λ
+reaction_rate = reaction_rate ./ (day)
+
+mutation_rate = 1.157e-12
+
+parameters = (r=reaction_rate, m=mutation_rate, d=reaction_rate)
 
 #############
 # Functions #
@@ -100,23 +132,21 @@ parameters = (r=replication_rate, m=0.0, d=replication_rate)
 # FUNCTIONS > GILLESPIE MODEL
 
 """
-`ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0::Float64)`
+`ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); δ=month::Float64)`
 
 Adapted from: Chemical and Biomedical Enginnering Calculations Using
 Python Ch.4-3
 """
-function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); delta=1.0::Float64)
+function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); δ=month::Float64)
     t = tstart    # Current time.
     ts = [t]      # List of reaction times.
     u = copy(u0)  # Current state.
     us = copy(u)  # Record of states.
 
-    # delta = month  # Uncomment `delta` to override delta.
-
-    times = [tstart: delta: tend;]
+    times = [tstart: δ: tend;]
     tindex = 2
 
-    while t < tend && u[1] + u[2] > 0
+    while t < tend
         if t >= times[tindex]
             us = [us u]
             push!(ts, t)
@@ -144,7 +174,7 @@ Propensity model for this reaction.
 Reactions of `wild-type mtDNA` and `mutant mtDNA` using kinetic rates
 `p.d`, `p.m` and `p.r`.
 """
-function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
+function model(u, p; target_upper=200::Int64, target_lower=150::Int64)
     cn = u[1] + u[2]  # Define copy number.
 
     rxn1 = p.r * u[1]  # Reaction 1: Replicate wild-type mtDNA.
@@ -154,10 +184,15 @@ function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
     rxn5 = p.d * u[2]  # Reaction 5: Degrade mutant mtDNA.
 
     # Disable replication to prevent population explosion.
-    if cn > target_upper; rxn1 = rxn4 = 0.0
+    if cn >= target_upper
+        rxn1 = 0.0
+        rxn4 = 0.0
 
     # Disable degradation to prevnet population extinction.
-    elseif cn < target_lower; rxn2 = rxn5 = 0.0; end
+    elseif cn <= target_lower
+        rxn2 = 0.0
+        rxn5 = 0.0
+    end
 
     return [rxn1, rxn2, rxn3, rxn4, rxn5]
 end
@@ -205,19 +240,25 @@ function choose_stoich(dx, dxsum=sum(dx))
     roll = rand()
 
     # Reaction 1: Replicate wild-type mtDNA.
-    if roll <= sections[1]; stoich = [1, 0]
+    if roll <= sections[1]
+        stoich = [1, 0]
 
     # Reaction 2: Degrade wild-type mtDNA.
-    elseif roll <= sections[2]; stoich = [-1, 0]
+    elseif roll <= sections[2]
+        stoich = [-1, 0]
 
     # Reaction 3: Mutate wild-type mtDNA.
-    elseif roll <= sections[3]; stoich = [0, 1]
+    elseif roll <= sections[3]
+        stoich = [0, 1]
 
     # Reaction 4: Replicate mutant mtDNA.
-    elseif roll <= sections[4]; stoich = [0, 1]
+    elseif roll <= sections[4]
+        stoich = [0, 1]
 
     # Reaction 5: Degrade mutant mtDNA.
-    else; stoich = [0, -1]; end
+    else
+        stoich = [0, -1]
+    end
 
     return stoich
 end
@@ -245,6 +286,7 @@ function loop_simulation(n=1::Int64)
     # Start at loop number 1 in intervals of 1 until `n`.
     for i in 1:1:n
         # Define and run the simulation.
+        sol = nothing
         sol = ssa(model, u0, tend, parameters, choose_stoich)
 
         # Take the results and store them in `time_states` and
@@ -290,6 +332,7 @@ export nanquantile
 #############
 
 # Run simulation `loops` time(s) and assign output to `results`.
+results = nothing
 results = loop_simulation(loops)
 
 # Calculate total number of elements.
@@ -335,6 +378,20 @@ mean_mutant = collect(Iterators.flatten(mean_mutant))
 median_wild = collect(Iterators.flatten(median_wild))
 median_mutant = collect(Iterators.flatten(median_mutant))
 
+# Create equivalent count numbers based on mean and median.
+wild_copy_mean = mean_wild .* agent_max
+mutant_copy_mean = mean_mutant .* agent_max
+total_copy_mean = (wild_copy_mean .+ mutant_copy_mean)
+
+wild_copy_median = (median_wild .* agent_max)
+mutant_copy_median = (median_mutant .* agent_max)
+total_copy_median = (wild_copy_median .+ mutant_copy_median)
+
+# Define time list
+
+time_steps = tend / δ
+time_list = Int.([1:1:time_steps;])
+
 # DEFINE QUANTILES
 
 upper_quantile = fill(NaN, num_times)
@@ -343,9 +400,9 @@ lower_quantile = fill(NaN, num_times)
 
 for j in 1:num_times
     mutation_loads = mutation_load[:, j]
-    upper_quantile[j] = nanquantile(mutation_loads, 0.975)
-    middle_quantile[j] = nanquantile(mutation_loads, 0.5)
-    lower_quantile[j] = nanquantile(mutation_loads, 0.025)
+    upper_quantile[j] = nanquantile(mutation_loads, 0.95)  # 95%
+    middle_quantile[j] = nanquantile(mutation_loads, 0.5)  # 50%
+    lower_quantile[j] = nanquantile(mutation_loads, 0.05)  #  5%
 end
 
 # DEFINE PLOT
@@ -355,23 +412,16 @@ end
 
 # TEXT REPORT
 
-# Generate specific time-frame elements.
-runtime_in_years = length(mean_mutant) / 12.0
-
-int_years = Int(floor(runtime_in_years))
-
-int_months = runtime_in_years - floor(runtime_in_years)
-int_months = Int(floor(int_months * 12))
-
 # Print final report.
-println("\nRESULTS\n=======\n")
-println("Simulation was looped $(loops) time(s).")
-println("Initial concentration of wild-type mtDNA: $(u0[1]) molecule(s).")
-println("Initial concentration of mutant mtDNA: $(u0[2]) molecule(s).")
-println("Population went extinct at $(num_times)/$(Int(floor(tend))) epoch(s) ",
-    "or $(int_years) year(s) and $(int_months) month(s).")
-println("97.5th percentile (Head): $(upper_quantile[1:5])")
-println("50th percentile (Head):   $(middle_quantile[1:5])")
-println("2.5th percentile (Head):  $(lower_quantile[1:5])")
+
+println("\nRUNNING GILLESPIE SSA SIMULATION")
+println("================================\n")
+
+println("Simulation was looped $(yellow)$(loops)$(reset) time(s).")
+println("Initial concentration of wild-type mtDNA: $(yellow)$(u0[1])$(reset) molecule(s).")
+println("Initial concentration of mutant mtDNA: $(yellow)$(u0[2])$(reset) molecule(s).")
+println("95th percentile (Head): $(yellow)$(upper_quantile[1:5])$(reset)")
+println("50th percentile (Head): $(yellow)$(middle_quantile[1:5])$(reset)")
+println(" 5th percentile (Head): $(yellow)$(lower_quantile[1:5])$(reset)")
 
 # End of File.
