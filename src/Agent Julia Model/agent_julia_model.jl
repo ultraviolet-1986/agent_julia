@@ -50,6 +50,9 @@ using DrWatson: @dict
 using InteractiveDynamics
 using Random
 
+using IterTools
+using Statistics
+
 #################
 # Prerequisites #
 #################
@@ -63,17 +66,25 @@ Random.seed!(random_seed)
 
 # TEMPORAL UNITS
 
-# NOTE Stepping functions require type 'Int'.
+α = Float64(1.0e6)
 
-month = 1.0
-year = month * 12.0
-day = year / 365.0
-hour = day / 24.0
-week = day * 7.0
+# Apply α to reduce data-size.
+day = Float64(24.0 * 3600.0 / α)
+week = Float64(day * 7.0)
+year = Float64(day * 365.0)
+month = Float64(year / 12.0)
+hour = Float64(day / 24.0)
 
-tend = Int(round(year * 80.0))
+# Reaction rate
+λ = rand(Normal(260.0, 1), 1)[1]
+reaction_rate = log(2) / λ
+reaction_rate = reaction_rate ./ (day)
 
 δ = month
+
+# NOTE Stepping functions require type 'Int'.
+
+tend = Int(round(year * 80.0))
 
 # COLOURS > TEXT OUTPUT
 
@@ -144,7 +155,7 @@ Create and populate the Agent Julia model with specified agents.
 function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
-    reaction_rate = hour,
+    reaction_rate = reaction_rate,
     N = agent_max,
     initial_mutated = initial_mutants,
     seed = random_seed,
@@ -296,19 +307,20 @@ function loop_simulation(n=1::Int64)
         push!(total_counts, total_cn)
     end
 
-    wild_mean = mean(wild_counts)
+    wild_mean   = mean(wild_counts)
     mutant_mean = mean(mutant_counts)
-    total_mean = mean(total_counts)
+    total_mean  = mean(total_counts)
 
-    # Place final results in composite DataFrame.
     composite_results = DataFrame(
         steps = steps,
         wild_mean = wild_mean,
         mutant_mean = mutant_mean,
-        total_count = total_mean
+        total_mean = total_mean
     )
 
-    return composite_results
+    complete_results = temp_results
+
+    return composite_results, temp_results
 end
 
 
@@ -330,6 +342,6 @@ agent_julia_model = mutation_initiation()
 println("$(green)Done$(reset)")
 
 # Execute Agent Julia simulation.
-data = perform_simulation()
+data, results = perform_simulation()
 
 # End of File.

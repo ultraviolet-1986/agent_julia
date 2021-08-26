@@ -26,9 +26,10 @@
 # Imports #
 ###########
 
+import Plots as plt
+
 using CSV
 using DataFrames
-using Plots
 using StatsPlots
 
 #############
@@ -64,13 +65,29 @@ mkpath(plot_path)
 # NOTE Static seed will be assigned from this file.
 include("$(Base.source_dir())/gillespie_model.jl")
 
+# DEFINE CSV EXPORT FILE
+
+data = DataFrame(
+    steps = time_list,
+    wild_mean = wild_copy_mean,
+    mutant_mean = mutant_copy_mean,
+    total_counts = total_copy_mean
+    # wild_median = wild_copy_median,
+    # mutant_median = mutant_copy_median,
+    # total_counts = total_copy_median
+)
+
+print("Writing data to $(yellow)data/$(basename(csv_path))$(reset) Please wait... ")
+CSV.write("$(csv_path)", data)
+println("$(green)Done$(reset)")
+
 # DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
 years = times / year
-counts = [wild_copy_median, mutant_copy_median]  # n
+counts = [wild_copy_mean, mutant_copy_mean]  # n
 
 print("\nCreating mutation/time plot $(yellow)plots/$(basename(plot_1_path))$(reset)... ")
-fig = plot(
+fig = plt.plot(
     years,
     counts,
     xlabel="Time (years)",
@@ -90,7 +107,7 @@ println("$(green)Done$(reset)")
 quantiles = [upper_quantile, middle_quantile, lower_quantile] * agent_max
 
 print("Creating quantile plot $(yellow)plots/$(basename(plot_2_path))$(reset)... ")
-fig2 = plot(
+fig2 = plt.plot(
     years,
     quantiles,
     xlabel="Time (years)",
@@ -103,19 +120,6 @@ fig2 = plot(
 )
 
 savefig(fig2, "$(plot_2_path)")
-println("$(green)Done$(reset)")
-
-# DEFINE CSV EXPORT FILE
-
-data = DataFrame(
-    steps = time_list,
-    wild_median = wild_copy_median,
-    mutant_median = mutant_copy_median,
-    total_counts = total_copy_median
-)
-
-print("Writing data to $(yellow)data/$(basename(csv_path))$(reset) Please wait... ")
-CSV.write("$(csv_path)", data)
 println("$(green)Done$(reset)")
 
 # End of File.

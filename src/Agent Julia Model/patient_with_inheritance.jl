@@ -37,7 +37,7 @@ using CSV
 
 # VARIABLES > INITIAL CONDITIONS
 
-initial_mutants = 25
+initial_mutants = 50
 
 # VARIABLES > PATHS
 
@@ -64,6 +64,12 @@ mkpath(video_path)
 # Run Agent Julia model with above parameters.
 # NOTE Static seed will be assigned from this file.
 include("$(Base.source_dir())/agent_julia_model.jl")
+
+# DEFINE CSV EXPORT FILE
+
+print("Writing data to $(yellow)$(csv_path)$(reset) Please wait... ")
+CSV.write("$(csv_path)", data)
+println("$(green)Done$(reset)")
 
 # VARIABLES > PLOT AXES
 
@@ -109,12 +115,6 @@ println("$(green)Done$(reset)")
 
 print("Rendering plot to $(yellow)$(plot_2_path)$(reset)... ")
 plt.savefig(fig2, "$(plot_2_path)")
-println("$(green)Done$(reset)")
-
-# DEFINE CSV EXPORT FILE
-
-print("Writing data to $(yellow)$(csv_path)$(reset) Please wait... ")
-CSV.write("$(csv_path)", data)
 println("$(green)Done$(reset)")
 
 # CREATE OPTIONAL VIDEO FILE

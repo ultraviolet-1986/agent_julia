@@ -81,38 +81,20 @@ loops = 1000
 
 # VARIABLES > TEMPORAL UNITS
 
-# month = 1.0
-# year = month * 12.0
-# day = year / 365.0
-# hour = day / 24.0
-# week = day * 7.0
-# minute = hour / 60.0
-# second = minute / 60.0
+α = Float64(1.0e6)
 
-day = 24.0 * 3600.0
-week = day * 7.0
-year = day * 365.0
-month = year / 12.0
-hour = day / 24.0
-minute = hour /60.0
-second = minute / 60.0
-fortnight = month / 2.0
+# Apply α to reduce data-size.
+day = Float64(24.0 * 3600.0 / α)
 
-# Target end time.
-tend = year * 80.0
-
-day       = Float64(day)
-week      = Float64(week)
-year      = Float64(year)
-month     = Float64(month)
-hour      = Float64(hour)
-minute    = Float64(minute)
-second    = Float64(second)
-fortnight = Float64(fortnight)
-
-tend = Float64(tend)
+week = Float64(day * 7.0)
+year = Float64(day * 365.0)
+month = Float64(year / 12.0)
+hour = Float64(day / 24.0)
 
 δ = month
+
+# Target end time.
+tend = Float64(year * 80.0)
 
 # VARIABLES > KINETIC RATES
 
