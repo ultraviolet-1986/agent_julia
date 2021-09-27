@@ -1,0 +1,127 @@
+#!/usr/bin/env julia
+
+import Plots as plt
+
+using DataFrames
+using Distributions
+using IterTools
+using JLD2
+using LinearAlgebra
+
+#############
+# Variables #
+#############
+
+# # Kinetic rates
+
+# α = Float64(1.0e6)
+
+# # Apply α to reduce data-size.
+# day = Float64(24.0 * 3600.0 / α)
+# week = Float64(day * 7.0)
+# year = Float64(day * 365.0)
+# month = Float64(year / 12.0)
+# hour = Float64(day / 24.0)
+
+# # Reaction rate
+# λ = rand(Normal(260.0, 1), 1)[1]
+# reaction_rate = log(2) / λ
+# reaction_rate = reaction_rate ./ (day)
+
+# δ = month
+
+# # NOTE Stepping functions require type 'Int'.
+
+# tend = Int64(round(year * 80.0))
+
+# Load variables from file and re-cast types.
+@load "agent_data.jld2" data results
+data = DataFrame(data)
+results = DataFrame(results)
+
+agent_max = results."wild_status"[1][1] + results."mutant_status"[1][1]
+
+# QUANTILE PLOT VARIABLES
+
+steps = length(results."step"[1])
+
+upper_quantile = []
+middle_quantile = []
+lower_quantile = []
+
+for f in 1:1:steps
+    push!(upper_quantile, quantile(Vector(data[f, 2:3]), 0.95)) # 95th percentile
+    push!(middle_quantile, quantile(Vector(data[f, 2:3]), 0.5)) # 50th percentile
+    push!(lower_quantile, quantile(Vector(data[f, 2:3]), 0.05)) #  5th percentile
+end
+
+quantiles = [upper_quantile, middle_quantile, lower_quantile]
+
+#############
+# Functions #
+#############
+
+function agent_mutation_load_plot()
+    total = (sum(eachrow(results.wild_status)) + sum(eachrow(results.mutant_status)))
+    total = collect(Iterators.flatten(total))
+
+    mutation_load = sum(eachrow(results.mutant_status)) ./ total
+
+    agents_mutation_load_plot = plt.plot(
+        (mean(mutation_load) * 100),
+        ylims=(0, 100),
+        xlabel="Time (epochs) [80 years]",
+        ylabel="Mean mutation load (%)",
+        title="Agent Julia: 50/200 mutant mtDNA",
+        legend=false,
+        dpi=1200
+    )
+
+    plt.savefig(agents_mutation_load_plot, "agent_mutation_load_plot.png")
+end
+
+
+function agent_copy_levels_plot()
+    mutation_load = sum(results."mutant_status") ./ length(results."mutant_status")
+
+    total_copy_number = sum(results."wild_status" + results."mutant_status") /
+        length(results."step")
+
+    figure_2 = plt.plot(
+        [total_copy_number, mutation_load],
+        ylims=(0, agent_max),
+        title="Patient with mutant mtDNA inheritance",
+        xlabel="Time (epochs) [80 years]",
+        ylabel="mtDNA levels (n)",
+        label=["Total copy number" "Mutation load"],
+        legend=:bottomright,
+        dpi=1200
+    )
+
+    plt.savefig(figure_2, "agent_copy_levels_plot.png")
+end
+
+
+function agent_quantile_plot()
+    figure_3 = plt.plot(
+        quantiles,
+        ylims=(0, agent_max),
+        title="Patient with mutant mtDNA inheritance",
+        xlabel="Time (epochs) [80 years]",
+        ylabel="Mean agent levels (n)",
+        label=["95th percentile" "50th percentile" "5th percentile"],
+        dpi=1200,
+    )
+
+    plt.savefig(figure_3, "agent_quantile_plot.png")
+end
+
+#############
+# Kickstart #
+#############
+
+# agent_copy_levels_plot()
+# agent_mutation_load_plot()
+# agent_quantile_plot()
+
+# End of File.

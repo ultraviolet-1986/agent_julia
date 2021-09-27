@@ -106,7 +106,8 @@ graph_height = 6.0
 # AGENT PROPERTIES > INITIAL CONDITIONS
 
 agent_min = 150
-agent_max = rand(Poisson(200))
+# agent_max = rand(Poisson(200))
+agent_max = 200
 
 # The `initial_mutants` variable is to be defined within a simulation
 # file e.g. `patient_with_inheritance.jl`. Terminate execution if
