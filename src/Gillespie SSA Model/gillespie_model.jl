@@ -103,7 +103,8 @@ tend = Float64(year * 80.0)
 reaction_rate = log(2) / λ
 reaction_rate = reaction_rate ./ (day)
 
-mutation_rate = 1.157e-12
+# mutation_rate = 1.157e-12
+mutation_rate = 0.0
 
 parameters = (r=reaction_rate, m=mutation_rate, d=reaction_rate)
 
