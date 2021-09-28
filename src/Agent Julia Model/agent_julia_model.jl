@@ -239,12 +239,12 @@ function random_action!(agent, model)
         end
     end
 
-    # Mutate mtDNA
-    if agent.status == :W
-        if roll <= (1 / 10000)
-            agent.status = :M
-        end
-    end
+    # # Mutate mtDNA
+    # if agent.status == :W
+    #     if roll <= (1 / 10000)
+    #         agent.status = :M
+    #     end
+    # end
 end
 
 
