@@ -55,7 +55,8 @@ for f in 1:1:steps
     push!(lower_quantile, quantile(Vector(data[f, 2:3]), 0.05)) #  5th percentile
 end
 
-quantiles = [upper_quantile, middle_quantile, lower_quantile]
+quantiles = [upper_quantile, middle_quantile, lower_quantile] # Get results in N.
+# quantiles = (quantiles / 200) * 100                           # Get results in %.
 
 #############
 # Functions #
@@ -93,7 +94,7 @@ function agent_copy_levels_plot()
         title="Patient with mutant mtDNA inheritance",
         xlabel="Time (epochs) [80 years]",
         ylabel="mtDNA levels (n)",
-        label=["Total copy number" "Mutation load"],
+        label=["Total copy number" "Mutant copy number"],
         legend=:bottomright,
         dpi=1200
     )
