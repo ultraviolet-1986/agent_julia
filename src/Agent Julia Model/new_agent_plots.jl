@@ -39,7 +39,8 @@ using LinearAlgebra
 data = DataFrame(data)
 results = DataFrame(results)
 
-agent_max = results."wild_status"[1][1] + results."mutant_status"[1][1]
+# agent_max = results."wild_status"[1][1] + results."mutant_status"[1][1]
+agent_max = 250
 
 # QUANTILE PLOT VARIABLES
 
@@ -121,8 +122,6 @@ end
 # Kickstart #
 #############
 
-# agent_copy_levels_plot()
-# agent_mutation_load_plot()
-# agent_quantile_plot()
+# agent_copy_levels_plot(); agent_mutation_load_plot(); agent_quantile_plot()
 
 # End of File.

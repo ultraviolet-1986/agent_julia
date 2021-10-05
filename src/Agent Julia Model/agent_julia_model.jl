@@ -22,17 +22,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#########
-# Notes #
-#########
-
-# TODO Discover how to include a hard boundary.
-# TODO Adjust space to more closely match a muscle fibre cell.
-# TODO Have the model populated with evenly dispersed agents.
-# TODO Export each frame as PNG and use FFMPEG to stitch together a
-#      video and remove the 'abm_video' function call. This helps to
-#      ensure plots and states match that simulation.
-
 ##############
 # References #
 ##############
@@ -105,9 +94,9 @@ graph_height = 6.0
 
 # AGENT PROPERTIES > INITIAL CONDITIONS
 
-agent_min = 150
+agent_min = 50
 # agent_max = rand(Poisson(200))
-agent_max = 200
+agent_max = 250
 
 # The `initial_mutants` variable is to be defined within a simulation
 # file e.g. `patient_with_inheritance.jl`. Terminate execution if
@@ -117,7 +106,10 @@ if (! @isdefined initial_mutants)
     error("Please run a simulation file e.g.: 'patient_with_inheritance.jl'.")
 end
 
-nwild = agent_max - initial_mutants
+# initial_wild = agent_max - initial_mutants
+initial_wild = 150
+
+agent_total = initial_mutants + initial_wild
 
 # SIMULATION PARAMETERS
 
@@ -157,7 +149,7 @@ function mutation_initiation(;
     interaction_radius = 0.012,
     dt = δ,
     reaction_rate = reaction_rate,
-    N = agent_max,
+    N = agent_total,
     initial_mutated = initial_mutants,
     seed = random_seed,
 )
@@ -219,11 +211,12 @@ Randomly select an action: Replicate, Degrade, or Mutate an agent.
 function random_action!(agent, model)
     roll = rand(Uniform(0.0, 1.0))
 
+    copy_number = nothing
     copy_number = length(model.agents)
 
     # Replicate mtDNA
-    if roll <= (1 / 2)
-        if copy_number <= agent_max
+    if roll ≤ (1 / 2)
+        if copy_number ≤ agent_max
             pos = agent.pos
             status = agent.status
             mass = 1.0
@@ -234,14 +227,14 @@ function random_action!(agent, model)
 
     # Degrade mtDNA
     else
-        if copy_number >= agent_min
+        if copy_number ≥ agent_min
             kill_agent!(agent, model)
         end
     end
 
     # # Mutate mtDNA
     # if agent.status == :W
-    #     if roll <= (1 / 10000)
+    #     if roll ≤ (1 / 10000)
     #         agent.status = :M
     #     end
     # end
@@ -295,16 +288,11 @@ function loop_simulation(n=1::Int64)
 
     for j in 1:1:length(temp_results)
         wild_count = eachcol(temp_results[j])[2]
+        mutant_count = eachcol(temp_results[j])[3]
+        total_cn = eachcol(temp_results[j])[2] + eachcol(temp_results[j])[3]
+
         push!(wild_counts, wild_count)
-    end
-
-    for k in 1:1:length(temp_results)
-        mutant_count = eachcol(temp_results[k])[3]
         push!(mutant_counts, mutant_count)
-    end
-
-    for l in 1:1:length(temp_results)
-        total_cn = eachcol(temp_results[l])[2] + eachcol(temp_results[l])[3]
         push!(total_counts, total_cn)
     end
 
@@ -332,10 +320,11 @@ end
 println("\nRUNNING AGENT JULIA SIMULATION")
 println("==============================\n")
 
-println("Total agents:     $(green)$(agent_max)$(reset)")
-println("Wild-type agents: $(green)$(nwild)$(reset)")
-println("Mutant elements:  $(green)$(initial_mutants)$(reset)")
-println("Simulation loops: $(green)$(loops)$(reset)\n")
+println("Maximum possible agents: $(green)$(agent_max)$(reset)")
+println("Total agents:            $(green)$(agent_total)$(reset)")
+println("Wild-type agents:        $(green)$(initial_wild)$(reset)")
+println("Mutant elements:         $(green)$(initial_mutants)$(reset)")
+println("Simulation loops:        $(green)$(loops)$(reset)\n")
 
 print("Creating mtDNA population dynamics model... ")
 agent_julia_model = nothing
