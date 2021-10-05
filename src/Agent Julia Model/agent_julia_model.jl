@@ -94,7 +94,7 @@ graph_height = 6.0
 
 # AGENT PROPERTIES > INITIAL CONDITIONS
 
-agent_min = 50
+agent_min = 150
 # agent_max = rand(Poisson(200))
 agent_max = 250
 
