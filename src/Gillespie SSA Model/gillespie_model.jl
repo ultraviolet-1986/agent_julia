@@ -22,15 +22,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#########
-# Notes #
-#########
-
-# - Requires Julia >= v1.6.
-# - Time-scale for this model is that integer `1` equals 1 month.
-#   - Scales are adjusted to years when defining the plot only.
-#   - With 'δ' being `1`, we are recording results monthly.
-
 ##############
 # References #
 ##############
@@ -103,8 +94,8 @@ tend = Float64(year * 80.0)
 reaction_rate = log(2) / λ
 reaction_rate = reaction_rate ./ (day)
 
-# mutation_rate = 1.157e-12
-mutation_rate = 0.0
+# mutation_rate = 1.157e-12  # Mutation enabled.
+mutation_rate = 0.0        # Mutation disabled.
 
 parameters = (r=reaction_rate, m=mutation_rate, d=reaction_rate)
 
@@ -130,7 +121,7 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); δ=month::Flo
     tindex = 2
 
     while t < tend
-        if t >= times[tindex]
+        if t ≥ times[tindex]
             us = [us u]
             push!(ts, t)
             tindex = tindex + 1
@@ -157,7 +148,7 @@ Propensity model for this reaction.
 Reactions of `wild-type mtDNA` and `mutant mtDNA` using kinetic rates
 `p.d`, `p.m` and `p.r`.
 """
-function model(u, p; target_upper=200::Int64, target_lower=150::Int64)
+function model(u, p; target_upper=250::Int64, target_lower=150::Int64)
     cn = u[1] + u[2]  # Define copy number.
 
     rxn1 = p.r * u[1]  # Reaction 1: Replicate wild-type mtDNA.
@@ -167,12 +158,12 @@ function model(u, p; target_upper=200::Int64, target_lower=150::Int64)
     rxn5 = p.d * u[2]  # Reaction 5: Degrade mutant mtDNA.
 
     # Disable replication to prevent population explosion.
-    if cn >= target_upper
+    if cn ≥ target_upper
         rxn1 = 0.0
         rxn4 = 0.0
 
     # Disable degradation to prevnet population extinction.
-    elseif cn <= target_lower
+    elseif cn ≤ target_lower
         rxn2 = 0.0
         rxn5 = 0.0
     end
@@ -223,19 +214,19 @@ function choose_stoich(dx, dxsum=sum(dx))
     roll = rand()
 
     # Reaction 1: Replicate wild-type mtDNA.
-    if roll <= sections[1]
+    if roll ≤ sections[1]
         stoich = [1, 0]
 
     # Reaction 2: Degrade wild-type mtDNA.
-    elseif roll <= sections[2]
+    elseif roll ≤ sections[2]
         stoich = [-1, 0]
 
     # Reaction 3: Mutate wild-type mtDNA.
-    elseif roll <= sections[3]
+    elseif roll ≤ sections[3]
         stoich = [0, 1]
 
     # Reaction 4: Replicate mutant mtDNA.
-    elseif roll <= sections[4]
+    elseif roll ≤ sections[4]
         stoich = [0, 1]
 
     # Reaction 5: Degrade mutant mtDNA.
@@ -291,25 +282,6 @@ nanmedian(x, y) = mapslices(nanmedian, x, dims=y)
 
 nanquantile(x, y) = quantile(filter(!isnan,x), y)
 
-###########
-# Exports #
-###########
-
-# Make functions available to Julia REPL.
-
-# FUNCTIONS > GILLESPIE MODEL
-
-export ssa
-export model
-export choose_stoich
-export loop_simulation
-
-# FUNCTIONS > NaN HANDLING
-
-export nanmean
-export nanmedian
-export nanquantile
-
 #############
 # Kickstart #
 #############
@@ -335,7 +307,7 @@ molecules = fill(NaN, num_simulations, num_times, num_species)
 for i in 1:num_simulations
     for j in 1:num_times
         for k in 1:num_species
-            if size(results.u[i])[1] >= j
+            if size(results.u[i])[1] ≥ j
                 molecules[i, j, k] = results.u[i][j, k]
             end
         end
@@ -387,11 +359,6 @@ for j in 1:num_times
     middle_quantile[j] = nanquantile(mutation_loads, 0.5)  # 50%
     lower_quantile[j] = nanquantile(mutation_loads, 0.05)  #  5%
 end
-
-# DEFINE PLOT
-
-# - Plot and elements are to be defined within a simulation file.
-#   - e.g. `patient_with_inheritance.jl`.
 
 # TEXT REPORT
 
