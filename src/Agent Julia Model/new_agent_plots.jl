@@ -8,32 +8,6 @@ using IterTools
 using JLD2
 using LinearAlgebra
 
-#############
-# Variables #
-#############
-
-# # Kinetic rates
-
-# α = Float64(1.0e6)
-
-# # Apply α to reduce data-size.
-# day = Float64(24.0 * 3600.0 / α)
-# week = Float64(day * 7.0)
-# year = Float64(day * 365.0)
-# month = Float64(year / 12.0)
-# hour = Float64(day / 24.0)
-
-# # Reaction rate
-# λ = rand(Normal(260.0, 1), 1)[1]
-# reaction_rate = log(2) / λ
-# reaction_rate = reaction_rate ./ (day)
-
-# δ = month
-
-# # NOTE Stepping functions require type 'Int'.
-
-# tend = Int64(round(year * 80.0))
-
 # Load variables from file and re-cast types.
 @load "agent_data.jld2" data results
 data = DataFrame(data)
@@ -56,8 +30,9 @@ for f in 1:1:steps
     push!(lower_quantile, quantile(Vector(data[f, 2:3]), 0.05)) #  5th percentile
 end
 
-quantiles = [upper_quantile, middle_quantile, lower_quantile] # Get results in N.
-# quantiles = (quantiles / 200) * 100                           # Get results in %.
+quantiles = [upper_quantile, middle_quantile, lower_quantile] # N
+# quantiles = (quantiles / 200) * 100                           #  %
+# quantiles = (quantiles / 200)                                 # 0-1
 
 #############
 # Functions #
