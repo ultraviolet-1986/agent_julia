@@ -30,6 +30,19 @@ function gillespie_mutation_load_plot()
     plt.savefig(mutation_load_plot, "gillespie_mutation_load_plot.png")
 end
 
+
+function output_all_simulations_to_csv()
+    for i in 1:1:num_simulations
+        wild = Int64.(molecules[i, :, 1])
+        mutant = Int64.(molecules[i, :, 2])
+
+        temp = DataFrame(wild_count=wild, mutant_count=mutant)
+
+        fname = "$(lpad(i, 4, '0')).csv"
+        CSV.write("gillespie_csv_files/$(fname)", temp)
+    end
+end
+
 #############
 # Kickstart #
 #############

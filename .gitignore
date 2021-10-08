@@ -37,5 +37,5 @@ src/Gillespie SSA Model/*.json
 src/Gillespie SSA Model/*.png
 src/Gillespie SSA Model/*.zip
 src/Gillespie SSA Model/data
-src/Agent Julia Model/gillespie_csv_files
+src/Gillespie SSA Model/gillespie_csv_files
 src/Gillespie SSA Model/plots
