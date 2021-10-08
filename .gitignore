@@ -27,11 +27,15 @@ Manifest.toml
 src/Agent Julia Model/*.csv
 src/Agent Julia Model/*.json
 src/Agent Julia Model/*.png
+src/Agent Julia Model/*.zip
+src/Agent Julia Model/agent_csv_files
 src/Agent Julia Model/data
 src/Agent Julia Model/plots
 src/Agent Julia Model/videos
 src/Gillespie SSA Model/*.csv
 src/Gillespie SSA Model/*.json
 src/Gillespie SSA Model/*.png
+src/Gillespie SSA Model/*.zip
 src/Gillespie SSA Model/data
+src/Agent Julia Model/gillespie_csv_files
 src/Gillespie SSA Model/plots

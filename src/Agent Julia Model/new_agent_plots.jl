@@ -93,6 +93,19 @@ function agent_quantile_plot()
     plt.savefig(figure_3, "agent_quantile_plot.png")
 end
 
+
+function output_all_simulations_to_csv()
+    for i in 1:length(results.step)
+        wild = results[i, 2]
+        mutant = results[i, 3]
+
+        temp = DataFrame(wild_count=wild, mutant_count=mutant)
+
+        fname = "$(lpad(i, 4, '0')).csv"
+        CSV.write("agent_csv_files/$(fname)", temp)
+    end
+end
+
 #############
 # Kickstart #
 #############
