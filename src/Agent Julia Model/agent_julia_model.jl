@@ -33,6 +33,7 @@
 ###########
 
 using Agents
+using CSV
 using DataFrames
 using Distributions
 using DrWatson: @dict
@@ -333,5 +334,22 @@ println("$(green)Done$(reset)")
 
 # Execute Agent Julia simulation.
 data, results = perform_simulation()
+
+print("Writing $(yellow)$(loops)$(reset) CSV file(s)... ")
+results = DataFrame(results)
+for i in 1:1:loops
+    wild = results[i, 2]
+    mutant = results[i, 3]
+
+    padding = Int(length(string(length(results.step))))
+
+    mkpath("agent_csv_files")
+
+    temp = DataFrame(wild_count=wild, mutant_count=mutant)
+
+    fname = "$(lpad(i, padding, '0')).csv"
+    CSV.write("agent_csv_files/$(fname)", temp)
+end
+println("$(green)Done$(reset)")
 
 # End of File.

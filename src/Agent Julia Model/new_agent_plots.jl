@@ -7,6 +7,7 @@ using Distributions
 using IterTools
 using JLD2
 using LinearAlgebra
+using CSV
 
 # Load variables from file and re-cast types.
 @load "agent_data.jld2" data results
@@ -99,9 +100,13 @@ function output_all_simulations_to_csv()
         wild = results[i, 2]
         mutant = results[i, 3]
 
+        padding = Int(length(string(length(results.step))))
+
+        mkpath("agent_csv_files")
+
         temp = DataFrame(wild_count=wild, mutant_count=mutant)
 
-        fname = "$(lpad(i, 4, '0')).csv"
+        fname = "$(lpad(i, padding, '0')).csv"
         CSV.write("agent_csv_files/$(fname)", temp)
     end
 end
