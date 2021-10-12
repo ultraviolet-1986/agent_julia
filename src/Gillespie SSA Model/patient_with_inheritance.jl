@@ -56,6 +56,11 @@ csv_path = "$(data_path)/patient_with_inheritance.csv"
 # Kickstart #
 #############
 
+# Remove previous data (if exists).
+
+rm(data_path; force=true, recursive=true)
+rm(plot_path; force=true, recursive=true)
+
 mkpath(data_path)
 mkpath(plot_path)
 
@@ -72,21 +77,32 @@ data = DataFrame(
     wild_mean = wild_copy_mean,
     mutant_mean = mutant_copy_mean,
     total_counts = total_copy_mean
-    # wild_median = wild_copy_median,
-    # mutant_median = mutant_copy_median,
-    # total_counts = total_copy_median
 )
 
-print("Writing data to $(yellow)data/$(basename(csv_path))$(reset) Please wait... ")
-CSV.write("$(csv_path)", data)
+# Output all simulations to individual CSV file(s).
+
+print("Writing all data to $(yellow)$(loops)$(reset) CSV file(s)... ")
+for i in 1:1:num_simulations
+    wild = Int64.(molecules[i, :, 1])
+    mutant = Int64.(molecules[i, :, 2])
+
+    temp = DataFrame(wild_count=wild, mutant_count=mutant)
+
+    fname = "$(lpad(i, 4, '0')).csv"
+    CSV.write("$(data_path)/$(fname)", temp)
+end
 println("$(green)Done$(reset)")
+
+# print("Writing data to $(yellow)data/$(basename(csv_path))$(reset) Please wait... ")
+# CSV.write("$(csv_path)", data)
+# println("$(green)Done$(reset)")
 
 # DEFINE MUTATION TIME-LINE PLOT (PLOT 1)
 
 years = times / year
 counts = [wild_copy_mean, mutant_copy_mean]  # n
 
-print("\nCreating mutation/time plot $(yellow)plots/$(basename(plot_1_path))$(reset)... ")
+print("Creating mutation/time plot $(yellow)plots/$(basename(plot_1_path))$(reset)... ")
 fig = plt.plot(
     years,
     counts,

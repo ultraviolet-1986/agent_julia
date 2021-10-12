@@ -32,6 +32,8 @@
 # Imports #
 ###########
 
+using CSV
+using DataFrames
 using Distributions
 using IterTools
 using Random
@@ -55,28 +57,23 @@ red = "\e[31m"
 yellow = "\e[33m"
 reset = "\e[0m"
 
+
 # VARIABLES > INITIAL CONDITIONS
 
-# The `u0` variable is to be defined within a simulation file e.g.
-# `patient_with_inheritance.jl`. Terminate execution if variable does
-# not exist.
-
-if (! @isdefined u0)
-    error("Please run a simulation file e.g.: 'patient_with_inheritance.jl'.")
-end
+# Initial concentrations of wild-type and mutant mtDNA.
+u0 = [150, 50]
 
 agent_max = u0[1] + u0[2]
+target_upper = 250
+target_lower = 150
 
 # Number of simulation repeats.
 loops = 1000
 
+
 # VARIABLES > TEMPORAL UNITS
 
-α = Float64(1.0e6)
-
-# Apply α to reduce data-size.
-day = Float64(24.0 * 3600.0 / α)
-
+day = (24.0 * 3600.0)
 week = Float64(day * 7.0)
 year = Float64(day * 365.0)
 month = Float64(year / 12.0)
@@ -86,6 +83,7 @@ hour = Float64(day / 24.0)
 
 # Target end time.
 tend = Float64(year * 80.0)
+
 
 # VARIABLES > KINETIC RATES
 
@@ -99,11 +97,14 @@ mutation_rate = 0.0        # Mutation disabled.
 
 parameters = (r=reaction_rate, m=mutation_rate, d=reaction_rate)
 
+
+# VARIABLES > PATHS
+
+data_path = "$(Base.source_dir())/data/gillespie_csv_files"
+
 #############
 # Functions #
 #############
-
-# FUNCTIONS > GILLESPIE MODEL
 
 """
 `ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); δ=month::Float64)`
@@ -127,7 +128,7 @@ function ssa(model, u0, tend, p, choose_stoich, tstart=zero(tend); δ=month::Flo
             tindex = tindex + 1
         end
 
-        dx = model(u, p)
+        dx = model(u, p; target_upper=target_upper, target_lower=target_lower)
         total_hazard = sum(dx)
         dt = Random.randexp() / total_hazard
         stoich = choose_stoich(dx, total_hazard)
@@ -272,7 +273,6 @@ function loop_simulation(n=1::Int64)
     return(t = time_states, u = concentration_states)
 end
 
-# FUNCTIONS > NaN HANDLING
 
 nanmean(x) = mean(filter(!isnan, x))
 nanmean(x, y) = mapslices(nanmean, x, dims=y)
@@ -286,24 +286,17 @@ nanquantile(x, y) = quantile(filter(!isnan,x), y)
 # Kickstart #
 #############
 
-# Run simulation `loops` time(s) and assign output to `results`.
 results = nothing
 results = loop_simulation(loops)
 
-# Calculate total number of elements.
 num_simulations = size(results.u)[1]
 num_times = size(results.u[1])[1]
 num_species = size(results.u[1])[2]
 
-# Create a list of times.
-# NOTE Each row will be exactly the same.
 times = results.t[1]
 
-# Preallocate array for states.
 molecules = fill(NaN, num_simulations, num_times, num_species)
 
-# Populate `molecules` array.
-# NOTE Empty spaces will contain NaN.
 for i in 1:num_simulations
     for j in 1:num_times
         for k in 1:num_species
@@ -314,26 +307,22 @@ for i in 1:num_simulations
     end
 end
 
-# Calculate total number of molecules.
 total = sum(molecules, dims=3)
 
-# Calculate percentage of wild-type and mutant mtDNA.
 wild_load = molecules[:, :, 1] ./ total
 mutation_load = molecules[:, :, 2] ./ total
 
-# Calculate metrics for plotting.
 mean_wild = nanmean(wild_load, 1)
 mean_mutant = nanmean(mutation_load, 1)
 median_wild = nanmedian(wild_load, 1)
 median_mutant = nanmedian(mutation_load, 1)
 
-# Flatten objects to simple arrays.
 mean_wild = collect(Iterators.flatten(mean_wild))
 mean_mutant = collect(Iterators.flatten(mean_mutant))
 median_wild = collect(Iterators.flatten(median_wild))
 median_mutant = collect(Iterators.flatten(median_mutant))
 
-# Create equivalent count numbers based on mean and median.
+
 wild_copy_mean = mean_wild .* agent_max
 mutant_copy_mean = mean_mutant .* agent_max
 total_copy_mean = (wild_copy_mean .+ mutant_copy_mean)
@@ -342,12 +331,11 @@ wild_copy_median = (median_wild .* agent_max)
 mutant_copy_median = (median_mutant .* agent_max)
 total_copy_median = (wild_copy_median .+ mutant_copy_median)
 
-# Define time list
-
 time_steps = tend / δ
 time_list = Int.([1:1:time_steps;])
 
-# DEFINE QUANTILES
+
+# KICKSTART > DEFINE QUANTILES
 
 upper_quantile = fill(NaN, num_times)
 middle_quantile = fill(NaN, num_times)
@@ -360,18 +348,36 @@ for j in 1:num_times
     lower_quantile[j] = nanquantile(mutation_loads, 0.05)  #  5%
 end
 
-# TEXT REPORT
 
-# Print final report.
+# KICKSTART > TEXT REPORT
 
 println("\nRUNNING GILLESPIE SSA SIMULATION")
 println("================================\n")
 
-println("Simulation was looped $(yellow)$(loops)$(reset) time(s).")
-println("Initial concentration of wild-type mtDNA: $(yellow)$(u0[1])$(reset) molecule(s).")
-println("Initial concentration of mutant mtDNA: $(yellow)$(u0[2])$(reset) molecule(s).")
-println("95th percentile (Head): $(yellow)$(upper_quantile[1:5])$(reset)")
-println("50th percentile (Head): $(yellow)$(middle_quantile[1:5])$(reset)")
-println(" 5th percentile (Head): $(yellow)$(lower_quantile[1:5])$(reset)")
+println("‣ Maximum possible molecules: $(green)$(target_upper)$(reset)")
+println("‣ Total molecules...........: $(green)$(sum(u0))$(reset)")
+println("‣ Wild-type molecules.......: $(green)$(u0[1])$(reset)")
+println("‣ Mutant molecules..........: $(green)$(u0[2])$(reset)")
+println("‣ Simulation loops..........: $(green)$(loops)$(reset)\n")
+
+
+# KICKSTART > DATA OUTPUT
+
+rm(data_path; force=true, recursive=true)
+mkpath(data_path)
+
+print("Writing all data to $(yellow)$(loops)$(reset) CSV file(s)... ")
+for i in 1:1:num_simulations
+    wild = Int64.(molecules[i, :, 1])
+    mutant = Int64.(molecules[i, :, 2])
+
+    temp = DataFrame(wild_count=wild, mutant_count=mutant)
+
+    padding = Int(length(string(loops)))
+
+    fname = "$(lpad(i, padding, '0')).csv"
+    CSV.write("$(data_path)/$(fname)", temp)
+end
+println("$(green)Done$(reset)")
 
 # End of File.

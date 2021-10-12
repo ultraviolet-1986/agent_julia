@@ -93,28 +93,23 @@ red_hex = "#bf2642"    # Mutant mtDNA
 graph_width = 24.0
 graph_height = 6.0
 
-# AGENT PROPERTIES > INITIAL CONDITIONS
+# INITIAL CONDITIONS
 
 agent_min = 150
-# agent_max = rand(Poisson(200))
 agent_max = 250
 
-# The `initial_mutants` variable is to be defined within a simulation
-# file e.g. `patient_with_inheritance.jl`. Terminate execution if
-# variable does not exist.
-
-if (! @isdefined initial_mutants)
-    error("Please run a simulation file e.g.: 'patient_with_inheritance.jl'.")
-end
-
-# initial_wild = agent_max - initial_mutants
 initial_wild = 150
+initial_mutants = 50
 
 agent_total = initial_mutants + initial_wild
 
 # SIMULATION PARAMETERS
 
 loops = 1000
+
+# PATHS
+
+data_path = "$(Base.source_dir())/data/agent_csv_files"
 
 ###########
 # Structs #
@@ -321,11 +316,11 @@ end
 println("\nRUNNING AGENT JULIA SIMULATION")
 println("==============================\n")
 
-println("Maximum possible agents: $(green)$(agent_max)$(reset)")
-println("Total agents:            $(green)$(agent_total)$(reset)")
-println("Wild-type agents:        $(green)$(initial_wild)$(reset)")
-println("Mutant elements:         $(green)$(initial_mutants)$(reset)")
-println("Simulation loops:        $(green)$(loops)$(reset)\n")
+println("‣ Maximum possible agents: $(green)$(agent_max)$(reset)")
+println("‣ Total agents...........: $(green)$(agent_total)$(reset)")
+println("‣ Wild-type agents.......: $(green)$(initial_wild)$(reset)")
+println("‣ Mutant elements........: $(green)$(initial_mutants)$(reset)")
+println("‣ Simulation loops.......: $(green)$(loops)$(reset)\n")
 
 print("Creating mtDNA population dynamics model... ")
 agent_julia_model = nothing
@@ -335,20 +330,24 @@ println("$(green)Done$(reset)")
 # Execute Agent Julia simulation.
 data, results = perform_simulation()
 
-print("Writing $(yellow)$(loops)$(reset) CSV file(s)... ")
+
+# KICKSTART > DATA OUTPUT
+
+rm(data_path; force=true, recursive=true)
+mkpath(data_path)
+
+print("Writing all data to $(yellow)$(loops)$(reset) CSV file(s)... ")
 results = DataFrame(results)
 for i in 1:1:loops
     wild = results[i, 2]
     mutant = results[i, 3]
 
-    padding = Int(length(string(length(results.step))))
-
-    mkpath("agent_csv_files")
-
     temp = DataFrame(wild_count=wild, mutant_count=mutant)
 
+    padding = Int(length(string(length(results.step))))
+
     fname = "$(lpad(i, padding, '0')).csv"
-    CSV.write("agent_csv_files/$(fname)", temp)
+    CSV.write("$(data_path)/$(fname)", temp)
 end
 println("$(green)Done$(reset)")
 
