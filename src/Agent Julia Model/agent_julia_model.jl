@@ -313,8 +313,8 @@ end
 # Kickstart #
 #############
 
-println("\nRUNNING AGENT JULIA SIMULATION")
-println("==============================\n")
+println("\nAGENT JULIA SIMULATION")
+println("======================\n")
 
 println("‣ Maximum possible agents: $(green)$(agent_max)$(reset)")
 println("‣ Total agents...........: $(green)$(agent_total)$(reset)")

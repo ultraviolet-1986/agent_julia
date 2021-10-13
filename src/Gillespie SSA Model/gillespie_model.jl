@@ -351,8 +351,8 @@ end
 
 # KICKSTART > TEXT REPORT
 
-println("\nRUNNING GILLESPIE SSA SIMULATION")
-println("================================\n")
+println("\nGILLESPIE SSA SIMULATION")
+println("========================\n")
 
 println("‣ Maximum possible molecules: $(green)$(target_upper)$(reset)")
 println("‣ Total molecules...........: $(green)$(sum(u0))$(reset)")
