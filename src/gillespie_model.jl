@@ -354,11 +354,11 @@ end
 println("\nGILLESPIE SSA SIMULATION")
 println("========================\n")
 
-println("‣ Maximum possible molecules: $(green)$(target_upper)$(reset)")
-println("‣ Total molecules...........: $(green)$(sum(u0))$(reset)")
-println("‣ Wild-type molecules.......: $(green)$(u0[1])$(reset)")
-println("‣ Mutant molecules..........: $(green)$(u0[2])$(reset)")
-println("‣ Simulation loops..........: $(green)$(loops)$(reset)\n")
+println("‣ Maximum possible molecules....: $(green)$(target_upper)$(reset)")
+println("‣ Total molecules...............: $(green)$(sum(u0))$(reset)")
+println("‣ Wild-type molecules...........: $(green)$(u0[1])$(reset)")
+println("‣ Mutant molecules..............: $(green)$(u0[2])$(reset)")
+println("‣ Simulation loops..............: $(green)$(loops)$(reset)\n")
 
 
 # KICKSTART > DATA OUTPUT

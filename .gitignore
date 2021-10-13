@@ -39,3 +39,10 @@ src/Gillespie SSA Model/*.zip
 src/Gillespie SSA Model/data
 src/Gillespie SSA Model/gillespie_csv_files
 src/Gillespie SSA Model/plots
+src/data
+src/videos
+src/*.csv
+src/*.json
+src/*.mp4
+src/*.png
+src/*.zip

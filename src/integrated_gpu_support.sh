@@ -49,7 +49,7 @@ readonly reset="\e[0m"    # Reset text
 
 # VARIABLES > PATHS
 
-readonly model_file="$1"
+readonly model_file="agent_julia_model.jl"
 
 #############
 # Kickstart #

@@ -33,6 +33,7 @@
 ###########
 
 using Agents
+using CairoMakie
 using CSV
 using DataFrames
 using Distributions
@@ -309,6 +310,42 @@ function loop_simulation(n=1::Int64)
 end
 
 
+function output_simulation_to_video()
+    video_path = "$(Base.source_dir())/videos"
+    mp4_path = "$(video_path)/agent_julia_simulation.mp4"
+
+    rm(video_path; force=true, recursive=true)
+    mkpath(video_path)
+
+    print("Defining simulation colour palette... ")
+    model_colours(a) = a.status == :W ? green_hex : red_hex
+    println("$(green)Done$(reset)")
+
+    agent_julia_model = nothing
+    agent_julia_model = mutation_initiation()
+
+    print("Rendering simulation output as $(yellow)$(mp4_path)$(reset)... ")
+    try
+        abm_video(
+            "$(mp4_path)",
+            agent_julia_model,
+            agent_step!,
+            model_step!;
+            title = "Patient with mutant inheritance",
+            frames = tend,
+            ac = model_colours,
+            as = 10,
+            spf = Int(round(δ)),
+            framerate = 60,
+        )
+        println("$(green)Done$(reset)")
+    catch
+        println("$(red)Error$(reset)")
+        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.")
+    end
+end
+
+
 #############
 # Kickstart #
 #############
@@ -316,11 +353,11 @@ end
 println("\nAGENT JULIA SIMULATION")
 println("======================\n")
 
-println("‣ Maximum possible agents: $(green)$(agent_max)$(reset)")
-println("‣ Total agents...........: $(green)$(agent_total)$(reset)")
-println("‣ Wild-type agents.......: $(green)$(initial_wild)$(reset)")
-println("‣ Mutant elements........: $(green)$(initial_mutants)$(reset)")
-println("‣ Simulation loops.......: $(green)$(loops)$(reset)\n")
+println("‣ Maximum possible agents....: $(green)$(agent_max)$(reset)")
+println("‣ Total agents...............: $(green)$(agent_total)$(reset)")
+println("‣ Wild-type agents...........: $(green)$(initial_wild)$(reset)")
+println("‣ Mutant elements............: $(green)$(initial_mutants)$(reset)")
+println("‣ Simulation loops...........: $(green)$(loops)$(reset)\n")
 
 print("Creating mtDNA population dynamics model... ")
 agent_julia_model = nothing
@@ -350,5 +387,10 @@ for i in 1:1:loops
     CSV.write("$(data_path)/$(fname)", temp)
 end
 println("$(green)Done$(reset)")
+
+
+# KICKSTART > OUTPUT OPTIONAL VIDEO
+
+output_simulation_to_video()
 
 # End of File.
