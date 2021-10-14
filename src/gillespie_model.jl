@@ -380,4 +380,9 @@ for i in 1:1:num_simulations
 end
 println("$(green)Done$(reset)")
 
+
+# KICKSTART > PROMPT ADDITIONAL STEPS
+
+println("""\nPlots may be created using the R script $(yellow)create_plots.R$(reset).\n""")
+
 # End of File.

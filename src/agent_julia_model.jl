@@ -310,6 +310,11 @@ function loop_simulation(n=1::Int64)
 end
 
 
+"""
+`output_simulation_to_video()`
+
+Run a single simulation and output the results to video.
+"""
 function output_simulation_to_video()
     video_path = "$(Base.source_dir())/videos"
     mp4_path = "$(video_path)/agent_julia_simulation.mp4"
@@ -317,7 +322,7 @@ function output_simulation_to_video()
     rm(video_path; force=true, recursive=true)
     mkpath(video_path)
 
-    print("Defining simulation colour palette... ")
+    print("\nDefining simulation colour palette... ")
     model_colours(a) = a.status == :W ? green_hex : red_hex
     println("$(green)Done$(reset)")
 
@@ -338,10 +343,10 @@ function output_simulation_to_video()
             spf = Int(round(δ)),
             framerate = 60,
         )
-        println("$(green)Done$(reset)")
+        println("$(green)Done\n$(reset)")
     catch
         println("$(red)Error$(reset)")
-        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.")
+        println("Please run the $(yellow)integrated_gpu_support.sh$(reset) script.\n")
     end
 end
 
@@ -389,8 +394,9 @@ end
 println("$(green)Done$(reset)")
 
 
-# KICKSTART > OUTPUT OPTIONAL VIDEO
+# KICKSTART > PROMPT ADDITIONAL STEPS
 
-output_simulation_to_video()
+println("""\nOPTIONAL: Use $(yellow)output_simulation_to_video()$(reset) function.""")
+println("""Plots may be created using the R script $(yellow)create_plots.R$(reset).\n""")
 
 # End of File.
