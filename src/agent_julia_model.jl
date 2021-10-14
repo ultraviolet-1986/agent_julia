@@ -57,25 +57,24 @@ Random.seed!(random_seed)
 
 # TEMPORAL UNITS
 
-α = Float64(1.0e6)
-
-# Apply α to reduce data-size.
-day = Float64(24.0 * 3600.0 / α)
-week = Float64(day * 7.0)
-year = Float64(day * 365.0)
-month = Float64(year / 12.0)
-hour = Float64(day / 24.0)
+day = Float64(24.0 * 3600.0)  # Seconds per day.
+week = Float64(day * 7.0)         # Seconds per week.
+year = Float64(day * 365.0)       # Seconds per year.
+month = Float64(year / 12.0)      # Seconds per month.
+hour = Float64(day / 24.0)        # Seconds per hour.
 
 # Reaction rate
-λ = rand(Normal(260.0, 1), 1)[1]
+λ = 260.0
 reaction_rate = log(2) / λ
-reaction_rate = reaction_rate ./ (day)
+reaction_rate = reaction_rate * 365 / 12
+
+# TODO Define replication, degradation, and mutation rates seperately.
 
 δ = month
 
 # NOTE Stepping functions require type 'Int'.
 
-tend = Int(round(year * 80.0))
+tend = Int(round(year * 80.0 / δ))  # 1 step is equal to 1 month.
 
 # COLOURS > TEXT OUTPUT
 
@@ -168,7 +167,7 @@ function mutation_initiation(;
 
     for ind in 1:N
         pos = (rand(Uniform(0.0, graph_width)), rand(Uniform(0.0, graph_height)))
-        status = ind ≤ N - initial_mutated ? :W : :M
+        status = ind <= N - initial_mutated ? :W : :M
         mass = 1.0
         vel = sincos(2π * rand(model.rng)) .* δ
 
@@ -212,8 +211,8 @@ function random_action!(agent, model)
     copy_number = length(model.agents)
 
     # Replicate mtDNA
-    if roll ≤ (1 / 2)
-        if copy_number ≤ agent_max
+    if roll <= reaction_rate
+        if copy_number <= agent_max
             pos = agent.pos
             status = agent.status
             mass = 1.0
@@ -223,15 +222,15 @@ function random_action!(agent, model)
         end
 
     # Degrade mtDNA
-    else
-        if copy_number ≥ agent_min
+    elseif (roll > reaction_rate) && (roll <= (reaction_rate * 2))  # Change var names
+        if copy_number >= agent_min
             kill_agent!(agent, model)
         end
     end
 
     # # Mutate mtDNA
     # if agent.status == :W
-    #     if roll ≤ (1 / 10000)
+    #     if roll <= (1 / 10000)
     #         agent.status = :M
     #     end
     # end

@@ -87,7 +87,7 @@ tend = Float64(year * 80.0)
 
 # VARIABLES > KINETIC RATES
 
-λ = rand(Normal(260.0, 1), 1)[1]
+λ = 260.0
 
 reaction_rate = log(2) / λ
 reaction_rate = reaction_rate ./ (day)
