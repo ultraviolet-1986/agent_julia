@@ -325,9 +325,6 @@ function output_simulation_to_video()
     model_colours(a) = a.status == :W ? green_hex : red_hex
     println("$(green)Done$(reset)")
 
-    agent_julia_model = nothing
-    agent_julia_model = mutation_initiation()
-
     print("Rendering simulation output as $(yellow)$(mp4_path)$(reset)... ")
     try
         abm_video(
