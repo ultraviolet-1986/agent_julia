@@ -325,6 +325,7 @@ println("‣ Mutant agents..............: $(green)$(initial_mutants)$(reset)")
 println("‣ Simulation loops...........: $(green)$(loops)$(reset)\n")
 
 print("Performing simulation $(yellow)$(loops)$(reset) time(s)... ")
+results = nothing
 results = perform_simulation(loops)
 println("$(green)Done$(reset)")
 

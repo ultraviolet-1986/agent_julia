@@ -286,8 +286,22 @@ nanquantile(x, y) = quantile(filter(!isnan,x), y)
 # Kickstart #
 #############
 
+# KICKSTART > TEXT REPORT
+
+println("\nGILLESPIE SSA SIMULATION")
+println("========================\n")
+
+println("‣ Maximum possible molecules....: $(green)$(target_upper)$(reset)")
+println("‣ Total molecules...............: $(green)$(sum(u0))$(reset)")
+println("‣ Wild-type molecules...........: $(green)$(u0[1])$(reset)")
+println("‣ Mutant molecules..............: $(green)$(u0[2])$(reset)")
+println("‣ Simulation loops..............: $(green)$(loops)$(reset)\n")
+
+
+print("Performing simulation $(yellow)$(loops)$(reset) time(s)... ")
 results = nothing
 results = loop_simulation(loops)
+println("$(green)Done$(reset)")
 
 num_simulations = size(results.u)[1]
 num_times = size(results.u[1])[1]
@@ -347,18 +361,6 @@ for j in 1:num_times
     middle_quantile[j] = nanquantile(mutation_loads, 0.5)  # 50%
     lower_quantile[j] = nanquantile(mutation_loads, 0.05)  #  5%
 end
-
-
-# KICKSTART > TEXT REPORT
-
-println("\nGILLESPIE SSA SIMULATION")
-println("========================\n")
-
-println("‣ Maximum possible molecules....: $(green)$(target_upper)$(reset)")
-println("‣ Total molecules...............: $(green)$(sum(u0))$(reset)")
-println("‣ Wild-type molecules...........: $(green)$(u0[1])$(reset)")
-println("‣ Mutant molecules..............: $(green)$(u0[2])$(reset)")
-println("‣ Simulation loops..............: $(green)$(loops)$(reset)\n")
 
 
 # KICKSTART > DATA OUTPUT
