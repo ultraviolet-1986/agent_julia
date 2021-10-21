@@ -93,6 +93,7 @@ function create_model_plots(data::DataFrame; model="agent"::String)
     agent_max = last(sort(maximum(data.wild_count + data.mutant_count)))
 
     totals = data.wild_count + data.mutant_count
+    # results = mean.(normalize(totals) * agent_max)  # Normalized totals %
 
     upper_percentile = percentile.(totals, 95)
     middle_percentile = percentile.(totals, 50)
@@ -106,7 +107,7 @@ function create_model_plots(data::DataFrame; model="agent"::String)
         (data.wild_count + data.mutant_count),
         title="$(titlecase(model)) model",
         xlabel="Time (years)",
-        ylabel="mtDNA counts (n)",
+        ylabel="mtDNA copy numbers",
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
         legend=false,
@@ -117,13 +118,13 @@ function create_model_plots(data::DataFrame; model="agent"::String)
     )
 
     fig1 = plot!(
-        [upper_percentile middle_percentile lower_percentile],
+        results,
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
         xlims=(0, tend),
         palette = :Dark2_5,
         legend=:bottomright,
-        label=["95th percentile" "50th percentile" "5th percentile"],
+        label=["Total mean" "Wild mean" "Mutant mean"],
         # smooth=true,
     )
 
