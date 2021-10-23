@@ -6,6 +6,7 @@
 
 using CSV
 using DataFrames
+using LinearAlgebra
 using Plots
 using Statistics
 using StatsBase
@@ -94,6 +95,9 @@ function create_model_plots(data::DataFrame; model="agent"::String)
 
     totals = data.wild_count + data.mutant_count
     # results = mean.(normalize(totals) * agent_max)  # Normalized totals %
+    # results = mean.(normalize(totals))
+    # results = [mean((data.wild_count)), mean((data.mutant_count)), mean((data.wild_count + data.mutant_count))]
+    results = [mean(data.wild_count), mean(data.mutant_count), mean((data.wild_count + data.mutant_count))]
 
     upper_percentile = percentile.(totals, 95)
     middle_percentile = percentile.(totals, 50)
@@ -102,6 +106,11 @@ function create_model_plots(data::DataFrame; model="agent"::String)
     percentiles = [upper_percentile, middle_percentile, lower_percentile]
 
     total_mean = mean.(totals)
+
+    # wild_mean = mean(data.wild_count)
+    # mutant_mean = mean(data.mutant_count)
+    # total_mean = mean(wild_mean + mutant_mean)
+    # results = [wild_mean, mutant_mean, total_mean]
 
     fig1 = plot(
         (data.wild_count + data.mutant_count),
@@ -125,7 +134,6 @@ function create_model_plots(data::DataFrame; model="agent"::String)
         palette = :Dark2_5,
         legend=:bottomright,
         label=["Total mean" "Wild mean" "Mutant mean"],
-        # smooth=true,
     )
 
     savefig(fig1, "$(model)_figure_1.png")
@@ -147,6 +155,62 @@ function create_model_plots(data::DataFrame; model="agent"::String)
     # )
 end
 
+
+function create_standard_deviation_plot(data::DataFrame; model="agent"::String)
+    tend = length(data[:, 1][1])
+    year = tend / 80.0
+    decade = year * 10.0
+
+    wild_dev = std(data.wild_count)
+    mutant_dev = std(data.mutant_count)
+
+    figure_1 = plot(
+        [wild_dev, mutant_dev],
+        title="$(titlecase(model)) model",
+        xlabel="Time (years)",
+        ylabel="Standard Deviation",
+        xticks=(0:decade:tend, 0:10:80),
+        ylims=(0, 100),
+        label=["Wild" "Mutant"],
+        dpi=1200
+    )
+
+    savefig(figure_1, "$(model)_standard_deviation.png")
+end
+
+
+function create_mtdna_level_plots(data::DataFrame; model="agent"::String)
+    println("$(titlecase(model))")
+    println("$(typeof(data))\n")
+
+    tend = length(data[:, 1][1])
+    year = tend / 80.0
+    decade = year * 10.0
+
+    agent_max = last(sort(maximum(data.wild_count + data.mutant_count)))
+
+    results = [
+        mean(data.wild_count),
+        mean(data.mutant_count),
+        mean((data.wild_count + data.mutant_count))
+    ]
+
+    figure_1 = plot(
+        results,
+        title="$(titlecase(model)) model",
+        xlabel="Time (years)",
+        ylabel="mtDNA copy numbers",
+        xticks=(0:decade:tend, 0:10:80),
+        ylims=(0, agent_max),
+        palette = :Dark2_5,
+        # legend=:bottomright,
+        label=["Total mean" "Wild mean" "Mutant mean"],
+        dpi=1200
+    )
+
+    savefig(figure_1, "$(model)_mtdna_levels_plot.png")
+end
+
 #############
 # Kickstart #
 #############
@@ -164,7 +228,13 @@ gillespie_data = load_csv_data("gillespie")
 
 # KICKSTART > PLOT DATA
 
-create_model_plots(agent_data)
-create_model_plots(gillespie_data; model="gillespie")
+# create_model_plots(agent_data)
+# create_model_plots(gillespie_data; model="gillespie")
+
+create_standard_deviation_plot(agent_data)
+create_standard_deviation_plot(gillespie_data; model="gillespie")
+
+create_mtdna_level_plots(agent_data)
+create_mtdna_level_plots(gillespie_data; model="gillespie")
 
 # End of File.
