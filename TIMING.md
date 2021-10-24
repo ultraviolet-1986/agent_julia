@@ -4,6 +4,8 @@ These timings were gathered from executing the `time` command in BASH.
 
 ## Agent Julia
 
+**Note:** This time is correct without rendering a video by default.
+
 ```text
 real    4m42.181s
 user    4m22.666s
