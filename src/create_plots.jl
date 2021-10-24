@@ -72,7 +72,7 @@ end
 
 
 """
-# `create_model_plots(data::DataFrame; model="agent"::String)`
+# `create_full_copy_level_plot(data::DataFrame; model="agent"::String)`
 
 Use the loaded model's CSV data to create plots. Note that the model
 data should have the same shape regardless of which model is being
@@ -80,12 +80,11 @@ utilised.
 
 ## Examples
 
-- `create_model_plots(agent_data)`
-- `create_model_plots(gillespie_data; model="gillespie")`
+- `create_full_copy_level_plot(agent_data)`
+- `create_full_copy_level_plot(gillespie_data; model="gillespie")`
 """
-function create_model_plots(data::DataFrame; model="agent"::String)
-    println("$(titlecase(model))")
-    println("$(typeof(data))\n")
+function create_full_copy_level_plot(data::DataFrame; model="agent"::String)
+    filename = "$(model)_full_copy_level_plot.png"
 
     tend = length(data[:, 1][1])
     year = tend / 80.0
@@ -93,26 +92,11 @@ function create_model_plots(data::DataFrame; model="agent"::String)
 
     agent_max = last(sort(maximum(data.wild_count + data.mutant_count)))
 
-    totals = data.wild_count + data.mutant_count
-    # results = mean.(normalize(totals) * agent_max)  # Normalized totals %
-    # results = mean.(normalize(totals))
-    # results = [mean((data.wild_count)), mean((data.mutant_count)), mean((data.wild_count + data.mutant_count))]
-    results = [mean(data.wild_count), mean(data.mutant_count), mean((data.wild_count + data.mutant_count))]
+    results = [mean((data.wild_count + data.mutant_count))]
 
-    upper_percentile = percentile.(totals, 95)
-    middle_percentile = percentile.(totals, 50)
-    lower_percentile = percentile.(totals, 5)
+    print("Rendering plot to $(yellow)$(filename)$(reset)... ")
 
-    percentiles = [upper_percentile, middle_percentile, lower_percentile]
-
-    total_mean = mean.(totals)
-
-    # wild_mean = mean(data.wild_count)
-    # mutant_mean = mean(data.mutant_count)
-    # total_mean = mean(wild_mean + mutant_mean)
-    # results = [wild_mean, mutant_mean, total_mean]
-
-    fig1 = plot(
+    figure_1 = plot(
         (data.wild_count + data.mutant_count),
         title="$(titlecase(model)) model",
         xlabel="Time (years)",
@@ -126,62 +110,36 @@ function create_model_plots(data::DataFrame; model="agent"::String)
         dpi=1200
     )
 
-    fig1 = plot!(
+    figure_1 = plot!(
         results,
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
         xlims=(0, tend),
-        palette = :Dark2_5,
+        linecolor=:red,
         legend=:bottomright,
         label=["Total mean" "Wild mean" "Mutant mean"],
     )
 
-    savefig(fig1, "$(model)_figure_1.png")
+    savefig(figure_1, "$(filename)")
 
-    # mutation_load =
-
-    # fig2 = plot(
-    #     (data.wild_count + data.mutant_count),
-    #     title="$(titlecase(model)) model",
-    #     xlabel="Time (years)",
-    #     ylabel="mtDNA counts (n)",
-    #     xticks=(0:decade:tend, 0:10:80),
-    #     ylims=(0, agent_max),
-    #     legend=false,
-    #     label="",
-    #     linecolor=:black,
-    #     linealpha=0.01,
-    #     dpi=1200
-    # )
+    println("$(green)Done$(reset)")
 end
 
 
-function create_standard_deviation_plot(data::DataFrame; model="agent"::String)
-    tend = length(data[:, 1][1])
-    year = tend / 80.0
-    decade = year * 10.0
+"""
+# `create_mean_mtdna_level_plots(data::DataFrame; model="agent"::String)`
 
-    wild_dev = std(data.wild_count)
-    mutant_dev = std(data.mutant_count)
+Use the loaded model's CSV data to create plots. Note that the model
+data should have the same shape regardless of which model is being
+utilised.
 
-    figure_1 = plot(
-        [wild_dev, mutant_dev],
-        title="$(titlecase(model)) model",
-        xlabel="Time (years)",
-        ylabel="Standard Deviation",
-        xticks=(0:decade:tend, 0:10:80),
-        ylims=(0, 100),
-        label=["Wild" "Mutant"],
-        dpi=1200
-    )
+## Examples
 
-    savefig(figure_1, "$(model)_standard_deviation.png")
-end
-
-
-function create_mtdna_level_plots(data::DataFrame; model="agent"::String)
-    println("$(titlecase(model))")
-    println("$(typeof(data))\n")
+- `create_mean_mtdna_level_plots(agent_data)`
+- `create_mean_mtdna_level_plots(gillespie_data; model="gillespie")`
+"""
+function create_mean_mtdna_level_plots(data::DataFrame; model="agent"::String)
+    filename = "$(model)_mean_mtdna_levels_plot.png"
 
     tend = length(data[:, 1][1])
     year = tend / 80.0
@@ -190,26 +148,121 @@ function create_mtdna_level_plots(data::DataFrame; model="agent"::String)
     agent_max = last(sort(maximum(data.wild_count + data.mutant_count)))
 
     results = [
+        mean((data.wild_count + data.mutant_count)),
         mean(data.wild_count),
-        mean(data.mutant_count),
-        mean((data.wild_count + data.mutant_count))
+        mean(data.mutant_count)
     ]
+
+    print("Rendering plot to $(yellow)$(filename)$(reset)... ")
 
     figure_1 = plot(
         results,
         title="$(titlecase(model)) model",
-        xlabel="Time (years)",
+        xlabel="Patient age (y)",
         ylabel="mtDNA copy numbers",
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
-        palette = :Dark2_5,
-        # legend=:bottomright,
         label=["Total mean" "Wild mean" "Mutant mean"],
         dpi=1200
     )
 
-    savefig(figure_1, "$(model)_mtdna_levels_plot.png")
+    savefig(figure_1, "$(filename)")
+
+    println("$(green)Done$(reset)")
 end
+
+
+"""
+# `create_cross_section_plot(data::DataFrame; model="agent"::String)`
+
+Use the loaded model's CSV data to create plots. Note that the model
+data should have the same shape regardless of which model is being
+utilised.
+
+## Examples
+
+- `create_cross_section_plot(agent_data)`
+- `create_cross_section_plot(gillespie_data; model="gillespie")`
+"""
+function create_cross_section_plot(data::DataFrame; model="agent"::String)
+    filename = "$(model)_mtdna_cross_section_plot.png"
+
+    totals = sum(data.wild_count + data.mutant_count)
+    mutation_load = sum(data.mutant_count) ./ totals
+
+    print("Rendering plot to $(yellow)$(filename)$(reset)... ")
+
+    figure_1 = plot(
+        (mutation_load * 100),
+        title="$(titlecase(model)) model",
+        xlabel="Patient age (y)",
+        ylabel="Mutation load (%)",
+        xlims=(30, 40),
+        xticks=(30:2:40),
+        ylims=(0, 100),
+        yticks=(0:25:100),
+        label=false,
+        dpi=1200
+    )
+
+    savefig(figure_1, "$(filename)")
+
+    println("$(green)Done$(reset)")
+end
+
+
+"""
+# `create_percentile_plot(data::DataFrame; model="agent"::String)`
+
+Use the loaded model's CSV data to create plots. Note that the model
+data should have the same shape regardless of which model is being
+utilised.
+
+## Examples
+
+- `create_percentile_plot(agent_data)`
+- `create_percentile_plot(gillespie_data; model="gillespie")`
+"""
+function create_percentile_plot(data::DataFrame; model="agent"::String)
+    filename = "$(model)_mtdna_percentile_plot.png"
+
+    tend = length(data[:, 1][1])
+    year = tend / 80.0
+    decade = year * 10.0
+
+    agent_max = last(sort(maximum(data.wild_count + data.mutant_count)))
+
+    total_counts = (data.wild_count + data.mutant_count)
+
+    upper_quantile = quantile.(total_counts, 0.95)
+    middle_quantile = quantile.(total_counts, 0.5)
+    lower_quantile = quantile.(total_counts, 0.05)
+
+    results = [
+        upper_quantile,
+        middle_quantile,
+        lower_quantile
+    ]
+
+    print("Rendering plot to $(yellow)$(filename)$(reset)... ")
+
+    figure_1 = plot(
+        results,
+        title="$(titlecase(model)) model",
+        xlabel="Patient age (y)",
+        ylabel="mtDNA copy levels",
+        xticks=(0:decade:tend, 0:10:80),
+        ylims=(0, agent_max),
+        legend=:bottomright,
+        label=["95th Percentile" "50th Percentile" " 5th Percentile"],
+        dpi=1200
+    )
+
+    savefig(figure_1, "$(filename)")
+
+    println("$(green)Done$(reset)")
+end
+
 
 #############
 # Kickstart #
@@ -228,13 +281,16 @@ gillespie_data = load_csv_data("gillespie")
 
 # KICKSTART > PLOT DATA
 
-# create_model_plots(agent_data)
-# create_model_plots(gillespie_data; model="gillespie")
+create_full_copy_level_plot(agent_data)
+create_full_copy_level_plot(gillespie_data; model="gillespie")
 
-create_standard_deviation_plot(agent_data)
-create_standard_deviation_plot(gillespie_data; model="gillespie")
+create_mean_mtdna_level_plots(agent_data)
+create_mean_mtdna_level_plots(gillespie_data; model="gillespie")
 
-create_mtdna_level_plots(agent_data)
-create_mtdna_level_plots(gillespie_data; model="gillespie")
+create_cross_section_plot(agent_data)
+create_cross_section_plot(gillespie_data; model="gillespie")
+
+create_percentile_plot(agent_data)
+create_percentile_plot(gillespie_data; model="gillespie")
 
 # End of File.
