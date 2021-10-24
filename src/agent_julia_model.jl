@@ -361,9 +361,13 @@ end
 println("$(green)Done$(reset)")
 
 
+# KICKSTART > OUTPUT SIMULATION TO VIDEO
+
+output_simulation_to_video()
+
+
 # KICKSTART > PROMPT ADDITIONAL STEPS
 
-println("\nOPTIONAL: Use $(yellow)output_simulation_to_video()$(reset) function.")
 println("Plots may be created using the R script $(yellow)create_plots.R$(reset).\n")
 
 # End of File.
