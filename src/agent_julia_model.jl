@@ -281,7 +281,7 @@ function output_simulation_to_video()
     rm(video_path; force=true, recursive=true)
     mkpath(video_path)
 
-    steps = Int(length(results.wild_status[1]) - 1)
+    steps = Int(length(results.wild_status[1]))
 
     print("\nDefining simulation colour palette... ")
     model_colours(a) = a.status == :W ? green_hex : red_hex
