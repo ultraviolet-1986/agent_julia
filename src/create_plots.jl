@@ -99,7 +99,7 @@ function create_full_copy_level_plot(data::DataFrame; model="agent"::String)
     figure_1 = plot(
         (data.wild_count + data.mutant_count),
         title="$(titlecase(model)) model",
-        xlabel="Time (years)",
+        xlabel="Age (years)",
         ylabel="mtDNA copy numbers",
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
@@ -158,7 +158,7 @@ function create_mean_mtdna_level_plots(data::DataFrame; model="agent"::String)
     figure_1 = plot(
         results,
         title="$(titlecase(model)) model",
-        xlabel="Patient age (y)",
+        xlabel="Age (years)",
         ylabel="mtDNA copy numbers",
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
@@ -195,7 +195,7 @@ function create_cross_section_plot(data::DataFrame; model="agent"::String)
     figure_1 = plot(
         (mutation_load * 100),
         title="$(titlecase(model)) model",
-        xlabel="Patient age (y)",
+        xlabel="Age (years)",
         ylabel="Mutation load (%)",
         xlims=(30, 40),
         xticks=(30:2:40),
@@ -249,7 +249,7 @@ function create_percentile_plot(data::DataFrame; model="agent"::String)
     figure_1 = plot(
         results,
         title="$(titlecase(model)) model",
-        xlabel="Patient age (y)",
+        xlabel="Age (years)",
         ylabel="mtDNA copy levels",
         xticks=(0:decade:tend, 0:10:80),
         ylims=(0, agent_max),
