@@ -296,6 +296,7 @@ function output_simulation_to_video()
             agent_julia_model,
             agent_step!,
             model_step!;
+            resolution=(600,200),
             title = "Patient with mutant inheritance",
             frames = steps,
             ac = model_colours,
